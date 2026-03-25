@@ -1,0 +1,157 @@
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+
+    <!-- Brand / Logo -->
+    <a href="/index.html" class="nav-brand">
+      <div class="logo-mark">
+        <!-- Reemplaza el src con la ruta real de tu logo -->
+        <img src="/assets/img/LogoRefrescosDelValle.png" alt="Logo Refrescos del Valle"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+        <span class="logo-fallback" style="display:none">RV</span>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">Refrescos del Valle</span>
+        <span class="brand-sub">S.R.L. · Bolivia</span>
+      </div>
+    </a>
+
+    <!-- Links de navegación pública -->
+    <nav class="nav-links" role="navigation" aria-label="Navegación principal">
+      <a href="/index.html#quienes"    class="nav-link">Quiénes Somos</a>
+      <a href="/index.html#productos"  class="nav-link">Productos</a>
+      <a href="/index.html#operaciones" class="nav-link">Operaciones</a>
+      <a href="/index.html#contacto"   class="nav-link">Contacto</a>
+    </nav>
+
+    <div class="nav-sep"></div>
+
+    <!-- Estado: NO logueado (visible por defecto) -->
+    <button class="nav-login-btn" id="btnAbrirLogin" aria-label="Iniciar sesión">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      </svg>
+      Iniciar sesión
+    </button>
+
+    <!-- Estado: Logueado (oculto por defecto, JS lo muestra) -->
+    <div class="nav-user-menu" id="userMenu" style="display:none" role="navigation" aria-label="Menú de usuario">
+      <button class="nav-user-trigger" id="userTrigger" aria-haspopup="true" aria-expanded="false">
+        <div class="user-avatar" id="userAvatar">
+          <!-- Iniciales del usuario, JS las pone -->
+          <span id="userInitials">--</span>
+        </div>
+        <div class="user-meta">
+          <span class="user-name" id="userName">Usuario</span>
+          <span class="user-role" id="userRoleLabel">—</span>
+        </div>
+        <!-- Chevron down -->
+        <svg class="user-chevron" viewBox="0 0 24 24" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+
+      <!-- Dropdown -->
+      <div class="user-dropdown" id="userDropdown" role="menu">
+        <div class="dropdown-header">
+          <div class="dropdown-user-full"  id="ddUserFull">—</div>
+          <div class="dropdown-user-email" id="ddUserEmail">—</div>
+        </div>
+
+        <div class="dropdown-section">
+          <a href="/modulos/seguridad.html" class="dropdown-item" role="menuitem">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            Ir al sistema
+          </a>
+          <a href="#" class="dropdown-item" role="menuitem">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Mi perfil
+          </a>
+          <a href="#" class="dropdown-item" role="menuitem">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            Configuración
+            <span class="notif-badge" id="notifBadge" style="display:none">3</span>
+          </a>
+        </div>
+
+        <div class="dropdown-section">
+          <button class="dropdown-item danger" id="btnLogout" role="menuitem">
+            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- /nav-user-menu -->
+
+  </div>
+</nav>
+
+<!-- ══ MODAL LOGIN ══ -->
+<div class="modal-overlay" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="login-modal">
+
+    <button class="modal-close" id="btnCerrarModal" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+
+    <div class="modal-logo">
+      <div class="logo-mark">
+        <img src="/assets/img/logo.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+        <span class="logo-fallback" style="display:none">RV</span>
+      </div>
+      <span class="modal-brand-name">Refrescos del Valle</span>
+    </div>
+
+    <h2 class="modal-title" id="modalTitle">Iniciar Sesión</h2>
+    <p class="modal-sub">Accede al sistema de gestión empresarial</p>
+
+    <!-- Mensaje de error -->
+    <div class="login-error" id="loginError" role="alert">
+      Usuario o contraseña incorrectos. Intenta nuevamente.
+    </div>
+
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="inputUsuario">Usuario o correo</label>
+        <div class="input-icon-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <input type="text" id="inputUsuario" class="form-input-dark"
+                 placeholder="usuario@empresa.bo" autocomplete="username" required/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="inputPassword">Contraseña</label>
+        <div class="input-icon-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+          <input type="password" id="inputPassword" class="form-input-dark"
+                 placeholder="••••••••" autocomplete="current-password" required/>
+        </div>
+      </div>
+
+      <div class="form-row-between">
+        <label class="form-check">
+          <input type="checkbox" id="checkRecordar"/>
+          <span>Recordarme</span>
+        </label>
+        <a href="#" class="form-link">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button type="submit" class="btn-primary full-width">Ingresar al sistema</button>
+    </form>
+
+    <div class="login-divider">acceso restringido</div>
+    <p style="font-size:0.72rem; color:var(--gray-600); text-align:center">
+      Solo personal autorizado. Para solicitar acceso contacta a tu administrador.
+    </p>
+
+  </div>
+</div>
+<!-- /modal login -->
