@@ -14,7 +14,6 @@ namespace RefrescosDelValle.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Seed: usuario admin para probar
             
         }
     }

@@ -55,7 +55,7 @@ using (var scope = app.Services.CreateScope())
         db.Usuarios.Add(new RefrescosDelValle.Models.Entities.Usuario
         {
             NombreCompleto = "Administrador",
-            Email = "marcajose1703@gmail.com", // el tuyo
+            Email = "marcajose1703@gmail.com",
             PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
             Rol = "Admin",
             Activo = true,
