@@ -1,0 +1,291 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+@using System.Security.Claims
+
+@{
+    var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+    var userName = User.FindFirst(ClaimTypes.Name)?.Value;
+}
+
+<!-- Dashboard Header con botón de retorno -->
+<div class="dashboard-header">
+    <div class="header-left">
+        <a href="/" class="back-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver al sitio
+        </a>
+        <div>
+            <h1 class="dashboard-title">Panel de Control</h1>
+            <p class="dashboard-subtitle">Bienvenido, @userName</p>
+        </div>
+    </div>
+    <div class="dashboard-header-right">
+        <div class="date-badge">
+            <svg viewBox="0 0 24 24" width="16" height="16">
+                <rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>@DateTime.Now.ToString("dddd, dd MMMM yyyy")</span>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-card-icon red">
+            <svg viewBox="0 0 24 24" width="24" height="24">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" fill="none"/>
+                <path d="M2 17l10 5 10-5" stroke="currentColor" fill="none"/>
+                <path d="M2 12l10 5 10-5" stroke="currentColor" fill="none"/>
+            </svg>
+        </div>
+        <div class="stat-card-info">
+            <h3 class="stat-value">@ViewBag.TotalProductos</h3>
+            <p class="stat-label">Productos Activos</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon green">
+            <svg viewBox="0 0 24 24" width="24" height="24">
+                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" fill="none"/>
+                <path d="M8 12h8M12 8v8" stroke="currentColor" stroke-width="2"/>
+            </svg>
+        </div>
+        <div class="stat-card-info">
+            <h3 class="stat-value">@ViewBag.PedidosHoy</h3>
+            <p class="stat-label">Pedidos Hoy</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon blue">
+            <svg viewBox="0 0 24 24" width="24" height="24">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" fill="none"/>
+                <path d="M12 6v6l4 2" stroke="currentColor" fill="none"/>
+            </svg>
+        </div>
+        <div class="stat-card-info">
+            <h3 class="stat-value">@ViewBag.StockBajo</h3>
+            <p class="stat-label">Productos con Stock Bajo</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon purple">
+            <svg viewBox="0 0 24 24" width="24" height="24">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" fill="none"/>
+                <circle cx="12" cy="7" r="4" stroke="currentColor" fill="none"/>
+            </svg>
+        </div>
+        <div class="stat-card-info">
+            <h3 class="stat-value">@ViewBag.TotalEmpleados</h3>
+            <p class="stat-label">Empleados Activos</p>
+        </div>
+    </div>
+</div>
+
+<!-- Módulos según el rol -->
+<div class="modules-grid">
+    @if (userRole == "SuperAdmin" || userRole == "AdminSeguridad")
+    {
+        <div class="module-card" onclick="location.href='/Seguridad/Usuarios'">
+            <div class="module-card-header">
+                <div class="module-icon seguridad">
+                    <svg viewBox="0 0 24 24" width="28" height="28">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" fill="none"/>
+                        <path d="M2 17l10 5 10-5" stroke="currentColor" fill="none"/>
+                        <path d="M2 12l10 5 10-5" stroke="currentColor" fill="none"/>
+                    </svg>
+                </div>
+                <span class="module-badge">Prioridad Alta</span>
+            </div>
+            <h3 class="module-title">Seguridad y Auditoría</h3>
+            <p class="module-desc">Gestión de usuarios, roles, permisos, bitácora y sucursales</p>
+            <div class="module-stats">
+                <span class="stat-badge">@ViewBag.TotalUsuarios Usuarios</span>
+                <span class="stat-badge">@ViewBag.TotalSucursales Sucursales</span>
+            </div>
+            <div class="module-footer">
+                <span class="module-link">Administrar usuarios →</span>
+            </div>
+        </div>
+    }
+
+    @if (userRole == "SuperAdmin" || userRole == "AdminProduccion")
+    {
+        <div class="module-card" onclick="location.href='/Produccion'">
+            <div class="module-card-header">
+                <div class="module-icon produccion">
+                    <svg viewBox="0 0 24 24" width="28" height="28">
+                        <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" stroke="currentColor" fill="none"/>
+                    </svg>
+                </div>
+                <span class="module-badge">Activo</span>
+            </div>
+            <h3 class="module-title">Producción y Recetas</h3>
+            <p class="module-desc">Gestión de productos, recetas, líneas de producción y órdenes</p>
+            <div class="module-stats">
+                <span class="stat-badge">@ViewBag.ProduccionHoy Órdenes hoy</span>
+                <span class="stat-badge">@ViewBag.LineasActivas Líneas activas</span>
+            </div>
+            <div class="module-footer">
+                <span class="module-link">Gestionar producción →</span>
+            </div>
+        </div>
+    }
+
+    @if (userRole == "SuperAdmin" || userRole == "AdminInventario")
+    {
+        <div class="module-card" onclick="location.href='/Inventario'">
+            <div class="module-card-header">
+                <div class="module-icon inventario">
+                    <svg viewBox="0 0 24 24" width="28" height="28">
+                        <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" fill="none"/>
+                        <path d="M8 7h8M8 12h8M8 17h4" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </div>
+                <span class="module-badge warning">Atención</span>
+            </div>
+            <h3 class="module-title">Inventario y Almacén</h3>
+            <p class="module-desc">Control de stock, movimientos, traslados y mermas</p>
+            <div class="module-stats">
+                <span class="stat-badge">@ViewBag.StockTotal Unidades</span>
+                <span class="stat-badge danger">@ViewBag.StockCritico Stock crítico</span>
+            </div>
+            <div class="module-footer">
+                <span class="module-link">Revisar inventario →</span>
+            </div>
+        </div>
+    }
+
+    @if (userRole == "SuperAdmin" || userRole == "AdminVentas")
+    {
+        <div class="module-card" onclick="location.href='/Ventas'">
+            <div class="module-card-header">
+                <div class="module-icon ventas">
+                    <svg viewBox="0 0 24 24" width="28" height="28">
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" fill="none"/>
+                        <circle cx="12" cy="12" r="3" stroke="currentColor" fill="none"/>
+                    </svg>
+                </div>
+                <span class="module-badge success">Ventas del día</span>
+            </div>
+            <h3 class="module-title">Ventas y Clientes</h3>
+            <p class="module-desc">Pedidos, facturación, clientes y precios especiales</p>
+            <div class="module-stats">
+                <span class="stat-badge">Bs. @ViewBag.VentasHoyMonto</span>
+                <span class="stat-badge">@ViewBag.ClientesActivos Clientes</span>
+            </div>
+            <div class="module-footer">
+                <span class="module-link">Ver ventas →</span>
+            </div>
+        </div>
+    }
+
+    @if (userRole == "SuperAdmin" || userRole == "AdminCompras")
+    {
+        <div class="module-card" onclick="location.href='/Compras'">
+            <div class="module-card-header">
+                <div class="module-icon compras">
+                    <svg viewBox="0 0 24 24" width="28" height="28">
+                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" fill="none"/>
+                        <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor"/>
+                        <path d="M16 10a4 4 0 01-8 0" stroke="currentColor"/>
+                    </svg>
+                </div>
+                <span class="module-badge">Compras pendientes</span>
+            </div>
+            <h3 class="module-title">Proveedores, Compras y Logística</h3>
+            <p class="module-desc">Gestión de compras, despachos y flota de transporte</p>
+            <div class="module-stats">
+                <span class="stat-badge">@ViewBag.OrdenesCompra Órdenes</span>
+                <span class="stat-badge">@ViewBag.ProveedoresActivos Proveedores</span>
+            </div>
+            <div class="module-footer">
+                <span class="module-link">Gestionar compras →</span>
+            </div>
+        </div>
+    }
+
+    @if (userRole == "SuperAdmin" || userRole == "AdminRRHH")
+    {
+        <div class="module-card" onclick="location.href='/RRHH'">
+            <div class="module-card-header">
+                <div class="module-icon rrhh">
+                    <svg viewBox="0 0 24 24" width="28" height="28">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" fill="none"/>
+                        <circle cx="12" cy="7" r="4" stroke="currentColor" fill="none"/>
+                        <path d="M17 11l2 2 4-4" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </div>
+                <span class="module-badge">Planilla en proceso</span>
+            </div>
+            <h3 class="module-title">Recursos Humanos</h3>
+            <p class="module-desc">Empleados, planilla de salarios, asistencia y evaluaciones</p>
+            <div class="module-stats">
+                <span class="stat-badge">@ViewBag.EmpleadosPorSucursal Empleados</span>
+                <span class="stat-badge">@ViewBag.AsistenciaHoy Asistencia hoy</span>
+            </div>
+            <div class="module-footer">
+                <span class="module-link">Gestionar personal →</span>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Actividad Reciente -->
+<div class="activity-section">
+    <div class="activity-header">
+        <h3 class="activity-title">Actividad Reciente</h3>
+        <a href="/Seguridad/Bitacora" class="activity-link">Ver todas →</a>
+    </div>
+    <div class="activity-list">
+        @if (ViewBag.ActividadReciente != null && ViewBag.ActividadReciente.Count > 0)
+        {
+            @foreach (var actividad in ViewBag.ActividadReciente)
+            {
+                <div class="activity-item">
+                    <div class="activity-icon @actividad.Tipo">
+                        @if (actividad.Tipo == "login")
+                        {
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4" stroke="currentColor" fill="none"/>
+                                <polyline points="10 17 15 12 10 7" stroke="currentColor"/>
+                                <line x1="15" y1="12" x2="3" y2="12" stroke="currentColor"/>
+                            </svg>
+                        }
+                        else if (actividad.Tipo == "venta")
+                        {
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" fill="none"/>
+                            </svg>
+                        }
+                        else
+                        {
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" fill="none"/>
+                                <path d="M12 8v4l3 3" stroke="currentColor"/>
+                            </svg>
+                        }
+                    </div>
+                    <div class="activity-content">
+                        <p class="activity-text">@actividad.Descripcion</p>
+                        <span class="activity-time">@actividad.Fecha.ToString("HH:mm") · @actividad.Fecha.ToString("dd/MM/yyyy")</span>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="activity-item">
+                <p class="activity-text" style="color: var(--text-muted);">No hay actividad reciente</p>
+            </div>
+        }
+    </div>
+</div>

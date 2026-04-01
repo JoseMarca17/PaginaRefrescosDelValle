@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"] — Refrescos del Valle</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="~/css/dashboard.css"/>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    @{
+        var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Usuario";
+        var userName = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ?? "Usuario";
+        var userEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
+        var userInitial = userName.Length > 0 ? userName[0].ToString().ToUpper() : "U";
+    }
+    
+    <div class="dashboard-app">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <img src="~/assets/img/LogoRefrescosDelValle.png" alt="Logo" width="40" height="40"/>
+                    <div>
+                        <span class="sidebar-brand">Refrescos</span>
+                        <span class="sidebar-brand-sub">del Valle</span>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="/Dashboard" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" fill="none"/>
+                        <path d="M9 22V12h6v10" stroke="currentColor" fill="none"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                
+                @if (User.IsInRole("SuperAdmin") || User.IsInRole("AdminSeguridad"))
+                {
+                    <div class="nav-section">
+                        <span class="nav-section-title">Seguridad</span>
+                        <a href="/Seguridad/Usuarios" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Seguridad" && ViewContext.RouteData.Values["action"]?.ToString() == "Usuarios" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" fill="none"/>
+                                <circle cx="12" cy="7" r="4" stroke="currentColor" fill="none"/>
+                            </svg>
+                            <span>Usuarios</span>
+                        </a>
+                        <a href="/Seguridad/Roles" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Seguridad" && ViewContext.RouteData.Values["action"]?.ToString() == "Roles" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" fill="none"/>
+                                <path d="M8 7h8M8 12h8M8 17h4" stroke="currentColor"/>
+                            </svg>
+                            <span>Roles</span>
+                        </a>
+                        <a href="/Seguridad/Sucursales" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Seguridad" && ViewContext.RouteData.Values["action"]?.ToString() == "Sucursales" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" fill="none"/>
+                                <path d="M2 17l10 5 10-5" stroke="currentColor" fill="none"/>
+                                <path d="M2 12l10 5 10-5" stroke="currentColor" fill="none"/>
+                            </svg>
+                            <span>Sucursales</span>
+                        </a>
+                        <a href="/Seguridad/Bitacora" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Seguridad" && ViewContext.RouteData.Values["action"]?.ToString() == "Bitacora" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" fill="none"/>
+                                <polyline points="14 2 14 8 20 8" stroke="currentColor"/>
+                                <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor"/>
+                                <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor"/>
+                                <polyline points="10 9 9 9 8 9" stroke="currentColor"/>
+                            </svg>
+                            <span>Bitácora</span>
+                        </a>
+                    </div>
+                }
+                
+                @if (User.IsInRole("SuperAdmin") || User.IsInRole("AdminProduccion"))
+                {
+                    <div class="nav-section">
+                        <span class="nav-section-title">Producción</span>
+                        <a href="/Produccion/Productos" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Produccion" && ViewContext.RouteData.Values["action"]?.ToString() == "Productos" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" fill="none"/>
+                                <path d="M2 17l10 5 10-5" stroke="currentColor" fill="none"/>
+                                <path d="M2 12l10 5 10-5" stroke="currentColor" fill="none"/>
+                            </svg>
+                            <span>Productos</span>
+                        </a>
+                        <a href="/Produccion/Recetas" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Produccion" && ViewContext.RouteData.Values["action"]?.ToString() == "Recetas" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" stroke="currentColor" fill="none"/>
+                            </svg>
+                            <span>Recetas</span>
+                        </a>
+                        <a href="/Produccion/Ordenes" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Produccion" && ViewContext.RouteData.Values["action"]?.ToString() == "Ordenes" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" fill="none"/>
+                                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor"/>
+                                <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor"/>
+                                <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor"/>
+                            </svg>
+                            <span>Órdenes de Producción</span>
+                        </a>
+                    </div>
+                }
+                
+                @if (User.IsInRole("SuperAdmin") || User.IsInRole("AdminInventario"))
+                {
+                    <div class="nav-section">
+                        <span class="nav-section-title">Inventario</span>
+                        <a href="/Inventario/Stock" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Inventario" && ViewContext.RouteData.Values["action"]?.ToString() == "Stock" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" fill="none"/>
+                                <path d="M8 7h8M8 12h8M8 17h4" stroke="currentColor"/>
+                            </svg>
+                            <span>Control de Stock</span>
+                        </a>
+                        <a href="/Inventario/Movimientos" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Inventario" && ViewContext.RouteData.Values["action"]?.ToString() == "Movimientos" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <polyline points="17 8 21 12 17 16" stroke="currentColor" fill="none"/>
+                                <polyline points="7 8 3 12 7 16" stroke="currentColor" fill="none"/>
+                                <line x1="21" y1="12" x2="3" y2="12" stroke="currentColor"/>
+                            </svg>
+                            <span>Movimientos</span>
+                        </a>
+                        <a href="/Inventario/Traslados" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Inventario" && ViewContext.RouteData.Values["action"]?.ToString() == "Traslados" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M2 12h20M12 2l10 10-10 10" stroke="currentColor" fill="none"/>
+                            </svg>
+                            <span>Traslados</span>
+                        </a>
+                    </div>
+                }
+                
+                @if (User.IsInRole("SuperAdmin") || User.IsInRole("AdminVentas"))
+                {
+                    <div class="nav-section">
+                        <span class="nav-section-title">Ventas</span>
+                        <a href="/Ventas/Pedidos" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Ventas" && ViewContext.RouteData.Values["action"]?.ToString() == "Pedidos" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" fill="none"/>
+                                <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor"/>
+                                <path d="M16 10a4 4 0 01-8 0" stroke="currentColor"/>
+                            </svg>
+                            <span>Pedidos</span>
+                        </a>
+                        <a href="/Ventas/Clientes" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Ventas" && ViewContext.RouteData.Values["action"]?.ToString() == "Clientes" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" fill="none"/>
+                                <circle cx="9" cy="7" r="4" stroke="currentColor" fill="none"/>
+                                <path d="M23 21v-2a4 4 0 00-3-3.87" stroke="currentColor"/>
+                                <path d="M16 3.13a4 4 0 010 7.75" stroke="currentColor"/>
+                            </svg>
+                            <span>Clientes</span>
+                        </a>
+                        <a href="/Ventas/Facturacion" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Ventas" && ViewContext.RouteData.Values["action"]?.ToString() == "Facturacion" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" fill="none"/>
+                                <polyline points="14 2 14 8 20 8" stroke="currentColor"/>
+                                <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor"/>
+                                <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor"/>
+                            </svg>
+                            <span>Facturación</span>
+                        </a>
+                    </div>
+                }
+                
+                @if (User.IsInRole("SuperAdmin") || User.IsInRole("AdminCompras"))
+                {
+                    <div class="nav-section">
+                        <span class="nav-section-title">Compras</span>
+                        <a href="/Compras/Proveedores" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Compras" && ViewContext.RouteData.Values["action"]?.ToString() == "Proveedores" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" fill="none"/>
+                                <circle cx="12" cy="12" r="3" stroke="currentColor" fill="none"/>
+                            </svg>
+                            <span>Proveedores</span>
+                        </a>
+                        <a href="/Compras/OrdenesCompra" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Compras" && ViewContext.RouteData.Values["action"]?.ToString() == "OrdenesCompra" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" fill="none"/>
+                                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor"/>
+                                <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor"/>
+                                <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor"/>
+                            </svg>
+                            <span>Órdenes de Compra</span>
+                        </a>
+                        <a href="/Compras/Logistica" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Compras" && ViewContext.RouteData.Values["action"]?.ToString() == "Logistica" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M1 12h4M9 12h6M17 12h4" stroke="currentColor"/>
+                                <path d="M5 6h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z" stroke="currentColor" fill="none"/>
+                            </svg>
+                            <span>Logística</span>
+                        </a>
+                    </div>
+                }
+                
+                @if (User.IsInRole("SuperAdmin") || User.IsInRole("AdminRRHH"))
+                {
+                    <div class="nav-section">
+                        <span class="nav-section-title">RRHH</span>
+                        <a href="/RRHH/Empleados" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "RRHH" && ViewContext.RouteData.Values["action"]?.ToString() == "Empleados" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" fill="none"/>
+                                <circle cx="12" cy="7" r="4" stroke="currentColor" fill="none"/>
+                            </svg>
+                            <span>Empleados</span>
+                        </a>
+                        <a href="/RRHH/Planilla" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "RRHH" && ViewContext.RouteData.Values["action"]?.ToString() == "Planilla" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" fill="none"/>
+                                <polyline points="14 2 14 8 20 8" stroke="currentColor"/>
+                                <line x1="12" y1="18" x2="12" y2="12" stroke="currentColor"/>
+                                <line x1="9" y1="15" x2="15" y2="15" stroke="currentColor"/>
+                            </svg>
+                            <span>Planilla</span>
+                        </a>
+                        <a href="/RRHH/Asistencia" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "RRHH" && ViewContext.RouteData.Values["action"]?.ToString() == "Asistencia" ? "active" : "")">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" fill="none"/>
+                                <polyline points="12 6 12 12 16 14" stroke="currentColor"/>
+                            </svg>
+                            <span>Asistencia</span>
+                        </a>
+                    </div>
+                }
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        @userInitial
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name">@userName</span>
+                        <span class="user-role">@userRole</span>
+                    </div>
+                </div>
+                <a href="/Auth/Logout" class="logout-btn">
+                    <svg viewBox="0 0 24 24" width="18" height="18">
+                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" fill="none"/>
+                        <polyline points="16 17 21 12 16 7" stroke="currentColor"/>
+                        <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor"/>
+                    </svg>
+                    <span>Cerrar sesión</span>
+                </a>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <div class="dashboard-content">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
