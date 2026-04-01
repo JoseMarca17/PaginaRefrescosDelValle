@@ -5,103 +5,679 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>@ViewData["Title"] — Refrescos del Valle S.R.L.</title>
   <meta name="description" content="Empresa boliviana dedicada a la producción y comercialización de bebidas y refrescos de calidad desde 1998."/>
-  <link rel="icon" href="/assets/img/favicon.ico"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="/css/styles.css"/>
-  <link rel="stylesheet" href="/css/components.css"/>
+  
+  <style>
+    /* Variables globales */
+    :root {
+      --header-h: 80px;
+      --dark-900: #0a0303;
+      --dark-800: #1a0f0f;
+      --dark-700: #2a1a1a;
+      --dark-600: #3a2525;
+      --dark-950: #050202;
+      --red-500: #d82c20;
+      --red-600: #C8281E;
+      --red-700: #a81f16;
+      --red-800: #8a1a12;
+      --red-400: #e55a4e;
+      --gray-300: #d4d4d4;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --white: #ffffff;
+      --shadow-red: 0 2px 8px rgba(200, 40, 30, 0.3);
+      --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.3);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --font-display: 'Playfair Display', serif;
+      --font-mono: 'DM Mono', monospace;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--dark-900);
+      color: var(--white);
+      padding-top: var(--header-h);
+    }
+
+    body.has-transparent-nav {
+      padding-top: 0;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      height: var(--header-h);
+      background: rgba(10, 3, 3, 0.95);
+      border-bottom: 1px solid rgba(200, 40, 30, 0.3);
+      backdrop-filter: blur(12px);
+      transition: all 0.3s ease;
+    }
+
+    .navbar.transparent {
+      background: transparent;
+      border-bottom-color: transparent;
+    }
+
+    .navbar.scrolled {
+      background: rgba(10, 3, 3, 0.98);
+      border-bottom-color: var(--red-800);
+      height: 70px;
+    }
+
+    .nav-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    /* Brand */
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .logo-mark {
+      width: 48px;
+      height: 48px;
+      background: var(--black);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .navbar.scrolled .logo-mark {
+      width: 42px;
+      height: 42px;
+    }
+
+    .logo-mark img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .logo-fallback {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--red-600);
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.2;
+    }
+
+    .navbar.scrolled .brand-name {
+      font-size: 1.1rem;
+    }
+
+    .brand-highlight {
+      color: var(--red-500);
+      font-style: italic;
+    }
+
+    .brand-sub {
+      font-size: 0.6rem;
+      color: var(--gray-400);
+      font-family: var(--font-mono);
+      letter-spacing: 1px;
+    }
+
+    .navbar.scrolled .brand-sub {
+      font-size: 0.55rem;
+    }
+
+    /* Nav links */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.25rem;
+      border-radius: 60px;
+    }
+
+    .nav-link {
+      color: var(--gray-400);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 60px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nav-link:hover {
+      color: var(--white);
+      background: rgba(200, 40, 30, 0.2);
+    }
+
+    .nav-link.active {
+      color: var(--white);
+      background: var(--red-600);
+    }
+
+    /* Actions */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+
+    /* Botón login */
+    .nav-login-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--red-600);
+      color: var(--white);
+      text-decoration: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 60px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .nav-login-btn:hover {
+      background: var(--red-500);
+      transform: translateY(-1px);
+    }
+
+    .nav-login-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* Menú usuario */
+    .nav-user-menu {
+      position: relative;
+    }
+
+    .nav-user-trigger {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.8rem 0.3rem 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 60px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-user-trigger:hover {
+      background: rgba(200, 40, 30, 0.1);
+      border-color: var(--red-600);
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      background: var(--red-600);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .user-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .user-role {
+      font-size: 0.55rem;
+      color: var(--red-400);
+      font-family: var(--font-mono);
+    }
+
+    .user-chevron {
+      width: 14px;
+      height: 14px;
+      stroke: var(--gray-400);
+      transition: transform 0.2s;
+    }
+
+    .nav-user-menu.open .user-chevron {
+      transform: rotate(180deg);
+    }
+
+    /* Dropdown */
+    .user-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 240px;
+      background: var(--dark-800);
+      border: 1px solid var(--dark-600);
+      border-radius: 12px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.2s ease;
+      z-index: 1000;
+    }
+
+    .nav-user-menu.open .user-dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-header {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--dark-700);
+    }
+
+    .dropdown-user-full {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .dropdown-user-email {
+      font-size: 0.65rem;
+      color: var(--gray-500);
+      margin-top: 0.2rem;
+    }
+
+    .dropdown-section {
+      padding: 0.5rem 0;
+    }
+
+    .dropdown-section + .dropdown-section {
+      border-top: 1px solid var(--dark-700);
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.6rem 1rem;
+      color: var(--gray-400);
+      text-decoration: none;
+      font-size: 0.8rem;
+      transition: all 0.15s;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(200, 40, 30, 0.1);
+      color: var(--white);
+    }
+
+    .dropdown-item.danger:hover {
+      background: rgba(220, 38, 38, 0.15);
+      color: var(--red-400);
+    }
+
+    .dropdown-item svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--dark-950);
+      border-top: 2px solid var(--red-800);
+      padding: 3rem 2rem 0;
+      margin-top: 4rem;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+      gap: 2rem;
+      padding-bottom: 2.5rem;
+    }
+
+    .footer-brand-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .footer-brand-name {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .footer-brand-sub {
+      font-size: 0.6rem;
+      color: var(--gray-500);
+      font-family: var(--font-mono);
+    }
+
+    .footer-desc {
+      font-size: 0.8rem;
+      color: var(--gray-500);
+      line-height: 1.6;
+      max-width: 250px;
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .social-btn {
+      width: 32px;
+      height: 32px;
+      background: var(--dark-700);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .social-btn:hover {
+      background: var(--red-600);
+      transform: translateY(-2px);
+    }
+
+    .social-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--gray-400);
+    }
+
+    .social-btn:hover svg {
+      stroke: var(--white);
+    }
+
+    .footer-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .footer-col-title {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--red-500);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .footer-link {
+      font-size: 0.8rem;
+      color: var(--gray-500);
+      text-decoration: none;
+      transition: color 0.2s;
+      display: inline-block;
+    }
+
+    .footer-link:hover {
+      color: var(--white);
+      transform: translateX(4px);
+    }
+
+    .footer-contact-item {
+      display: flex;
+      gap: 0.6rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .fci-icon {
+      font-size: 0.9rem;
+    }
+
+    .fci-label {
+      font-size: 0.6rem;
+      color: var(--gray-500);
+      font-family: var(--font-mono);
+      display: block;
+    }
+
+    .fci-val {
+      font-size: 0.75rem;
+      color: var(--gray-300);
+      display: block;
+    }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.25rem 0;
+      border-top: 1px solid var(--dark-700);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.7rem;
+      color: var(--gray-600);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-bottom-right {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer-bottom-link {
+      color: var(--gray-600);
+      text-decoration: none;
+    }
+
+    .footer-bottom-link:hover {
+      color: var(--gray-400);
+    }
+
+    /* Responsive */
+    @@media (max-width: 900px) {
+      .nav-inner {
+        padding: 0 1rem;
+      }
+      
+      .brand-sub {
+        display: none;
+      }
+      
+      .brand-name {
+        font-size: 1rem;
+      }
+      
+      .logo-mark {
+        width: 40px;
+        height: 40px;
+      }
+      
+      .nav-links {
+        display: none;
+      }
+      
+      .footer-inner {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+      }
+    }
+
+    @@media (max-width: 600px) {
+      .user-meta {
+        display: none;
+      }
+      
+      .footer-inner {
+        grid-template-columns: 1fr;
+      }
+      
+      .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .footer-bottom-right {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+  
   @await RenderSectionAsync("Styles", required: false)
 </head>
-<body>
+<body class="@(ViewData["NavTransparent"] != null ? "has-transparent-nav" : "")">
 
-  <!-- ══ HEADER ══ -->
-  <nav class="navbar" id="navbar">
+  <!-- ══ NAVBAR ══ -->
+  <nav class="navbar @(ViewData["NavTransparent"] != null ? "transparent" : "scrolled")" id="navbar">
     <div class="nav-inner">
       <a href="/" class="nav-brand">
         <div class="logo-mark">
-          <img src="/assets/img/LogoRefrescosDelValle.png" alt="Logo Refrescos del Valle"
-               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
-          <span class="logo-fallback" style="display:none">RV</span>
+          <img src="/assets/img/LogoRefrescosDelValle.png"
+               alt="Refrescos del Valle"
+               onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'logo-fallback\'>DV</span>'"/>
         </div>
         <div class="brand-text">
-          <span class="brand-name">Refrescos del Valle</span>
-          <span class="brand-sub">S.R.L. · Bolivia</span>
+          <span class="brand-name">Refrescos del <span class="brand-highlight">Valle</span></span>
+          <span class="brand-sub">S.R.L. · Desde 1998</span>
         </div>
       </a>
 
-      <nav class="nav-links" role="navigation" aria-label="Navegación principal">
-        <a href="/#quienes"     class="nav-link">Quiénes Somos</a>
-        <a href="/#productos"   class="nav-link">Productos</a>
-        <a href="/#operaciones" class="nav-link">Operaciones</a>
-        <a href="/#contacto"    class="nav-link">Contacto</a>
-      </nav>
+      <div class="nav-links">
+        <a href="/" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" && ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">Inicio</a>
+        <a href="/Pagina/Productos" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Productos" ? "active" : "")">Productos</a>
+        <a href="/Pagina/Nosotros" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Nosotros" ? "active" : "")">Nosotros</a>
+        <a href="/Pagina/Contacto" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Contacto" ? "active" : "")">Contacto</a>
+      </div>
 
-      <div class="nav-sep"></div>
-
-      <!-- NO logueado -->
-      <a href="/Auth/Login" class="nav-login-btn" aria-label="Iniciar sesión">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="8" r="4"/>
-          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-        </svg>
-        Iniciar sesión
-      </a>
-
-      <!-- Logueado (JS lo muestra) -->
-      <div class="nav-user-menu" id="userMenu" style="display:none" role="navigation" aria-label="Menú de usuario">
-        <button class="nav-user-trigger" id="userTrigger" aria-haspopup="true" aria-expanded="false">
-          <div class="user-avatar" id="userAvatar">
-            <span id="userInitials">--</span>
+      <div class="nav-actions">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+          var nombre = User.Identity.Name ?? "Usuario";
+          var inicial = nombre.Length > 0 ? nombre[0].ToString().ToUpper() : "U";
+          var rol = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Usuario";
+          var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
+          
+          <div class="nav-user-menu" id="navUserMenu">
+            <div class="nav-user-trigger">
+              <div class="user-avatar">@inicial</div>
+              <div class="user-meta">
+                <span class="user-name">@nombre</span>
+                <span class="user-role">@rol</span>
+              </div>
+              <svg class="user-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+            <div class="user-dropdown">
+              <div class="dropdown-header">
+                <div class="dropdown-user-full">@nombre</div>
+                <div class="dropdown-user-email">@email</div>
+              </div>
+              <div class="dropdown-section">
+                <a href="/Seguridad" class="dropdown-item">
+                  <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                  Ir al sistema
+                </a>
+                <a href="#" class="dropdown-item">
+                  <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Mi perfil
+                </a>
+              </div>
+              <div class="dropdown-section">
+                <a href="/Auth/Logout" class="dropdown-item danger">
+                  <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                  Cerrar sesión
+                </a>
+              </div>
+            </div>
           </div>
-          <div class="user-meta">
-            <span class="user-name" id="userName">Usuario</span>
-            <span class="user-role" id="userRoleLabel">—</span>
-          </div>
-          <svg class="user-chevron" viewBox="0 0 24 24" aria-hidden="true">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </button>
-        <div class="user-dropdown" id="userDropdown" role="menu">
-          <div class="dropdown-header">
-            <div class="dropdown-user-full"  id="ddUserFull">—</div>
-            <div class="dropdown-user-email" id="ddUserEmail">—</div>
-          </div>
-          <div class="dropdown-section">
-            <a href="/Seguridad" class="dropdown-item" role="menuitem">
-              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              Ir al sistema
-            </a>
-            <a href="#" class="dropdown-item" role="menuitem">
-              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              Mi perfil
-            </a>
-          </div>
-          <div class="dropdown-section">
-            <a href="/Auth/Logout" class="dropdown-item danger" role="menuitem">
-              <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-              Cerrar sesión
-            </a>
-          </div>
-        </div>
+        }
+        else
+        {
+          <a href="/Auth/Login" class="nav-login-btn">
+            <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Iniciar sesión
+          </a>
+        }
       </div>
     </div>
   </nav>
 
-  <!-- ══ CONTENIDO DE CADA PÁGINA ══ -->
+  <!-- ══ CONTENIDO ══ -->
   <main>
     @RenderBody()
   </main>
 
   <!-- ══ FOOTER ══ -->
-  <footer class="footer" role="contentinfo">
+  <footer class="footer">
     <div class="footer-inner">
       <div class="footer-brand-col">
         <div class="footer-logo">
-          <div class="logo-mark" style="width:38px;height:38px">
-            <img src="/assets/img/LogoRefrescosDelValle.png" alt="Logo Refrescos del Valle"
-                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
-            <span class="logo-fallback" style="display:none">RV</span>
+          <div class="logo-mark" style="width: 40px; height: 40px;">
+            <img src="/assets/img/LogoRefrescosDelValle.png"
+                 alt="Refrescos del Valle"
+                 onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'logo-fallback\'>DV</span>'"/>
           </div>
           <div>
             <div class="footer-brand-name">Refrescos del Valle</div>
@@ -109,15 +685,15 @@
           </div>
         </div>
         <p class="footer-desc">
-          Empresa boliviana dedicada a la producción y comercialización
-          de bebidas y refrescos de calidad desde 1998.
+          Empresa boliviana dedicada a la producción y comercialización de bebidas y refrescos de calidad
+          desde 1998, con presencia en los 9 departamentos del país.
         </p>
         <div class="footer-social">
           <a href="#" class="social-btn" aria-label="Facebook">
             <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
           </a>
           <a href="#" class="social-btn" aria-label="Instagram">
-            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
           </a>
           <a href="#" class="social-btn" aria-label="WhatsApp">
             <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
@@ -126,32 +702,25 @@
       </div>
 
       <div class="footer-col">
-        <span class="footer-col-title">Empresa</span>
-        <a href="/#quienes"     class="footer-link">Quiénes Somos</a>
-        <a href="/#productos"   class="footer-link">Nuestros Productos</a>
-        <a href="/#operaciones" class="footer-link">Cómo Operamos</a>
-        <a href="/#contacto"    class="footer-link">Contacto</a>
+        <span class="footer-col-title">Navegación</span>
+        <a href="/" class="footer-link">Inicio</a>
+        <a href="/Pagina/Productos" class="footer-link">Productos</a>
+        <a href="/Pagina/Nosotros" class="footer-link">Nosotros</a>
+        <a href="/Pagina/Contacto" class="footer-link">Contacto</a>
       </div>
 
       <div class="footer-col">
-        <span class="footer-col-title">Sistema Interno</span>
-        <a href="/Seguridad"   class="footer-link">Seguridad y Auditoría</a>
-        <a href="/Produccion"  class="footer-link">Producción</a>
-        <a href="/Inventario"  class="footer-link">Inventario</a>
-        <a href="/Ventas"      class="footer-link">Ventas</a>
-        <a href="/Compras"     class="footer-link">Compras</a>
-        <a href="/RRHH"        class="footer-link">Recursos Humanos</a>
+        <span class="footer-col-title">Sistema</span>
+        <a href="/Seguridad" class="footer-link">Seguridad</a>
+        <a href="/Produccion" class="footer-link">Producción</a>
+        <a href="/Inventario" class="footer-link">Inventario</a>
+        <a href="/Ventas" class="footer-link">Ventas</a>
+        <a href="/Compras" class="footer-link">Compras</a>
+        <a href="/RRHH" class="footer-link">RRHH</a>
       </div>
 
       <div class="footer-col">
         <span class="footer-col-title">Contacto</span>
-        <div class="footer-contact-item">
-          <span class="fci-icon">📍</span>
-          <div>
-            <span class="fci-label">Oficina Central</span>
-            <span class="fci-val">Cochabamba, Bolivia</span>
-          </div>
-        </div>
         <div class="footer-contact-item">
           <span class="fci-icon">📞</span>
           <div>
@@ -162,31 +731,58 @@
         <div class="footer-contact-item">
           <span class="fci-icon">✉️</span>
           <div>
-            <span class="fci-label">Correo</span>
+            <span class="fci-label">Email</span>
             <span class="fci-val">contacto@refrescosdelvalle.bo</span>
           </div>
         </div>
         <div class="footer-contact-item">
-          <span class="fci-icon">🕐</span>
+          <span class="fci-icon">📍</span>
           <div>
-            <span class="fci-label">Horario</span>
-            <span class="fci-val">Lun–Vie · 8:00–18:00</span>
+            <span class="fci-label">Dirección</span>
+            <span class="fci-val">Cochabamba, Bolivia</span>
           </div>
         </div>
       </div>
     </div>
-
     <div class="footer-bottom">
-      <span>© 2025 Refrescos del Valle S.R.L. · Bolivia · Todos los derechos reservados.</span>
+      <span>© 2025 Refrescos del Valle S.R.L. · Bolivia</span>
       <div class="footer-bottom-right">
-        <a href="#" class="footer-bottom-link">Política de privacidad</a>
-        <a href="#" class="footer-bottom-link">Términos de uso</a>
-        <span class="footer-mono">SQL Server · ERwin · 3FN</span>
+        <span>SQL Server · EF Core · ASP.NET 10</span>
+        <a href="#" class="footer-bottom-link">Privacidad</a>
+        <a href="#" class="footer-bottom-link">Términos</a>
       </div>
     </div>
   </footer>
 
-  <script src="/js/components.js"></script>
+  <script>
+    // Navbar scroll
+    const navbar = document.getElementById('navbar');
+    if (navbar && navbar.classList.contains('transparent')) {
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 60) {
+          navbar.classList.remove('transparent');
+          navbar.classList.add('scrolled');
+        } else {
+          navbar.classList.add('transparent');
+          navbar.classList.remove('scrolled');
+        }
+      });
+    }
+    
+    // Dropdown usuario
+    const navUserMenu = document.getElementById('navUserMenu');
+    if (navUserMenu) {
+      const trigger = navUserMenu.querySelector('.nav-user-trigger');
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navUserMenu.classList.toggle('open');
+      });
+      document.addEventListener('click', () => {
+        navUserMenu.classList.remove('open');
+      });
+    }
+  </script>
+  
   @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

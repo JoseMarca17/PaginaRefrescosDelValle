@@ -1,0 +1,250 @@
+@{
+    ViewData["Title"] = "Productos";
+}
+
+@section Styles {
+<style>
+/* ── PAGE HEADER ── */
+.page-header {
+  background: var(--negro);
+  padding: 8rem 0 4rem;
+  position: relative; overflow: hidden;
+}
+.page-header-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 80% 50%, rgba(200,40,30,0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+.page-header-inner {
+  max-width: var(--container); margin: 0 auto; padding: 0 2rem;
+  position: relative; z-index: 2;
+}
+.page-breadcrumb {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: rgba(255,255,255,0.3); margin-bottom: 1.25rem;
+}
+.page-breadcrumb a { color: rgba(255,255,255,0.4); transition: color .15s; }
+.page-breadcrumb a:hover { color: var(--rojo); }
+.page-breadcrumb-sep { color: rgba(255,255,255,0.15); }
+.page-title {
+  font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 4.5rem);
+  color: var(--blanco); font-weight: 900; line-height: 1; margin-bottom: 1rem;
+}
+.page-title em { color: var(--rojo); font-style: italic; }
+.page-subtitle { font-size: 1.05rem; color: rgba(255,255,255,0.5); max-width: 500px; }
+
+/* ── FILTROS ── */
+.filter-bar {
+  background: var(--blanco);
+  border-bottom: 1px solid var(--gris-100);
+  position: sticky; top: 70px; z-index: 100;
+  padding: 1rem 0;
+}
+.filter-bar-inner {
+  max-width: var(--container); margin: 0 auto; padding: 0 2rem;
+  display: flex; gap: 0.5rem; flex-wrap: wrap;
+}
+.filter-btn {
+  font-family: var(--font-body); font-size: 0.82rem; font-weight: 500;
+  padding: 0.45rem 1rem; border-radius: 999px;
+  border: 1.5px solid var(--gris-200); background: transparent;
+  color: var(--gris-600); cursor: pointer; transition: all 0.18s;
+}
+.filter-btn:hover  { border-color: var(--rojo); color: var(--rojo); }
+.filter-btn.active { background: var(--rojo); border-color: var(--rojo); color: var(--blanco); }
+
+/* ── GRID PRODUCTOS ── */
+.products-section { padding: 3.5rem 0 var(--section-py); background: var(--gris-50); }
+.products-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem; margin-top: 2rem;
+}
+.product-card {
+  background: var(--blanco); border: 1px solid var(--gris-100);
+  border-radius: var(--radius-lg); overflow: hidden;
+  transition: all 0.25s var(--ease);
+  display: flex; flex-direction: column;
+}
+.product-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); border-color: var(--gris-200); }
+.product-card.featured { border-color: var(--rojo); border-width: 2px; }
+
+.product-card-img {
+  height: 180px; background: var(--rojo-suave);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.product-card.featured .product-card-img { background: linear-gradient(135deg, #F5E8E7, #FDDBD9); }
+.product-icon { font-size: 4rem; }
+.product-badge {
+  position: absolute; top: 1rem; right: 1rem;
+  font-family: var(--font-mono); font-size: 0.6rem;
+  background: var(--rojo); color: var(--blanco);
+  padding: 0.25rem 0.6rem; border-radius: 999px; letter-spacing: 1px;
+}
+.product-card-body { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
+.product-category {
+  font-family: var(--font-mono); font-size: 0.65rem;
+  color: var(--rojo); letter-spacing: 1.5px; text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.product-name {
+  font-family: var(--font-display); font-size: 1.4rem;
+  font-weight: 700; color: var(--negro); margin-bottom: 0.6rem;
+}
+.product-desc { font-size: 0.85rem; color: var(--gris-600); line-height: 1.65; flex: 1; margin-bottom: 1.25rem; }
+.product-sizes { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.product-size {
+  font-family: var(--font-mono); font-size: 0.68rem;
+  background: var(--gris-100); color: var(--gris-600);
+  padding: 0.25rem 0.6rem; border-radius: var(--radius-sm);
+}
+.product-card.featured .product-size { background: var(--rojo-suave); color: var(--rojo); }
+
+/* ── RESPONSIVE ── */
+@@media (max-width: 900px) { .products-grid { grid-template-columns: repeat(2,1fr); } }
+@@media (max-width: 580px) { .products-grid { grid-template-columns: 1fr; } }
+</style>
+}
+
+<!-- Page Header -->
+<section class="page-header">
+  <div class="page-header-bg"></div>
+  <div class="page-header-inner">
+    <div class="page-breadcrumb">
+      <a href="/">Inicio</a>
+      <span class="page-breadcrumb-sep">/</span>
+      <span>Productos</span>
+    </div>
+    <h1 class="page-title">Nuestra línea de<br/><em>refrescos</em></h1>
+    <p class="page-subtitle">Bebidas de calidad boliviana en presentaciones para todos los gustos y ocasiones.</p>
+  </div>
+</section>
+
+<!-- Filtros -->
+<div class="filter-bar">
+  <div class="filter-bar-inner">
+    <button class="filter-btn active" onclick="filtrar(this,'todos')">Todos</button>
+    <button class="filter-btn" onclick="filtrar(this,'refresco')">Refrescos</button>
+    <button class="filter-btn" onclick="filtrar(this,'natural')">Línea Natural</button>
+    <button class="filter-btn" onclick="filtrar(this,'agua')">Agua</button>
+  </div>
+</div>
+
+<!-- Productos -->
+<section class="products-section">
+  <div class="container">
+    <div class="products-grid" id="productsGrid">
+
+      <div class="product-card" data-cat="refresco">
+        <div class="product-card-img">
+          <span class="product-icon">🍓</span>
+        </div>
+        <div class="product-card-body">
+          <div class="product-category">Refresco</div>
+          <h3 class="product-name">Fresa</h3>
+          <p class="product-desc">Sabor intenso a fresa natural, sin conservantes artificiales. Ideal para toda la familia.</p>
+          <div class="product-sizes">
+            <span class="product-size">250 ml</span>
+            <span class="product-size">500 ml</span>
+            <span class="product-size">1 L</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card featured" data-cat="refresco">
+        <div class="product-card-img">
+          <span class="product-badge">FAVORITO</span>
+          <span class="product-icon">🍋</span>
+        </div>
+        <div class="product-card-body">
+          <div class="product-category">Refresco</div>
+          <h3 class="product-name">Limón</h3>
+          <p class="product-desc">Refrescante y cítrico, el clásico que nunca falla. El más vendido en toda Bolivia.</p>
+          <div class="product-sizes">
+            <span class="product-size">250 ml</span>
+            <span class="product-size">500 ml</span>
+            <span class="product-size">1 L</span>
+            <span class="product-size">2 L</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card" data-cat="refresco">
+        <div class="product-card-img">
+          <span class="product-icon">🍊</span>
+        </div>
+        <div class="product-card-body">
+          <div class="product-category">Refresco</div>
+          <h3 class="product-name">Naranja</h3>
+          <p class="product-desc">Elaborado con concentrado de naranja y vitamina C natural. Fresco y nutritivo.</p>
+          <div class="product-sizes">
+            <span class="product-size">250 ml</span>
+            <span class="product-size">500 ml</span>
+            <span class="product-size">1 L</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card" data-cat="refresco">
+        <div class="product-card-img">
+          <span class="product-icon">🍇</span>
+        </div>
+        <div class="product-card-body">
+          <div class="product-category">Refresco</div>
+          <h3 class="product-name">Uva</h3>
+          <p class="product-desc">Sabor a uva morada, popular en los valles interandinos de Bolivia.</p>
+          <div class="product-sizes">
+            <span class="product-size">250 ml</span>
+            <span class="product-size">500 ml</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card" data-cat="natural">
+        <div class="product-card-img" style="background:var(--verde-suave)">
+          <span class="product-icon">🌿</span>
+        </div>
+        <div class="product-card-body">
+          <div class="product-category" style="color:var(--verde)">Línea Natural</div>
+          <h3 class="product-name">Natural Stevia</h3>
+          <p class="product-desc">Sin colorantes artificiales, endulzada con stevia boliviana. Para quienes cuidan su salud.</p>
+          <div class="product-sizes">
+            <span class="product-size">500 ml</span>
+            <span class="product-size">1 L</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card" data-cat="agua">
+        <div class="product-card-img" style="background:#EAF6FB">
+          <span class="product-icon">💧</span>
+        </div>
+        <div class="product-card-body">
+          <div class="product-category" style="color:#1A7FAB">Agua</div>
+          <h3 class="product-name">Agua Purificada</h3>
+          <p class="product-desc">Agua tratada y purificada en nuestra planta con los más altos estándares de calidad.</p>
+          <div class="product-sizes">
+            <span class="product-size">500 ml</span>
+            <span class="product-size">1 L</span>
+            <span class="product-size">5 L</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+@section Scripts {
+<script>
+function filtrar(btn, cat) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#productsGrid .product-card').forEach(card => {
+    const show = cat === 'todos' || card.dataset.cat === cat;
+    card.style.display = show ? 'flex' : 'none';
+  });
+}
+</script>
+}

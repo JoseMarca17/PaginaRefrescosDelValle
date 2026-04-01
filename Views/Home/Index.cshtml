@@ -1,376 +1,488 @@
 ﻿@{
     ViewData["Title"] = "Inicio";
+    ViewData["NavTransparent"] = true;
 }
 
 @section Styles {
 <style>
-    .hero-landing {
-      background: var(--dark-900); min-height: 92vh;
-      display: flex; align-items: center;
-      position: relative; overflow: hidden; padding: 5rem 2rem;
+/* ── VARIABLES ── */
+:root {
+    --negro: #000000;
+    --rojo: #C8281E;
+    --rojo-suave: rgba(200, 40, 30, 0.1);
+    --blanco: #ffffff;
+    --gris-50: #fafafa;
+    --gris-100: #eef2f0;
+    --gris-400: #8f9b9e;
+    --gris-600: #5c6a6e;
+    --container: 1280px;
+    --section-py: 5rem;
+    --radius-lg: 1rem;
+    --radius-md: 0.5rem;
+    --shadow-md: 0 10px 30px -10px rgba(0,0,0,0.1);
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --font-mono: 'SF Mono', 'Courier New', monospace;
+    --font-display: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ── HERO ── */
+.hero {
+    min-height: 100vh;
+    background: var(--negro);
+    position: relative;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+.hero-bg-pattern {
+    position: absolute; inset: 0;
+    background-image:
+        radial-gradient(circle at 70% 50%, rgba(200,40,30,0.12) 0%, transparent 55%),
+        radial-gradient(circle at 20% 80%, rgba(45,106,47,0.07) 0%, transparent 40%);
+    pointer-events: none;
+}
+.hero-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 80px 80px;
+}
+.hero-inner {
+    max-width: var(--container); margin: 0 auto; padding: 0 2rem;
+    display: grid; grid-template-columns: 1fr 420px; gap: 4rem;
+    align-items: center; width: 100%; position: relative; z-index: 2;
+    padding-top: 7rem; padding-bottom: 5rem;
+}
+.hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    font-family: var(--font-mono); font-size: 0.7rem;
+    color: rgba(255,255,255,0.45); letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 1.5rem;
+}
+.hero-eyebrow-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--rojo);
+    animation: heroPulse 2s ease infinite;
+}
+@@keyframes heroPulse { 
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
     }
-    .hero-grid-bg {
-      position: absolute; inset: 0; pointer-events: none;
-      background-image:
-        repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(192,57,43,0.05) 59px, rgba(192,57,43,0.05) 60px),
-        repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(192,57,43,0.05) 59px, rgba(192,57,43,0.05) 60px);
+    50% {
+        opacity: .5;
+        transform: scale(.7);
     }
-    .hero-glow {
-      position: absolute; width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(192,57,43,0.1) 0%, transparent 70%);
-      top: -100px; left: -100px; pointer-events: none;
+}
+
+.hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 6.5vw, 6rem);
+    line-height: 0.95; font-weight: 900;
+    color: var(--blanco); letter-spacing: -1px;
+    margin-bottom: 1.75rem;
+}
+.hero-title-stroke {
+    -webkit-text-stroke: 2px var(--rojo);
+    color: transparent;
+    font-style: italic;
+}
+.hero-desc {
+    font-size: 1.05rem; color: rgba(255,255,255,0.55);
+    line-height: 1.8; max-width: 520px; margin-bottom: 2.5rem;
+}
+.hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 3.5rem; }
+.hero-stats { display: flex; gap: 2.5rem; }
+.hstat { display: flex; flex-direction: column; }
+.hstat-val {
+    font-family: var(--font-display); font-size: 2.25rem;
+    color: var(--blanco); line-height: 1; font-weight: 700;
+}
+.hstat-val span { color: var(--rojo); }
+.hstat-label {
+    font-family: var(--font-mono); font-size: 0.65rem;
+    color: rgba(255,255,255,0.35); letter-spacing: 1.5px;
+    text-transform: uppercase; margin-top: 0.25rem;
+}
+
+/* Botella decorativa */
+.hero-visual { display: flex; align-items: center; justify-content: center; position: relative; }
+.bottle-wrap {
+    position: relative;
+    animation: bottleFloat 5s ease-in-out infinite;
+}
+@@keyframes bottleFloat { 
+    0%, 100% {
+        transform: translateY(0) rotate(-2deg);
     }
-    .hero-landing-inner { max-width: 620px; margin: 0 auto; width: 100%; position: relative; z-index: 2; }
-    .hero-eyebrow {
-      display: inline-flex; align-items: center; gap: 0.6rem;
-      font-family: var(--font-mono); font-size: 0.68rem;
-      color: var(--gray-400); letter-spacing: 1.5px; margin-bottom: 1.5rem;
-      animation: fadeUp .6s ease both;
+    50% {
+        transform: translateY(-18px) rotate(2deg);
     }
-    .eyebrow-dot {
-      width: 6px; height: 6px; border-radius: 50%; background: var(--red-500);
-      animation: pulse-dot 2s ease infinite;
+}
+.bottle-ring {
+    position: absolute; border-radius: 50%;
+    border: 1px solid rgba(200,40,30,0.15);
+    top: 50%; left: 50%; transform: translate(-50%,-50%);
+    animation: ringSpin linear infinite;
+}
+.bottle-ring-1 { width: 280px; height: 280px; animation-duration: 20s; }
+.bottle-ring-2 { width: 380px; height: 380px; border-style: dashed; animation-duration: 35s; animation-direction: reverse; }
+@@keyframes ringSpin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+.bottle-svg { width: 160px; height: 320px; position: relative; z-index: 2; filter: drop-shadow(0 30px 60px rgba(0,0,0,0.6)); }
+
+/* Animaciones */
+.anim-up {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.6s forwards;
+}
+.anim-delay-1 { animation-delay: 0.1s; }
+.anim-delay-2 { animation-delay: 0.3s; }
+.anim-delay-3 { animation-delay: 0.5s; }
+.anim-delay-4 { animation-delay: 0.7s; }
+@@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
-    @@keyframes pulse-dot { 0%,100% { opacity:1;transform:scale(1); } 50% { opacity:.5;transform:scale(.75); } }
-    .hero-landing-title {
-      font-family: var(--font-display); font-size: clamp(3.5rem,7vw,6.5rem);
-      color: var(--white); line-height: .95; letter-spacing: 2px; margin-bottom: 1.5rem;
-      animation: fadeUp .65s ease .1s both;
+}
+
+/* ── STATS BAR ── */
+.stats-bar {
+    background: var(--blanco);
+    border-top: 3px solid var(--rojo);
+    padding: 2.5rem 0;
+}
+.stats-bar-inner {
+    max-width: var(--container); margin: 0 auto; padding: 0 2rem;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 2rem; align-items: center;
+}
+.stat-item { text-align: center; }
+.stat-num {
+    font-family: var(--font-display); font-size: 2.75rem;
+    color: var(--rojo); font-weight: 900; line-height: 1;
+}
+.stat-text { font-size: 0.82rem; color: var(--gris-400); margin-top: 0.35rem; }
+.stat-sep  { width: 1px; height: 50px; background: var(--gris-100); margin: 0 auto; }
+
+/* ── SECCIÓN HIGHLIGHTS ── */
+.highlights { padding: var(--section-py) 0; background: var(--gris-50); }
+.container {
+    max-width: var(--container);
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+.section-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--rojo);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+}
+.section-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 2rem;
+}
+.section-title em {
+    color: var(--rojo);
+    font-style: italic;
+}
+.highlights-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem; margin-top: 3rem;
+}
+.hlight-card {
+    background: var(--blanco); border: 1px solid var(--gris-100);
+    border-radius: var(--radius-lg); padding: 2rem;
+    transition: all 0.25s var(--ease);
+    position: relative; overflow: hidden;
+}
+.hlight-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--rojo); transform: scaleX(0); transform-origin: left;
+    transition: transform 0.3s var(--ease);
+}
+.hlight-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); }
+.hlight-card:hover::before { transform: scaleX(1); }
+.hlight-icon {
+    width: 48px; height: 48px; border-radius: var(--radius-md);
+    background: var(--rojo-suave); display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1.25rem;
+}
+.hlight-icon svg { width: 22px; height: 22px; stroke: var(--rojo); fill: none; stroke-width: 2; }
+.hlight-title { font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; margin-bottom: 0.6rem; }
+.hlight-desc  { font-size: 0.88rem; color: var(--gris-600); line-height: 1.7; }
+
+/* ── FRANJA ROJA CTA ── */
+.cta-band {
+    background: var(--rojo);
+    padding: 4rem 0;
+    position: relative; overflow: hidden;
+}
+.cta-band::before {
+    content: 'DEL VALLE';
+    position: absolute; right: -2rem; top: 50%; transform: translateY(-50%);
+    font-family: var(--font-display); font-size: 14rem; font-weight: 900;
+    color: rgba(255,255,255,0.05); line-height: 1; pointer-events: none;
+    white-space: nowrap;
+}
+.cta-band-inner {
+    max-width: var(--container); margin: 0 auto; padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 2rem;
+}
+.cta-band-title {
+    font-family: var(--font-display); font-size: clamp(1.8rem, 3vw, 2.75rem);
+    color: var(--blanco); font-weight: 900; line-height: 1.1;
+}
+.cta-band-sub { color: rgba(255,255,255,0.65); font-size: 1rem; margin-top: 0.5rem; }
+
+/* Botones */
+.btn {
+    display: inline-block;
+    padding: 0.9rem 2rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s;
+    cursor: pointer;
+}
+.btn-rojo {
+    background: var(--rojo);
+    color: var(--blanco);
+    border: none;
+}
+.btn-rojo:hover {
+    background: #a81f16;
+    transform: translateY(-2px);
+}
+.btn-outline-white {
+    background: transparent;
+    color: var(--blanco);
+    border: 1px solid rgba(255,255,255,0.3);
+}
+.btn-outline-white:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: var(--blanco);
+}
+
+/* ── Responsive ── */
+@@media (max-width: 900px) {
+    .hero-inner { 
+        grid-template-columns: 1fr; 
     }
-    .title-stroke { -webkit-text-stroke: 2px var(--red-500); color: transparent; }
-    .hero-landing-desc { color: var(--gray-400); font-size: 1rem; line-height: 1.75; max-width: 480px; margin-bottom: 2.25rem; animation: fadeUp .65s ease .2s both; }
-    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 3rem; animation: fadeUp .65s ease .3s both; }
-    .hero-numbers { display: flex; align-items: center; animation: fadeUp .65s ease .4s both; }
-    .hn-item { display: flex; flex-direction: column; padding: 0 1.75rem; }
-    .hn-item:first-child { padding-left: 0; }
-    .hn-val { font-family: var(--font-display); font-size: 2rem; color: var(--red-400); line-height: 1; }
-    .hn-label { font-size: .68rem; color: var(--gray-500); font-family: var(--font-mono); margin-top: .2rem; }
-    .hn-sep { width: 1px; height: 36px; background: var(--dark-600); }
-    .hero-side-deco { position: absolute; right: 8%; top: 50%; transform: translateY(-50%); width: 240px; height: 400px; display: flex; align-items: center; justify-content: center; }
-    .deco-bottle { position: relative; animation: float 4s ease-in-out infinite; }
-    .bottle-cap { width: 52px; height: 28px; background: linear-gradient(180deg,var(--red-500),var(--red-700)); border-radius: 8px 8px 0 0; margin: 0 auto; }
-    .bottle-body { width: 90px; height: 200px; background: linear-gradient(160deg,rgba(192,57,43,.9),rgba(100,10,10,.95)); border-radius: 12px 12px 18px 18px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,.1); box-shadow: 0 20px 60px rgba(0,0,0,.5); }
-    .bottle-label { position: absolute; inset: 30px 10px; background: var(--white); border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px; }
-    .bl-logo { font-family: var(--font-display); font-size: 1.4rem; color: var(--red-600); letter-spacing: 2px; line-height: 1; }
-    .bl-name { font-size: .55rem; font-weight: 700; color: var(--gray-800); text-align: center; line-height: 1.3; }
-    .bl-vol  { font-family: var(--font-mono); font-size: .5rem; color: var(--gray-500); }
-    .bottle-shine { position: absolute; top: 30px; left: 10px; width: 14px; height: 160px; background: linear-gradient(180deg,rgba(255,255,255,.15),transparent); border-radius: 20px; }
-    .deco-circle { position: absolute; border-radius: 50%; border: 1px solid rgba(192,57,43,.12); animation: spin-slow linear infinite; }
-    .dc1 { width: 220px; height: 220px; animation-duration: 25s; }
-    .dc2 { width: 320px; height: 320px; border-style: dashed; animation-duration: 40s; animation-direction: reverse; }
-    @@keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-12px); } }
-    .products-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; }
-    .product-card { background: var(--dark-800); border: 1px solid var(--dark-600); border-radius: var(--radius-lg); padding: 1.75rem; position: relative; overflow: hidden; transition: all .25s; }
-    .product-card:hover { border-color: var(--red-700); transform: translateY(-4px); box-shadow: var(--shadow-red); }
-    .product-card.featured { border-color: var(--red-600); background: linear-gradient(135deg,var(--dark-800),var(--dark-700)); }
-    .pc-badge-feat { position: absolute; top: 1rem; right: 1rem; font-family: var(--font-mono); font-size: .58rem; color: var(--red-400); background: rgba(192,57,43,.15); border: 1px solid rgba(192,57,43,.3); padding: .2rem .6rem; border-radius: 999px; }
-    .pc-icon { font-size: 2rem; margin-bottom: 1rem; }
-    .pc-name { font-family: var(--font-display); font-size: 1.3rem; color: var(--white); letter-spacing: .5px; margin-bottom: .5rem; }
-    .pc-desc { font-size: .82rem; color: var(--gray-400); line-height: 1.6; margin-bottom: 1.25rem; }
-    .pc-sizes { display: flex; flex-wrap: wrap; gap: .4rem; }
-    .pc-size { font-family: var(--font-mono); font-size: .68rem; color: var(--red-400); background: rgba(192,57,43,.08); border: 1px solid rgba(192,57,43,.2); padding: .2rem .5rem; border-radius: var(--radius-sm); }
-    .ops-timeline { display: flex; align-items: flex-start; gap: 0; margin: 2.5rem 0 2rem; }
-    .ops-step { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1rem; }
-    .ops-connector { flex-shrink: 0; width: 60px; height: 2px; background: linear-gradient(90deg,var(--red-700),var(--red-500)); margin-top: 2rem; position: relative; }
-    .ops-connector::after { content:''; position: absolute; right:-6px; top:-4px; border: 5px solid transparent; border-left: 8px solid var(--red-500); }
-    .ops-num { font-family: var(--font-display); font-size: 3rem; color: var(--red-600); line-height: 1; border: 2px solid var(--red-200); border-radius: 50%; width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; background: var(--red-50); }
-    .ops-title { font-family: var(--font-display); font-size: 1.15rem; color: var(--gray-900); letter-spacing: .5px; }
-    .ops-desc  { font-size: .8rem; color: var(--gray-500); line-height: 1.6; max-width: 180px; }
-    .contact-info { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 2rem; }
-    .ci-item { display: flex; align-items: flex-start; gap: 1rem; }
-    .ci-icon { font-size: 1.1rem; flex-shrink: 0; }
-    .ci-label { display: block; font-size: .7rem; color: var(--gray-500); font-family: var(--font-mono); margin-bottom: .15rem; }
-    .ci-val   { display: block; font-size: .88rem; color: var(--white); font-weight: 500; }
-    @@media (max-width: 1024px) {
-      .products-grid { grid-template-columns: repeat(2,1fr); }
-      .hero-side-deco { display: none; }
-      .ops-timeline { flex-direction: column; align-items: flex-start; }
-      .ops-connector { width: 2px; height: 30px; margin: 0 0 0 35px; }
-      .ops-connector::after { display: none; }
-      .ops-step { flex-direction: row; text-align: left; gap: 1.25rem; }
+    .hero-visual { 
+        display: none; 
     }
-    @@media (max-width: 640px) {
-      .products-grid { grid-template-columns: 1fr; }
-      .hero-numbers { flex-wrap: wrap; gap: 1rem; }
-      .hn-sep { display: none; }
-      .hn-item { padding: 0; }
+    .highlights-grid { 
+        grid-template-columns: repeat(2, 1fr); 
     }
+    .stats-bar-inner { 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 1rem;
+    }
+    .stat-sep { 
+        display: none; 
+    }
+    .cta-band-inner { 
+        flex-direction: column; 
+        text-align: center; 
+    }
+    .cta-band-inner > div:last-child {
+        flex-direction: column;
+    }
+}
+
+@@media (max-width: 600px) {
+    .highlights-grid { 
+        grid-template-columns: 1fr; 
+    }
+    .hero-stats { 
+        gap: 1.5rem; 
+    }
+    .stats-bar-inner { 
+        grid-template-columns: 1fr; 
+        gap: 1.5rem;
+    }
+    .hero-cta {
+        flex-direction: column;
+    }
+    .btn {
+        text-align: center;
+    }
+}
 </style>
 }
 
 <!-- ══ HERO ══ -->
-<section class="hero-landing" id="inicio">
-  <div class="hero-grid-bg"></div>
-  <div class="hero-glow"></div>
-  <div class="hero-landing-inner">
-    <div class="hero-eyebrow">
-      <span class="eyebrow-dot"></span>
-      Empresa Boliviana · Desde 1998
-    </div>
-    <h1 class="hero-landing-title">
-      El sabor que<br/>
-      <span class="title-stroke">refresca</span><br/>
-      Bolivia
-    </h1>
-    <p class="hero-landing-desc">
-      Somos una empresa boliviana dedicada a la producción y comercialización
-      de bebidas y refrescos de calidad, distribuidos en todo el mercado nacional
-      con compromiso, tradición e innovación.
-    </p>
-    <div class="hero-actions">
-      <a href="#quienes" class="btn-primary">Conocer más</a>
-      <a href="#contacto" class="btn-ghost">Contáctanos →</a>
-    </div>
-    <div class="hero-numbers">
-      <div class="hn-item">
-        <span class="hn-val">25+</span>
-        <span class="hn-label">Años en el mercado</span>
-      </div>
-      <div class="hn-sep"></div>
-      <div class="hn-item">
-        <span class="hn-val">9</span>
-        <span class="hn-label">Departamentos</span>
-      </div>
-      <div class="hn-sep"></div>
-      <div class="hn-item">
-        <span class="hn-val">100%</span>
-        <span class="hn-label">Producción nacional</span>
-      </div>
-    </div>
-  </div>
-  <div class="hero-side-deco" aria-hidden="true">
-    <div class="deco-bottle">
-      <div class="bottle-cap"></div>
-      <div class="bottle-body">
-        <div class="bottle-label">
-          <span class="bl-logo">RV</span>
-          <span class="bl-name">Refresco<br/>del Valle</span>
-          <span class="bl-vol">500 ml</span>
+<section class="hero" id="inicio">
+    <div class="hero-bg-pattern"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-inner">
+        <div>
+            <div class="hero-eyebrow anim-up">
+                <span class="hero-eyebrow-dot"></span>
+                Empresa Boliviana · Desde 1998
+            </div>
+            <h1 class="hero-title anim-up anim-delay-1">
+                El sabor que<br/>
+                <span class="hero-title-stroke">refresca</span><br/>
+                Bolivia
+            </h1>
+            <p class="hero-desc anim-up anim-delay-2">
+                Producción y comercialización de bebidas de calidad distribuidas en todo
+                el mercado nacional con compromiso, tradición e innovación boliviana.
+            </p>
+            <div class="hero-cta anim-up anim-delay-3">
+                <a href="/Pagina/Productos" class="btn btn-rojo">Ver productos</a>
+                <a href="/Pagina/Nosotros"  class="btn btn-outline-white">Nuestra historia</a>
+            </div>
+            <div class="hero-stats anim-up anim-delay-4">
+                <div class="hstat">
+                    <span class="hstat-val">25<span>+</span></span>
+                    <span class="hstat-label">Años</span>
+                </div>
+                <div class="hstat">
+                    <span class="hstat-val">9</span>
+                    <span class="hstat-label">Departamentos</span>
+                </div>
+                <div class="hstat">
+                    <span class="hstat-val">100<span>%</span></span>
+                    <span class="hstat-label">Nacional</span>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="bottle-shine"></div>
+
+        <!-- Botella decorativa SVG -->
+        <div class="hero-visual" aria-hidden="true">
+            <div class="bottle-wrap">
+                <div class="bottle-ring bottle-ring-1"></div>
+                <div class="bottle-ring bottle-ring-2"></div>
+                <svg class="bottle-svg" viewBox="0 0 160 320" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Tapa -->
+                    <rect x="52" y="0" width="56" height="22" rx="8" fill="#C8281E"/>
+                    <rect x="56" y="5" width="48" height="12" rx="4" fill="#9B1C14"/>
+                    <!-- Cuello -->
+                    <path d="M52 22 Q44 42 38 62 L122 62 Q116 42 108 22 Z" fill="#B5211A"/>
+                    <!-- Cuerpo -->
+                    <rect x="28" y="62" width="104" height="230" rx="14" fill="#C8281E"/>
+                    <!-- Brillo lateral -->
+                    <rect x="36" y="75" width="12" height="180" rx="6" fill="rgba(255,255,255,0.12)"/>
+                    <!-- Etiqueta -->
+                    <rect x="36" y="100" width="88" height="140" rx="8" fill="white"/>
+                    <!-- Texto etiqueta -->
+                    <text x="80" y="140" text-anchor="middle" font-family="Georgia,serif" font-size="22" font-weight="bold" fill="#C8281E">DEL</text>
+                    <text x="80" y="172" text-anchor="middle" font-family="Georgia,serif" font-size="30" font-weight="bold" fill="#C8281E" font-style="italic">Valle</text>
+                    <!-- Hoja decorativa -->
+                    <ellipse cx="102" cy="180" rx="10" ry="5" fill="#2D6A2F" transform="rotate(-30 102 180)"/>
+                    <ellipse cx="110" cy="185" rx="8" ry="4" fill="#2D6A2F" transform="rotate(-15 110 185)"/>
+                    <!-- Volumen -->
+                    <text x="80" y="222" text-anchor="middle" font-family="monospace" font-size="11" fill="#888">500 ml</text>
+                    <!-- Fondo etiqueta banda -->
+                    <rect x="36" y="230" width="88" height="10" rx="0" fill="#C8281E" opacity="0.1"/>
+                    <!-- Base botella -->
+                    <rect x="28" y="280" width="104" height="12" rx="7" fill="#9B1C14"/>
+                </svg>
+            </div>
+        </div>
     </div>
-    <div class="deco-circle dc1"></div>
-    <div class="deco-circle dc2"></div>
-  </div>
 </section>
 
-<!-- ══ QUIÉNES SOMOS ══ -->
-<section class="section" id="quienes">
-  <div class="container">
-    <div class="two-col">
-      <div class="col-text">
-        <div class="section-tag">QUIÉNES SOMOS</div>
-        <h2 class="section-title">Tradición boliviana<br/>en cada botella</h2>
-        <p class="body-text">
-          Refrescos del Valle S.R.L. nació con la misión de proveer bebidas de calidad
-          accesibles para todos los bolivianos. Desde nuestra planta principal operamos
-          líneas de producción modernas con estándares de calidad en cada lote fabricado.
-        </p>
-        <p class="body-text mt-1">
-          Contamos con sucursales en los principales departamentos del país y una flota
-          de distribución propia que garantiza la llegada de nuestros productos frescos
-          a cada punto de venta.
-        </p>
-        <div class="pill-group">
-          <span class="pill">🏆 Calidad certificada</span>
-          <span class="pill">🌿 Ingredientes naturales</span>
-          <span class="pill">🇧🇴 Hecho en Bolivia</span>
+<!-- ══ BARRA DE ESTADÍSTICAS ══ -->
+<section class="stats-bar">
+    <div class="stats-bar-inner">
+        <div class="stat-item">
+            <div class="stat-num">25+</div>
+            <div class="stat-text">Años en el mercado boliviano</div>
         </div>
-      </div>
-      <div class="col-visual">
-        <div class="stats-card">
-          <div class="sc-row">
-            <div class="sc-item">
-              <span class="sc-num">25+</span>
-              <span class="sc-label">Años de experiencia</span>
-            </div>
-            <div class="sc-item">
-              <span class="sc-num">9</span>
-              <span class="sc-label">Departamentos cubiertos</span>
-            </div>
-          </div>
-          <div class="sc-divider"></div>
-          <div class="sc-row">
-            <div class="sc-item">
-              <span class="sc-num">6</span>
-              <span class="sc-label">Líneas de producción</span>
-            </div>
-            <div class="sc-item">
-              <span class="sc-num">100%</span>
-              <span class="sc-label">Producción nacional</span>
-            </div>
-          </div>
-          <div class="sc-badge">Flota propia de distribución en todo el territorio boliviano</div>
+        <div class="stat-sep"></div>
+        <div class="stat-item">
+            <div class="stat-num">9</div>
+            <div class="stat-text">Departamentos con distribución</div>
         </div>
-      </div>
+        <div class="stat-sep"></div>
+        <div class="stat-item">
+            <div class="stat-num">6</div>
+            <div class="stat-text">Líneas de producción activas</div>
+        </div>
+        <div class="stat-sep"></div>
+        <div class="stat-item">
+            <div class="stat-num">100%</div>
+            <div class="stat-text">Producción nacional boliviana</div>
+        </div>
     </div>
-  </div>
 </section>
 
-<!-- ══ PRODUCTOS ══ -->
-<section class="section section-dark" id="productos">
-  <div class="container">
-    <div class="section-header-centered">
-      <div class="section-tag light">NUESTROS PRODUCTOS</div>
-      <h2 class="section-title light">Línea de refrescos</h2>
-      <p class="section-subdesc">Presentaciones disponibles para todos los gustos y ocasiones</p>
+<!-- ══ HIGHLIGHTS ══ -->
+<section class="highlights">
+    <div class="container">
+        <div class="section-eyebrow">Por qué elegirnos</div>
+        <h2 class="section-title">Calidad desde la<br/><em>fuente</em></h2>
+        <div class="highlights-grid">
+            <div class="hlight-card">
+                <div class="hlight-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                </div>
+                <h3 class="hlight-title">Producción propia</h3>
+                <p class="hlight-desc">Controlamos cada etapa del proceso desde la selección de ingredientes hasta el producto final en botella.</p>
+            </div>
+            <div class="hlight-card">
+                <div class="hlight-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                </div>
+                <h3 class="hlight-title">Distribución nacional</h3>
+                <p class="hlight-desc">Flota propia que garantiza la entrega a tiempo en los 9 departamentos del país.</p>
+            </div>
+            <div class="hlight-card">
+                <div class="hlight-icon">
+                    <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9S3 16.97 3 12 7.03 3 12 3s9 4.03 9 9z"/></svg>
+                </div>
+                <h3 class="hlight-title">Calidad certificada</h3>
+                <p class="hlight-desc">Estándares de calidad rigurosos en cada lote fabricado, con trazabilidad completa del proceso.</p>
+            </div>
+            <div class="hlight-card">
+                <div class="hlight-icon">
+                    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </div>
+                <h3 class="hlight-title">Empresa boliviana</h3>
+                <p class="hlight-desc">100% capital y producción nacional, comprometidos con el desarrollo económico del país.</p>
+            </div>
+            <div class="hlight-card">
+                <div class="hlight-icon">
+                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                </div>
+                <h3 class="hlight-title">Equipo comprometido</h3>
+                <p class="hlight-desc">Personal boliviano con años de experiencia en la industria de bebidas y comprometido con la excelencia.</p>
+            </div>
+            <div class="hlight-card">
+                <div class="hlight-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h3 class="hlight-title">Ingredientes naturales</h3>
+                <p class="hlight-desc">Fórmulas elaboradas con ingredientes seleccionados, sin colorantes artificiales en nuestra línea natural.</p>
+            </div>
+        </div>
     </div>
-    <div class="products-grid">
-      <div class="product-card">
-        <div class="pc-icon">🍓</div>
-        <h3 class="pc-name">Refresco Fresa</h3>
-        <p class="pc-desc">Sabor intenso a fresa natural, sin conservantes artificiales.</p>
-        <div class="pc-sizes">
-          <span class="pc-size">250ml</span><span class="pc-size">500ml</span><span class="pc-size">1L</span>
-        </div>
-      </div>
-      <div class="product-card featured">
-        <div class="pc-badge-feat">FAVORITO</div>
-        <div class="pc-icon">🍋</div>
-        <h3 class="pc-name">Refresco Limón</h3>
-        <p class="pc-desc">Refrescante y cítrico, el clásico que nunca falla en el calor boliviano.</p>
-        <div class="pc-sizes">
-          <span class="pc-size">250ml</span><span class="pc-size">500ml</span><span class="pc-size">1L</span><span class="pc-size">2L</span>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="pc-icon">🍊</div>
-        <h3 class="pc-name">Refresco Naranja</h3>
-        <p class="pc-desc">Elaborado con concentrado de naranja y vitamina C natural.</p>
-        <div class="pc-sizes">
-          <span class="pc-size">250ml</span><span class="pc-size">500ml</span><span class="pc-size">1L</span>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="pc-icon">🍇</div>
-        <h3 class="pc-name">Refresco Uva</h3>
-        <p class="pc-desc">Sabor a uva morada, popular en los valles interandinos de Bolivia.</p>
-        <div class="pc-sizes">
-          <span class="pc-size">250ml</span><span class="pc-size">500ml</span>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="pc-icon">🌿</div>
-        <h3 class="pc-name">Línea Natural</h3>
-        <p class="pc-desc">Sin colorantes artificiales, endulzada con stevia boliviana.</p>
-        <div class="pc-sizes">
-          <span class="pc-size">500ml</span><span class="pc-size">1L</span>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="pc-icon">💧</div>
-        <h3 class="pc-name">Agua Purificada</h3>
-        <p class="pc-desc">Agua de manantial tratada y purificada en nuestra planta.</p>
-        <div class="pc-sizes">
-          <span class="pc-size">500ml</span><span class="pc-size">1L</span><span class="pc-size">5L</span>
-        </div>
-      </div>
-    </div>
-  </div>
 </section>
 
-<!-- ══ OPERACIONES ══ -->
-<section class="section section-alt" id="operaciones">
-  <div class="container">
-    <div class="section-tag">CÓMO OPERAMOS</div>
-    <h2 class="section-title">De la planta a tu mesa</h2>
-    <div class="ops-timeline">
-      <div class="ops-step">
-        <div class="ops-num">01</div>
-        <div class="ops-content">
-          <h3 class="ops-title">Compra de Ingredientes</h3>
-          <p class="ops-desc">Proveedores calificados con contratos de suministro y órdenes de compra trazables.</p>
+<!-- ══ CTA BAND ══ -->
+<section class="cta-band">
+    <div class="cta-band-inner">
+        <div>
+            <h2 class="cta-band-title">¿Interesado en nuestros<br/>productos?</h2>
+            <p class="cta-band-sub">Conoce toda nuestra línea de refrescos y presentaciones disponibles.</p>
         </div>
-      </div>
-      <div class="ops-connector"></div>
-      <div class="ops-step">
-        <div class="ops-num">02</div>
-        <div class="ops-content">
-          <h3 class="ops-title">Producción y Calidad</h3>
-          <p class="ops-desc">Recetas versionadas, líneas de producción por turno y control de calidad en cada lote.</p>
+        <div style="display:flex;gap:1rem;flex-shrink:0">
+            <a href="/Pagina/Productos" class="btn btn-outline-white">Ver catálogo</a>
+            <a href="/Pagina/Contacto"  class="btn" style="background:white;color:var(--rojo);">Contáctanos</a>
         </div>
-      </div>
-      <div class="ops-connector"></div>
-      <div class="ops-step">
-        <div class="ops-num">03</div>
-        <div class="ops-content">
-          <h3 class="ops-title">Inventario y Almacén</h3>
-          <p class="ops-desc">Stock en tiempo real con movimientos registrados y traslados entre almacenes.</p>
-        </div>
-      </div>
-      <div class="ops-connector"></div>
-      <div class="ops-step">
-        <div class="ops-num">04</div>
-        <div class="ops-content">
-          <h3 class="ops-title">Ventas y Distribución</h3>
-          <p class="ops-desc">Pedidos, facturación y despacho con flota propia hasta el punto de venta del cliente.</p>
-        </div>
-      </div>
     </div>
-  </div>
-</section>
-
-<!-- ══ CONTACTO ══ -->
-<section class="section section-dark" id="contacto">
-  <div class="container">
-    <div class="two-col contact-col">
-      <div class="col-text">
-        <div class="section-tag light">CONTACTO</div>
-        <h2 class="section-title light">Trabajemos<br/>juntos</h2>
-        <p class="body-text light">
-          ¿Interesado en nuestros productos o en ser distribuidor autorizado?
-          Contáctanos y un representante se comunicará contigo.
-        </p>
-        <div class="contact-info">
-          <div class="ci-item">
-            <span class="ci-icon">📍</span>
-            <div>
-              <span class="ci-label">Oficina Central</span>
-              <span class="ci-val">Cochabamba, Bolivia</span>
-            </div>
-          </div>
-          <div class="ci-item">
-            <span class="ci-icon">📞</span>
-            <div>
-              <span class="ci-label">Teléfono</span>
-              <span class="ci-val">+591 4 123-4567</span>
-            </div>
-          </div>
-          <div class="ci-item">
-            <span class="ci-icon">✉️</span>
-            <div>
-              <span class="ci-label">Correo</span>
-              <span class="ci-val">contacto@refrescosdelvalle.bo</span>
-            </div>
-          </div>
-          <div class="ci-item">
-            <span class="ci-icon">🕐</span>
-            <div>
-              <span class="ci-label">Horario</span>
-              <span class="ci-val">Lun–Vie · 8:00 – 18:00</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="contact-form-wrap">
-        <div class="contact-form">
-          <h3 class="form-title">Enviar mensaje</h3>
-          <div class="form-group">
-            <label class="form-label" for="contactNombre">Nombre completo</label>
-            <input type="text" id="contactNombre" class="form-input" placeholder="Tu nombre"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="contactEmail">Correo electrónico</label>
-            <input type="email" id="contactEmail" class="form-input" placeholder="correo@ejemplo.com"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="contactMsg">Mensaje</label>
-            <textarea id="contactMsg" class="form-input form-textarea" placeholder="¿En qué podemos ayudarte?"></textarea>
-          </div>
-          <button class="btn-primary full-width">Enviar mensaje</button>
-        </div>
-      </div>
-    </div>
-  </div>
 </section>

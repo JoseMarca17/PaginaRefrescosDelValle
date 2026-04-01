@@ -11,37 +11,90 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login — Refrescos del Valle</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/auth.css" />
 </head>
-<body class="d-flex align-items-center justify-content-center vh-100 bg-light">
-<div class="card shadow p-4" style="width:380px;">
-    <div class="text-center mb-3">
-        <img src="~/assets/img/LogoRefrescosDelValle.png" height="60" alt="Logo" />
-        <h5 class="mt-2 fw-bold">Iniciar Sesión</h5>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <img src="~/assets/img/LogoRefrescosDelValle.png" alt="Refrescos del Valle" 
+                     onerror="this.src='https://via.placeholder.com/80x80?text=DV'"/>
+            </div>
+            
+            <h1 class="auth-title">Bienvenido</h1>
+            <p class="auth-subtitle">Ingresa tus credenciales para continuar</p>
+
+            <form asp-action="Login" method="post" class="auth-form" id="loginForm">
+                <div asp-validation-summary="All" class="auth-alert auth-alert-danger" 
+                     style="display:@(ViewData.ModelState.ErrorCount > 0 ? "flex" : "none")"></div>
+
+                <div class="form-group">
+                    <label asp-for="Email" class="form-label">Correo electrónico</label>
+                    <div class="input-icon-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                        <input asp-for="Email" class="auth-input" placeholder="usuario@refrescosdelvalle.bo" />
+                    </div>
+                    <span asp-validation-for="Email" class="field-validation-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Password" class="form-label">Contraseña</label>
+                    <div class="input-icon-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        <input asp-for="Password" type="password" class="auth-input" placeholder="••••••••" />
+                    </div>
+                    <span asp-validation-for="Password" class="field-validation-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="auth-btn" id="submitBtn">
+                        <span>Iniciar sesión</span>
+                    </button>
+                </div>
+            </form>
+
+            <div class="auth-footer">
+                <p class="auth-footer-text">
+                    ¿Necesitas ayuda? 
+                    <a href="/Pagina/Contacto" class="auth-footer-link">Contacta con soporte</a>
+                </p>
+            </div>
+        </div>
     </div>
 
-    <form asp-action="Login" method="post">
-        <div asp-validation-summary="All" class="alert alert-danger py-2 small" style="display:@(ViewData.ModelState.ErrorCount > 0 ? "block" : "none")"></div>
-
-        <div class="mb-3">
-            <label asp-for="Email" class="form-label">Correo electrónico</label>
-            <input asp-for="Email" class="form-control" placeholder="usuario@email.com" />
-            <span asp-validation-for="Email" class="text-danger small"></span>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Password" class="form-label">Contraseña</label>
-            <input asp-for="Password" class="form-control" placeholder="••••••••" />
-            <span asp-validation-for="Password" class="text-danger small"></span>
-        </div>
-
-        <button type="submit" class="btn btn-primary w-100">Continuar</button>
-    </form>
-</div>
-
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+    
+    <script>
+        // Animación de carga al enviar formulario
+        document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn && !submitBtn.classList.contains('auth-btn-loading')) {
+                submitBtn.classList.add('auth-btn-loading');
+                submitBtn.querySelector('span').textContent = 'Verificando...';
+            }
+        });
+        
+        // Mejorar experiencia de validación en tiempo real
+        const inputs = document.querySelectorAll('.auth-input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.parentElement?.classList.add('focused');
+            });
+            input.addEventListener('blur', function() {
+                this.parentElement.parentElement?.classList.remove('focused');
+            });
+        });
+    </script>
 </body>
 </html>

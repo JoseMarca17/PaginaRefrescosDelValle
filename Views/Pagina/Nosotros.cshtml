@@ -1,0 +1,301 @@
+@{
+    ViewData["Title"] = "Nosotros";
+}
+
+@section Styles {
+<style>
+.page-header {
+  background: var(--negro); padding: 8rem 0 4rem; position: relative; overflow: hidden;
+}
+.page-header-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 20% 60%, rgba(200,40,30,0.1) 0%, transparent 55%);
+  pointer-events: none;
+}
+.page-header-inner {
+  max-width: var(--container); margin: 0 auto; padding: 0 2rem; position: relative; z-index: 2;
+}
+.page-breadcrumb {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: rgba(255,255,255,0.3); margin-bottom: 1.25rem;
+}
+.page-breadcrumb a { color: rgba(255,255,255,0.4); transition: color .15s; }
+.page-breadcrumb a:hover { color: var(--rojo); }
+.page-title {
+  font-family: var(--font-display); font-size: clamp(2.5rem,5vw,4.5rem);
+  color: var(--blanco); font-weight: 900; line-height: 1; margin-bottom: 1rem;
+}
+.page-title em { color: var(--rojo); font-style: italic; }
+.page-subtitle { font-size: 1.05rem; color: rgba(255,255,255,0.5); max-width: 500px; }
+
+/* ── MISIÓN / VISIÓN ── */
+.mv-section { padding: var(--section-py) 0; background: var(--blanco); }
+.mv-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 3rem;
+}
+.mv-card {
+  padding: 2.5rem; border-radius: var(--radius-lg);
+  position: relative; overflow: hidden;
+}
+.mv-card-mision { background: var(--negro); }
+.mv-card-vision { background: var(--rojo-suave); border: 2px solid rgba(200,40,30,0.2); }
+.mv-num {
+  font-family: var(--font-display); font-size: 6rem; font-weight: 900;
+  position: absolute; top: -1rem; right: 1rem;
+  color: rgba(255,255,255,0.04); line-height: 1; pointer-events: none;
+}
+.mv-card-vision .mv-num { color: rgba(200,40,30,0.06); }
+.mv-icon { font-size: 2rem; margin-bottom: 1.25rem; }
+.mv-label {
+  font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 0.75rem;
+}
+.mv-card-mision .mv-label { color: var(--rojo); }
+.mv-card-vision  .mv-label { color: var(--rojo); }
+.mv-title {
+  font-family: var(--font-display); font-size: 1.6rem; font-weight: 700;
+  margin-bottom: 1rem; line-height: 1.2;
+}
+.mv-card-mision .mv-title { color: var(--blanco); }
+.mv-card-vision  .mv-title { color: var(--negro); }
+.mv-text { font-size: 0.9rem; line-height: 1.75; }
+.mv-card-mision .mv-text { color: rgba(255,255,255,0.55); }
+.mv-card-vision  .mv-text { color: var(--gris-600); }
+
+/* ── TIMELINE ── */
+.timeline-section { padding: var(--section-py) 0; background: var(--gris-50); }
+.timeline { position: relative; margin-top: 3rem; }
+.timeline::before {
+  content: ''; position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 2px; background: var(--gris-200); transform: translateX(-50%);
+}
+.timeline-item {
+  display: grid; grid-template-columns: 1fr 60px 1fr; gap: 0; margin-bottom: 3rem; align-items: start;
+}
+.timeline-item:nth-child(odd) .timeline-content  { grid-column: 1; text-align: right; padding-right: 2.5rem; }
+.timeline-item:nth-child(odd) .timeline-empty    { grid-column: 3; }
+.timeline-item:nth-child(even) .timeline-content { grid-column: 3; text-align: left; padding-left: 2.5rem; order: 3; }
+.timeline-item:nth-child(even) .timeline-empty   { grid-column: 1; order: 1; }
+.timeline-dot {
+  grid-column: 2; width: 44px; height: 44px; border-radius: 50%;
+  background: var(--rojo); color: var(--blanco);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 0.65rem; font-weight: 500;
+  margin: 0 auto; position: relative; z-index: 2; flex-shrink: 0;
+  border: 3px solid var(--gris-50);
+}
+.timeline-item:nth-child(even) .timeline-dot { order: 2; }
+.timeline-year {
+  font-family: var(--font-display); font-size: 2rem; color: var(--rojo); font-weight: 900; line-height: 1;
+}
+.timeline-event { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--negro); margin: 0.3rem 0; }
+.timeline-desc  { font-size: 0.85rem; color: var(--gris-500); line-height: 1.65; }
+
+/* ── VALORES ── */
+.values-section { padding: var(--section-py) 0; background: var(--blanco); }
+.values-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.25rem; margin-top: 3rem; }
+.value-card {
+  text-align: center; padding: 2rem 1.25rem;
+  border: 1px solid var(--gris-100); border-radius: var(--radius-lg);
+  transition: all 0.25s var(--ease);
+}
+.value-card:hover { border-color: var(--rojo); transform: translateY(-4px); }
+.value-emoji { font-size: 2.5rem; margin-bottom: 1rem; }
+.value-name { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+.value-desc { font-size: 0.82rem; color: var(--gris-600); line-height: 1.6; }
+
+/* ── EQUIPO ── */
+.team-section { padding: var(--section-py) 0; background: var(--negro); }
+.team-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-top: 3rem; }
+.team-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--radius-lg); padding: 2rem; text-align: center;
+  transition: all 0.25s var(--ease);
+}
+.team-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(200,40,30,0.3); }
+.team-avatar {
+  width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 1rem;
+  background: var(--rojo); display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 1.75rem; color: var(--blanco); font-weight: 700;
+}
+.team-name { font-family: var(--font-display); font-size: 1.2rem; color: var(--blanco); font-weight: 700; }
+.team-role { font-family: var(--font-mono); font-size: 0.68rem; color: var(--rojo); letter-spacing: 1px; margin-top: 0.3rem; }
+.team-bio  { font-size: 0.82rem; color: rgba(255,255,255,0.4); line-height: 1.65; margin-top: 0.75rem; }
+
+/* ── Responsive ── */
+@@media (max-width: 768px) {
+  .mv-grid { grid-template-columns: 1fr; }
+  .values-grid { grid-template-columns: 1fr 1fr; }
+  .team-grid { grid-template-columns: 1fr 1fr; }
+  .timeline::before { left: 24px; }
+  .timeline-item { grid-template-columns: 48px 1fr; }
+  .timeline-item:nth-child(odd) .timeline-content,
+  .timeline-item:nth-child(even) .timeline-content  { grid-column: 2; text-align: left; padding: 0 0 0 1.5rem; order: 2; }
+  .timeline-item:nth-child(odd) .timeline-empty,
+  .timeline-item:nth-child(even) .timeline-empty    { display: none; }
+  .timeline-dot { grid-column: 1; order: 1; }
+}
+@@media (max-width: 480px) {
+  .values-grid { grid-template-columns: 1fr; }
+  .team-grid   { grid-template-columns: 1fr; }
+}
+</style>
+}
+
+<!-- Page Header -->
+<section class="page-header">
+  <div class="page-header-bg"></div>
+  <div class="page-header-inner">
+    <div class="page-breadcrumb">
+      <a href="/">Inicio</a>
+      <span>/</span>
+      <span>Nosotros</span>
+    </div>
+    <h1 class="page-title">25 años refrescando<br/><em>Bolivia</em></h1>
+    <p class="page-subtitle">Nuestra historia, valores y el equipo que hace posible cada botella.</p>
+  </div>
+</section>
+
+<!-- Misión / Visión -->
+<section class="mv-section">
+  <div class="container">
+    <div class="section-eyebrow">Quiénes somos</div>
+    <h2 class="section-title">Tradición boliviana<br/>en cada <em>botella</em></h2>
+    <div class="mv-grid">
+      <div class="mv-card mv-card-mision">
+        <span class="mv-num">01</span>
+        <div class="mv-icon">🎯</div>
+        <div class="mv-label">Misión</div>
+        <h3 class="mv-title">Proveer bebidas de calidad accesibles para todos los bolivianos</h3>
+        <p class="mv-text">Producimos y comercializamos refrescos con los más altos estándares de calidad, comprometidos con la salud y satisfacción de nuestros consumidores y el desarrollo económico del país.</p>
+      </div>
+      <div class="mv-card mv-card-vision">
+        <span class="mv-num">02</span>
+        <div class="mv-icon">🔭</div>
+        <div class="mv-label">Visión</div>
+        <h3 class="mv-title">Ser la empresa de bebidas líder en Bolivia para 2030</h3>
+        <p class="mv-text">Consolidar nuestra presencia en los 9 departamentos del país, expandir nuestra línea de productos naturales y ser reconocidos como el símbolo de calidad boliviana en la industria de bebidas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Timeline -->
+<section class="timeline-section">
+  <div class="container">
+    <div class="section-eyebrow">Nuestra historia</div>
+    <h2 class="section-title">De la idea a la <em>nación</em></h2>
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <div class="timeline-year">1998</div>
+          <div class="timeline-event">Fundación de la empresa</div>
+          <p class="timeline-desc">Refrescos del Valle S.R.L. nace en Cochabamba con una pequeña planta de producción y la visión de proveer bebidas de calidad a precios accesibles.</p>
+        </div>
+        <div class="timeline-dot">98</div>
+        <div class="timeline-empty"></div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-empty"></div>
+        <div class="timeline-dot">03</div>
+        <div class="timeline-content">
+          <div class="timeline-year">2003</div>
+          <div class="timeline-event">Expansión regional</div>
+          <p class="timeline-desc">Abrimos distribución en Santa Cruz y La Paz, consolidando presencia en los tres departamentos más importantes del país.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <div class="timeline-year">2010</div>
+          <div class="timeline-event">Nueva planta de producción</div>
+          <p class="timeline-desc">Inauguramos nuestra planta moderna con 6 líneas de producción automatizadas, triplicando nuestra capacidad productiva.</p>
+        </div>
+        <div class="timeline-dot">10</div>
+        <div class="timeline-empty"></div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-empty"></div>
+        <div class="timeline-dot">17</div>
+        <div class="timeline-content">
+          <div class="timeline-year">2017</div>
+          <div class="timeline-event">Línea Natural</div>
+          <p class="timeline-desc">Lanzamos nuestra línea de productos naturales con stevia boliviana, respondiendo a la creciente demanda de bebidas más saludables.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <div class="timeline-year">2023</div>
+          <div class="timeline-event">Cobertura nacional completa</div>
+          <p class="timeline-desc">Alcanzamos presencia en los 9 departamentos de Bolivia con flota propia de distribución y más de 500 puntos de venta activos.</p>
+        </div>
+        <div class="timeline-dot">23</div>
+        <div class="timeline-empty"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Valores -->
+<section class="values-section">
+  <div class="container">
+    <div class="section-eyebrow">Nuestros valores</div>
+    <h2 class="section-title">Lo que nos <em>define</em></h2>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-emoji">🏆</div>
+        <div class="value-name">Calidad</div>
+        <p class="value-desc">Cada botella pasa por controles rigurosos antes de llegar al consumidor.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-emoji">🇧🇴</div>
+        <div class="value-name">Bolivianidad</div>
+        <p class="value-desc">Orgullosos de ser 100% bolivianos, con ingredientes y personal del país.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-emoji">🌱</div>
+        <div class="value-name">Sostenibilidad</div>
+        <p class="value-desc">Comprometidos con prácticas responsables con el medio ambiente.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-emoji">🤝</div>
+        <div class="value-name">Compromiso</div>
+        <p class="value-desc">Con nuestros clientes, colaboradores y la comunidad boliviana.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Equipo -->
+<section class="team-section">
+  <div class="container">
+    <div class="section-eyebrow" style="color:var(--rojo)">Nuestro equipo</div>
+    <h2 class="section-title light">Las personas detrás<br/>del <em style="color:var(--rojo)">sabor</em></h2>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar">GV</div>
+        <div class="team-name">Gonzalo Vargas</div>
+        <div class="team-role">Gerente General</div>
+        <p class="team-bio">Fundador de la empresa con más de 25 años de experiencia en la industria de bebidas boliviana.</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">ML</div>
+        <div class="team-name">María Lozada</div>
+        <div class="team-role">Directora de Producción</div>
+        <p class="team-bio">Ingeniera química con especialización en tecnología de alimentos y bebidas.</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">CR</div>
+        <div class="team-name">Carlos Ríos</div>
+        <div class="team-role">Director Comercial</div>
+        <p class="team-bio">Responsable de la expansión a los 9 departamentos y la red de distribución nacional.</p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -52,5 +52,32 @@ namespace RefrescosDelValle.Services
             await _db.SaveChangesAsync();
             return true;
         }
+
+        public async Task LimpiarOTPAsync(int idUsuario)
+        {
+            // Limpiar el OTP después de uso exitoso
+            var otp = await _db.CodigosOTP
+                .FirstOrDefaultAsync(o => o.IdUsuario == idUsuario && !o.Usado);
+            
+            if (otp != null)
+            {
+                _db.CodigosOTP.Remove(otp);
+                await _db.SaveChangesAsync();
+            }
+        }
+
+        // Método adicional para limpiar OTPs expirados (opcional)
+        public async Task LimpiarOTPsExpiradosAsync()
+        {
+            var expirados = await _db.CodigosOTP
+                .Where(o => o.FechaExpiracion < DateTime.Now && !o.Usado)
+                .ToListAsync();
+
+            if (expirados.Any())
+            {
+                _db.CodigosOTP.RemoveRange(expirados);
+                await _db.SaveChangesAsync();
+            }
+        }
     }
 }
