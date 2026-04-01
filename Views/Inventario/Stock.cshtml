@@ -1,0 +1,200 @@
+@{
+    ViewData["Title"] = "Stock — Módulo Almacén";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/modulos/inventario.css" asp-append-version="true" /> <!--actualizacion aca-->
+    <style>
+        body { background: var(--dark-900); }
+        .page-hero { background:var(--dark-900); padding:3.5rem 2rem 2.5rem; position:relative; overflow:hidden; border-bottom:1px solid var(--dark-700); }
+        .hero-grid-bg { position:absolute; inset:0; pointer-events:none; background-image: repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(192,57,43,.04) 59px,rgba(192,57,43,.04) 60px), repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(192,57,43,.04) 59px,rgba(192,57,43,.04) 60px); }
+        .hero-glow { position:absolute; width:500px; height:500px; background:radial-gradient(circle,rgba(192,57,43,.1) 0%,transparent 70%); top:-180px; right:-60px; pointer-events:none; }
+        .page-hero-inner { max-width:1200px; margin:0 auto; position:relative; z-index:2; display:flex; align-items:flex-end; justify-content:space-between; gap:2rem; flex-wrap:wrap; }
+        .page-eyebrow { display:inline-flex; align-items:center; gap:.6rem; font-family:var(--font-mono); font-size:.65rem; color:var(--gray-500); letter-spacing:1.5px; margin-bottom:.75rem; }
+        .eyebrow-dot { width:6px; height:6px; border-radius:50%; background:var(--red-500); animation:pulse-dot 2s ease infinite; }
+        @@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.75);}}
+        .page-title { font-family:var(--font-display); font-size:clamp(2.5rem,5vw,4rem); color:var(--white); letter-spacing:2px; line-height:.95; }
+        .page-title span { -webkit-text-stroke:2px var(--red-500); color:transparent; }
+        .page-subtitle { font-size:.88rem; color:var(--gray-500); margin-top:.6rem; font-family:var(--font-mono); }
+        .page-hero-btns { display:flex; gap:.75rem; }
+        .pg-breadcrumb { background:var(--dark-900); border-bottom:1px solid var(--dark-700); }
+        .pg-breadcrumb-inner { max-width:1200px; margin:0 auto; padding:.85rem 2rem; display:flex; align-items:center; gap:.4rem; font-size:.7rem; color:var(--gray-600); font-family:var(--font-mono); }
+        .pg-breadcrumb-inner a { color:var(--red-500); text-decoration:none; }
+        .pg-breadcrumb-inner a:hover { text-decoration:underline; }
+        .pg-breadcrumb-inner svg { width:10px; height:10px; stroke:var(--gray-600); fill:none; stroke-width:2.5; }
+        .page-body { max-width:1200px; margin:0 auto; padding:2.5rem 2rem 5rem; }
+    </style>
+}
+
+<!-- Page hero -->
+<div class="page-hero">
+    <div class="hero-grid-bg"></div>
+    <div class="hero-glow"></div>
+    <div class="page-hero-inner">
+        <div>
+            <div class="page-eyebrow"><span class="eyebrow-dot"></span>INVENTARIO · STOCK</div>
+            <div class="page-title">STOCK <span>ACTUAL</span></div>
+            <div class="page-subtitle">Inventario disponible por departamento y producto</div>
+        </div>
+        <div class="page-hero-btns">
+            <button class="btn-secondary" onclick="loadTable()">
+                <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;margin-right:5px" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Actualizar
+            </button>
+            <button class="btn-primary">
+                <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;margin-right:5px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Breadcrumb -->
+<div class="pg-breadcrumb">
+    <div class="pg-breadcrumb-inner">
+        <a asp-controller="Inventario" asp-action="IndexInventario">Inventario</a> <!-- cambio aca-->
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <span>Stock</span>
+    </div>
+</div>
+
+<!-- Contenido -->
+<div class="page-body">
+    <!-- KPIs -->
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="kpi-label">Total unidades</div>
+            <div class="kpi-value">847K</div>
+            <div class="kpi-sub">en todos los deptos.</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Productos activos</div>
+            <div class="kpi-value">38</div>
+            <div class="kpi-sub">SKUs en inventario</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Stock crítico</div>
+            <div class="kpi-value">3</div>
+            <div class="kpi-sub">por debajo del mínimo</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Actualización</div>
+            <div class="kpi-value" style="font-size:1.25rem;margin-top:4px">HOY 08:32</div>
+            <div class="kpi-sub">sincronizado</div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filter-bar">
+        <div class="filter-group">
+            <span class="filter-label">Departamento</span>
+            <div class="dept-dropdown" id="deptDd">
+                <button class="dept-trigger" type="button" onclick="toggleDept()">
+                    <span id="deptLabel">Todos</span>
+                    <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="dept-menu">
+                    <label class="dept-menu-item all-option">
+                        <input type="checkbox" id="chkTodos" checked onchange="toggleTodos(this)"/>
+                        <span>Todos</span>
+                    </label>
+                    @foreach (var depto in new[]{"La Paz","Cochabamba","Santa Cruz","Oruro","Potosí","Chuquisaca","Tarija","Beni","Pando"})
+                    {
+                        <label class="dept-menu-item">
+                            <input type="checkbox" class="dchk" value="@depto" onchange="updateLabel()"/>
+                            <span>@depto</span>
+                        </label>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <span class="filter-label">Producto</span>
+            <div class="product-search-wrap">
+                <svg class="product-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="product-search-input" id="prodInput"
+                       placeholder="Todo — escribe y Enter"
+                       onkeydown="if(event.key==='Enter')loadTable()"/>
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <span class="filter-label">&nbsp;</span>
+            <button class="btn-primary" type="button" onclick="loadTable()">Buscar</button>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="data-table-wrap">
+        <div class="data-table-header">
+            <span class="data-table-title">Stock por departamento</span>
+            <span class="data-table-count" id="rowCount">— registros</span>
+        </div>
+        <div style="overflow-x:auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Departamento</th>
+                        <th>Producto</th>
+                        <th>SKU</th>
+                        <th>Cajas</th>
+                        <th>Botellas</th>
+                        <th>Estado</th>
+                        <th>Actualización</th>
+                    </tr>
+                </thead>
+                <tbody id="stockBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    window.addEventListener('scroll',()=>document.getElementById('navbar')?.classList.toggle('scrolled',window.scrollY>10));
+
+    function toggleDept(){ document.getElementById('deptDd').classList.toggle('open'); }
+    document.addEventListener('click',e=>{ const d=document.getElementById('deptDd'); if(d&&!d.contains(e.target)) d.classList.remove('open'); });
+    function toggleTodos(cb){ document.querySelectorAll('.dchk').forEach(c=>c.checked=false); if(!cb.checked)cb.checked=true; updateLabel(); }
+    function updateLabel(){ const s=[...document.querySelectorAll('.dchk:checked')].map(c=>c.value); if(!s.length){document.getElementById('chkTodos').checked=true;document.getElementById('deptLabel').textContent='Todos';}else{document.getElementById('chkTodos').checked=false;document.getElementById('deptLabel').textContent=s.length===1?s[0]:`${s.length} departamentos`;} }
+
+    const DATA=[
+        ['La Paz','Refresco Cola 500ml','BV-COL-500',4820,28920,'ok'],
+        ['Cochabamba','Refresco Cola 500ml','BV-COL-500',3110,18660,'ok'],
+        ['Santa Cruz','Refresco Cola 500ml','BV-COL-500',5640,33840,'ok'],
+        ['Oruro','Refresco Cola 500ml','BV-COL-500',980,5880,'low'],
+        ['Potosí','Refresco Cola 500ml','BV-COL-500',760,4560,'low'],
+        ['Chuquisaca','Refresco Cola 500ml','BV-COL-500',1230,7380,'ok'],
+        ['Tarija','Refresco Cola 500ml','BV-COL-500',540,3240,'critical'],
+        ['Beni','Refresco Cola 500ml','BV-COL-500',320,1920,'critical'],
+        ['Pando','Refresco Cola 500ml','BV-COL-500',210,1260,'critical'],
+        ['La Paz','Agua Mineral 600ml','BV-AGU-600',6200,37200,'ok'],
+        ['Cochabamba','Agua Mineral 600ml','BV-AGU-600',4100,24600,'ok'],
+        ['Santa Cruz','Agua Mineral 600ml','BV-AGU-600',7200,43200,'ok'],
+    ];
+
+    const SL={ok:'Normal',low:'Bajo mín.',critical:'Crítico'};
+    const SC={ok:'ok',low:'low',critical:'critical'};
+
+    function loadTable(){
+        const p=document.getElementById('prodInput').value.trim().toLowerCase();
+        const s=[...document.querySelectorAll('.dchk:checked')].map(c=>c.value);
+        const t=document.getElementById('chkTodos').checked;
+        const f=DATA.filter(r=>(!p||r[1].toLowerCase().includes(p))&&(t||s.includes(r[0])));
+        document.getElementById('stockBody').innerHTML=f.length
+            ? f.map(r=>`<tr>
+                <td><strong style="color:var(--white)">${r[0]}</strong></td>
+                <td>${r[1]}</td>
+                <td class="id-cell">${r[2]}</td>
+                <td class="num-cell">${r[3].toLocaleString()}</td>
+                <td class="num-cell">${r[4].toLocaleString()}</td>
+                <td><span class="stock-badge ${SC[r[5]]}">${SL[r[5]]}</span></td>
+                <td class="mono-cell">HOY 08:32</td>
+              </tr>`).join('')
+            : `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📦</div><div class="empty-state-title">Sin resultados</div><div class="empty-state-sub">Ajusta los filtros</div></div></td></tr>`;
+        document.getElementById('rowCount').textContent=`${f.length} registros`;
+    }
+
+    loadTable();
+</script>
+}
