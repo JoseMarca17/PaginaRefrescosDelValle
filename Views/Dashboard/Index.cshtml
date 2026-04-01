@@ -10,7 +10,6 @@
     var userName = User.FindFirst(ClaimTypes.Name)?.Value;
 }
 
-<!-- Dashboard Header con botón de retorno -->
 <div class="dashboard-header">
     <div class="header-left">
         <a href="/" class="back-button">
@@ -24,7 +23,21 @@
             <p class="dashboard-subtitle">Bienvenido, @userName</p>
         </div>
     </div>
-    <div class="dashboard-header-right">
+    <div class="dashboard-header-right" style="display: flex; align-items: center; gap: 1rem;">
+        
+        @if (userRole == "SuperAdmin" || userRole == "AdminSeguridad")
+        {
+            <a href="/Seguridad/RegistrarPersonal" style="background: #C8281E; color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-family: 'DM Mono', monospace; font-weight: bold; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; transition: all 0.3s; text-transform: uppercase; border: 1px solid #ff4d4d; box-shadow: 0 0 10px rgba(200, 40, 30, 0.3);">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <line x1="20" y1="8" x2="20" y2="14"></line>
+                    <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+                Nuevo Operador
+            </a>
+        }
+
         <div class="date-badge">
             <svg viewBox="0 0 24 24" width="16" height="16">
                 <rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
@@ -37,7 +50,6 @@
     </div>
 </div>
 
-<!-- Stats Cards -->
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-card-icon red">
@@ -90,7 +102,6 @@
     </div>
 </div>
 
-<!-- Módulos según el rol -->
 <div class="modules-grid">
     @if (userRole == "SuperAdmin" || userRole == "AdminSeguridad")
     {
@@ -239,7 +250,6 @@
     }
 </div>
 
-<!-- Actividad Reciente -->
 <div class="activity-section">
     <div class="activity-header">
         <h3 class="activity-title">Actividad Reciente</h3>

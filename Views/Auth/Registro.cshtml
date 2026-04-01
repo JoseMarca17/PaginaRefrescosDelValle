@@ -1,0 +1,146 @@
+@model RefrescosDelValle.Models.ViewModels.RegistroClienteViewModel
+
+@{
+    ViewData["Title"] = "Registro de Cliente";
+    Layout = null; // El salvavidas para que no herede basura del layout
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nuevo Nodo — Refrescos del Valle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/auth.css" />
+    <style>
+        .btn-volver {
+            position: absolute; top: 1.5rem; left: 1.5rem; color: var(--auth-text-muted); text-decoration: none;
+            display: flex; align-items: center; gap: 0.5rem; font-family: 'DM Mono', monospace;
+            font-size: 0.85rem; transition: all 0.3s; z-index: 50; text-transform: uppercase;
+        }
+        .btn-volver:hover { color: var(--auth-red); transform: translateX(-5px); }
+        
+        /* Grid para que no quede todo en una columna gigante */
+        .registro-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        .full-width { grid-column: 1 / -1; }
+        
+        @@media (max-width: 600px) {
+            .registro-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        
+        <a href="/" class="btn-volver">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Volver al inicio
+        </a>
+
+        <div class="auth-card" style="max-width: 650px;">
+            <div class="auth-logo">
+                <img src="~/assets/img/LogoRefrescosDelValle.png" alt="RV" onerror="this.src='https://via.placeholder.com/80x80?text=RV'"/>
+            </div>
+            
+            <h1 class="auth-title">NUEVO NODO</h1>
+            <p class="auth-subtitle">_ALTA_DE_CLIENTE_WEB</p>
+
+            <form asp-action="Registro" method="post" id="registroForm">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="auth-alert auth-alert-danger">
+                        <div asp-validation-summary="All" style="color: inherit; margin: 0; padding: 0; list-style: none;"></div>
+                    </div>
+                }
+
+                <div class="registro-grid">
+                    
+                    <div class="form-group full-width">
+                        <label asp-for="CI" class="form-label">Cédula de Identidad</label>
+                        <div class="input-icon-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect><line x1="7" y1="15" x2="11" y2="15"></line></svg>
+                            <input asp-for="CI" class="auth-input" placeholder="Ej. 12345678" />
+                        </div>
+                        <span asp-validation-for="CI" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label asp-for="Nombres" class="form-label">Nombres</label>
+                        <div class="input-icon-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            <input asp-for="Nombres" class="auth-input" placeholder="Tus nombres" />
+                        </div>
+                        <span asp-validation-for="Nombres" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ApellidoPat" class="form-label">Apellido Paterno</label>
+                        <div class="input-icon-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg>
+                            <input asp-for="ApellidoPat" class="auth-input" placeholder="Paterno" />
+                        </div>
+                        <span asp-validation-for="ApellidoPat" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ApellidoMat" class="form-label">Apellido Materno</label>
+                        <div class="input-icon-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg>
+                            <input asp-for="ApellidoMat" class="auth-input" placeholder="Materno (Opc)" />
+                        </div>
+                        <span asp-validation-for="ApellidoMat" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label asp-for="Email" class="form-label">Correo Electrónico</label>
+                        <div class="input-icon-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            <input asp-for="Email" class="auth-input" placeholder="correo@ejemplo.com" />
+                        </div>
+                        <span asp-validation-for="Email" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Password" class="form-label">Contraseña</label>
+                        <div class="input-icon-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            <input asp-for="Password" type="password" class="auth-input" placeholder="••••••••" />
+                        </div>
+                        <span asp-validation-for="Password" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ConfirmPassword" class="form-label">Confirmar Pass</label>
+                        <div class="input-icon-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            <input asp-for="ConfirmPassword" type="password" class="auth-input" placeholder="••••••••" />
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="field-validation-error"></span>
+                    </div>
+
+                </div>
+
+                <button type="submit" class="auth-btn">
+                    <span>Ejecutar Registro</span>
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <p class="auth-footer-text">
+                    ¿Ya tienes un acceso asignado? 
+                    <a href="/Auth/Login" style="color: var(--auth-red); text-decoration: none; font-weight: bold;">Iniciar sesión</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

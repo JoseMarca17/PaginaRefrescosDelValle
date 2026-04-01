@@ -1,0 +1,184 @@
+@model RefrescosDelValle.Models.ViewModels.RegistroEmpleadoViewModel
+
+@{
+    ViewData["Title"] = "Aprovisionamiento de Personal";
+    // Asumo que tu layout principal del dashboard está configurado por defecto en _ViewStart
+}
+
+@section Styles {
+    <style>
+        .cyber-panel {
+            background: var(--dark-800, #1a0f0f);
+            border: 1px solid var(--dark-600, #2a1a1a);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .panel-header {
+            border-bottom: 1px solid var(--dark-600, #2a1a1a);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        .panel-title {
+            color: #fff;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        .panel-subtitle {
+            color: #9ca3af;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Grid Layouts */
+        .form-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
+        .form-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
+        
+        .form-label {
+            display: block; color: #9ca3af; font-size: 0.8rem; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 0.5rem; font-family: 'DM Mono', monospace;
+        }
+        .form-control, .form-select {
+            width: 100%; padding: 0.8rem 1rem; background: #0a0303; border: 1px solid #2a1a1a;
+            color: #fff; border-radius: 8px; transition: all 0.3s; box-sizing: border-box;
+        }
+        .form-control:focus, .form-select:focus {
+            outline: none; border-color: #C8281E; box-shadow: 0 0 10px rgba(200, 40, 30, 0.2);
+        }
+        
+        /* Estilos para los Checkboxes de Roles (Estilo Toggles Cyberpunk) */
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            border: 1px dashed #2a1a1a;
+        }
+        .role-checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem;
+            background: #111;
+            border: 1px solid #2a1a1a;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .role-checkbox-wrapper:hover { border-color: #C8281E; }
+        .role-checkbox-wrapper input[type="checkbox"] {
+            accent-color: #C8281E;
+            width: 18px; height: 18px; margin-right: 10px; cursor: pointer;
+        }
+        .role-name { color: #fff; font-size: 0.9rem; font-weight: 500; }
+
+        .btn-ejecutar {
+            background: #C8281E; color: white; border: none; padding: 1rem 2rem;
+            border-radius: 8px; font-weight: bold; font-family: 'DM Mono', monospace;
+            cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 2px;
+            display: flex; align-items: center; gap: 10px; margin-top: 2rem;
+        }
+        .btn-ejecutar:hover { background: #a81f16; transform: translateY(-2px); }
+
+        @@media (max-width: 900px) {
+            .form-grid-3, .form-grid-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+}
+
+<div>
+    @if (TempData["SuccessMsg"] != null)
+    {
+        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #34d399; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-family: 'DM Mono', monospace;">
+            > [SYS_OK]: @TempData["SuccessMsg"]
+        </div>
+    }
+
+    <form asp-action="RegistrarPersonal" method="post">
+        
+        <div class="cyber-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Identidad del Operador</h2>
+                <p class="panel-subtitle">_DATOS_PERSONALES_Y_CREDenciales</p>
+            </div>
+
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label asp-for="CI" class="form-label">Cédula de Identidad</label>
+                    <input asp-for="CI" class="form-control" placeholder="Ej. 12345678" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Nombres" class="form-label">Nombres</label>
+                    <input asp-for="Nombres" class="form-control" placeholder="Nombre completo" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="ApellidoPat" class="form-label">Apellido Paterno</label>
+                    <input asp-for="ApellidoPat" class="form-control" placeholder="Paterno" />
+                </div>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label asp-for="Email" class="form-label">Correo Corporativo (Usuario)</label>
+                    <input asp-for="Email" type="email" class="form-control" placeholder="usuario@refrescosdelvalle.bo" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Password" class="form-label">Contraseña de Red</label>
+                    <input asp-for="Password" type="password" class="form-control" placeholder="Asigne una contraseña segura" />
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Asignación Física</h2>
+                <p class="panel-subtitle">_SUCURSAL_Y_PUESTO_OPERATIVO</p>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label asp-for="SucursalID" class="form-label">Nodo / Sucursal</label>
+                    <select asp-for="SucursalID" class="form-select" asp-items="ViewBag.Sucursales">
+                        <option value="">-- Seleccionar Nodo --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="CargoID" class="form-label">Designación (Cargo)</label>
+                    <select asp-for="CargoID" class="form-select" asp-items="ViewBag.Cargos">
+                        <option value="">-- Asignar Puesto --</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Niveles de Privilegio</h2>
+                <p class="panel-subtitle">_CONTROL_DE_ACCESO_BASADO_EN_ROLES_(RBAC)</p>
+            </div>
+
+            <div class="roles-grid">
+                @foreach (var rol in ViewBag.RolesDisponibles as List<SelectListItem>)
+                {
+                    <label class="role-checkbox-wrapper">
+                        <input type="checkbox" name="RolesSeleccionados" value="@rol.Value" />
+                        <span class="role-name">@rol.Text</span>
+                    </label>
+                }
+            </div>
+
+            <button type="submit" class="btn-ejecutar">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Inyectar Operador en DB
+            </button>
+        </div>
+
+    </form>
+</div>

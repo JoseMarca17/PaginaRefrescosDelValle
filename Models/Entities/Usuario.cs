@@ -1,26 +1,32 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RefrescosDelValle.Models.Entities
 {
+    [Table("Usuarios")]
     public class Usuario
     {
         [Key]
-        public int IdUsuario { get; set; }
-
-        [Required, MaxLength(100)]
-        public string NombreCompleto { get; set; } = string.Empty;
-
-        [Required, MaxLength(150)]
-        public string Email { get; set; } = string.Empty;
+        public int UsuarioID { get; set; }
 
         [Required]
-        public string PasswordHash { get; set; } = string.Empty;
+        public int PersonaID { get; set; }
 
-        [MaxLength(50)]
-        public string Rol { get; set; } = "Usuario";
+        [Required, MaxLength(50)]
+        public string NombreUsuario { get; set; } = null!;
+
+        [Required, MaxLength(255)]
+        [Column("Contrasena")] // Le decimos a EF que en la BD se llama 'Contrasena'
+        public string PasswordHash { get; set; } = null!;
 
         public bool Activo { get; set; } = true;
 
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
+
+        public DateTime? UltimoAcceso { get; set; }
+
+        // Navegación
+        [ForeignKey("PersonaID")]
+        public virtual Persona Persona { get; set; } = null!;
     }
 }
