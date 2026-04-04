@@ -1,0 +1,146 @@
+@model List<RefrescosDelValle.Models.ViewModels.AsistenciaViewModel>
+@{
+    ViewData["Title"] = "Asistencia";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    DateOnly fechaFiltro = ViewBag.FechaFiltro;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/modulos/rrhh.css" />
+}
+
+<div class="modulo-header">
+    <div class="modulo-header-info">
+        <h1 class="modulo-title">Control de Asistencia</h1>
+        <p class="modulo-subtitle">Registro diario de asistencia del personal</p>
+    </div>
+    <a href="@Url.Action("RegistrarAsistencia", "RRHH")" class="btn-primary-rrhh">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Registrar Asistencia
+    </a>
+</div>
+
+@if (TempData["Exito"] != null)
+{
+    <div class="alert-exito">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        @TempData["Exito"]
+    </div>
+}
+
+<!-- Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-green">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">@ViewBag.Presentes</span>
+            <span class="stat-label">Presentes</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-red">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">@ViewBag.Ausentes</span>
+            <span class="stat-label">Ausentes</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-yellow">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">@ViewBag.Tardanzas</span>
+            <span class="stat-label">Tardanzas</span>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="search-bar">
+    <form method="get" asp-action="Asistencia">
+        <div class="search-input-wrap">
+            <input type="date" name="fecha" value="@fechaFiltro.ToString("yyyy-MM-dd")" class="form-control" style="max-width:180px" />
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" name="buscar" value="@ViewBag.Buscar" placeholder="Buscar empleado..." class="search-input" />
+            <button type="submit" class="btn-buscar">Filtrar</button>
+        </div>
+    </form>
+</div>
+
+<!-- Tabla -->
+<div class="table-card">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" fill="none" stroke-width="1">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <p>Sin registros para el @fechaFiltro.ToString("dd/MM/yyyy")</p>
+            <a href="@Url.Action("RegistrarAsistencia", "RRHH")">Registrar asistencia</a>
+        </div>
+    }
+    else
+    {
+        <table class="rrhh-table">
+            <thead>
+                <tr>
+                    <th>Empleado</th>
+                    <th>Fecha</th>
+                    <th>Entrada</th>
+                    <th>Salida</th>
+                    <th>Estado</th>
+                    <th>Justificado</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var a in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="empleado-info">
+                                <div class="empleado-avatar">@a.NombreEmpleado[0]</div>
+                                <span class="empleado-nombre">@a.NombreEmpleado</span>
+                            </div>
+                        </td>
+                        <td>@a.Fecha.ToString("dd/MM/yyyy")</td>
+                        <td>@a.HoraEntrada.ToString("HH:mm")</td>
+                        <td>@(a.HoraSalida.HasValue ? a.HoraSalida.Value.ToString("HH:mm") : "-")</td>
+                        <td>
+                            <span class="badge badge-@(a.Estado == "Presente" ? "green" : a.Estado == "Tardanza" ? "yellow" : a.Estado == "Licencia" ? "blue" : "red")">
+                                @a.Estado
+                            </span>
+                        </td>
+                        <td>
+                            @if (a.Justificado)
+                            {
+                                <span class="badge badge-green">Sí</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-gray">No</span>
+                            }
+                        </td>
+                        <td>@(a.Observaciones ?? "-")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

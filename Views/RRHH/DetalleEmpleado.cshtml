@@ -1,0 +1,79 @@
+@model RefrescosDelValle.Models.Entities.Empleado
+@{
+    ViewData["Title"] = "Detalle Empleado";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/modulos/rrhh.css" />
+}
+
+<div class="modulo-header">
+    <div class="modulo-header-info">
+        <a href="@Url.Action("Empleados", "RRHH")" class="btn-volver">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Volver a Empleados
+        </a>
+        <h1 class="modulo-title">@Model.Persona.Nombres @Model.Persona.ApellidoPat</h1>
+        <p class="modulo-subtitle">Ficha del empleado</p>
+    </div>
+    <span class="badge badge-@(Model.Estado == "Activo" ? "green" : "red") badge-lg">@Model.Estado</span>
+</div>
+
+<div class="detalle-grid">
+    <!-- Datos personales -->
+    <div class="detalle-card">
+        <h3 class="detalle-card-title">Datos Personales</h3>
+        <div class="detalle-row"><span>CI</span><strong>@Model.Persona.CI</strong></div>
+        <div class="detalle-row"><span>Correo</span><strong>@(Model.Persona.CorreoPrincipal ?? "-")</strong></div>
+        <div class="detalle-row"><span>Fecha Nacimiento</span><strong>@Model.FechaNacimiento.ToString("dd/MM/yyyy")</strong></div>
+    </div>
+
+    <!-- Datos laborales -->
+    <div class="detalle-card">
+        <h3 class="detalle-card-title">Datos Laborales</h3>
+        <div class="detalle-row"><span>Cargo</span><strong>@Model.Cargo.NombreCargo</strong></div>
+        <div class="detalle-row"><span>Departamento</span><strong>@Model.Departamento.NombreDepartamento</strong></div>
+        <div class="detalle-row"><span>Salario</span><strong>Bs. @Model.Salario.ToString("N2")</strong></div>
+        <div class="detalle-row"><span>Fecha Ingreso</span><strong>@Model.FechaIngreso.ToString("dd/MM/yyyy")</strong></div>
+        <div class="detalle-row">
+            <span>Antigüedad</span>
+            <strong>
+                @{
+                    var hoy = DateOnly.FromDateTime(DateTime.Today);
+                    var anios = hoy.Year - Model.FechaIngreso.Year;
+                    if (Model.FechaIngreso > hoy.AddYears(-anios)) anios--;
+                }
+                @anios año(s)
+            </strong>
+        </div>
+    </div>
+</div>
+
+<!-- Últimas asistencias -->
+<div class="table-card" style="margin-top:1.5rem">
+    <h3 class="detalle-card-title" style="padding:1rem 1.5rem 0">Últimas Asistencias</h3>
+    @if (!Model.Asistencias.Any())
+    {
+        <p class="empty-state-sm">Sin registros de asistencia</p>
+    }
+    else
+    {
+        <table class="rrhh-table">
+            <thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Estado</th></tr></thead>
+            <tbody>
+                @foreach (var a in Model.Asistencias.OrderByDescending(a => a.Fecha).Take(10))
+                {
+                    <tr>
+                        <td>@a.Fecha.ToString("dd/MM/yyyy")</td>
+                        <td>@a.HoraEntrada.ToString("HH:mm")</td>
+                        <td>@(a.HoraSalida.HasValue ? a.HoraSalida.Value.ToString("HH:mm") : "-")</td>
+                        <td><span class="badge badge-@(a.Estado == "Presente" ? "green" : a.Estado == "Tardanza" ? "yellow" : "red")">@a.Estado</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

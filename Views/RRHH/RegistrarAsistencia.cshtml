@@ -1,0 +1,84 @@
+@model RefrescosDelValle.Models.ViewModels.RegistrarAsistenciaViewModel
+@{
+    ViewData["Title"] = "Registrar Asistencia";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/modulos/rrhh.css" />
+}
+
+<div class="modulo-header">
+    <div class="modulo-header-info">
+        <a href="@Url.Action("Asistencia", "RRHH")" class="btn-volver">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Volver
+        </a>
+        <h1 class="modulo-title">Registrar Asistencia</h1>
+        <p class="modulo-subtitle">Ingresa el registro de asistencia de un empleado</p>
+    </div>
+</div>
+
+<div class="form-card">
+    <form asp-action="RegistrarAsistencia" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert-error"></div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="EmpleadoID">Empleado</label>
+                <select asp-for="EmpleadoID" asp-items="ViewBag.Empleados" class="form-control">
+                    <option value="">-- Seleccionar empleado --</option>
+                </select>
+                <span asp-validation-for="EmpleadoID" class="field-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Fecha">Fecha</label>
+                <input asp-for="Fecha" class="form-control" type="date" />
+                <span asp-validation-for="Fecha" class="field-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HoraEntrada">Hora de Entrada</label>
+                <input asp-for="HoraEntrada" class="form-control" type="time" />
+                <span asp-validation-for="HoraEntrada" class="field-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HoraSalida">Hora de Salida</label>
+                <input asp-for="HoraSalida" class="form-control" type="time" />
+                <span asp-validation-for="HoraSalida" class="field-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Estado">Estado</label>
+                <select asp-for="Estado" class="form-control">
+                    <option value="Presente">Presente</option>
+                    <option value="Ausente">Ausente</option>
+                    <option value="Tardanza">Tardanza</option>
+                    <option value="Licencia">Licencia</option>
+                </select>
+                <span asp-validation-for="Estado" class="field-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input asp-for="Justificado" type="checkbox" />
+                    Justificado
+                </label>
+            </div>
+            <div class="form-group form-group-full">
+                <label asp-for="Observaciones">Observaciones</label>
+                <textarea asp-for="Observaciones" class="form-control" rows="3" placeholder="Opcional..."></textarea>
+                <span asp-validation-for="Observaciones" class="field-error"></span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="@Url.Action("Asistencia", "RRHH")" class="btn-cancelar">Cancelar</a>
+            <button type="submit" class="btn-primary-rrhh">Guardar Registro</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
