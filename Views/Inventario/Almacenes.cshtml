@@ -1,0 +1,142 @@
+@{
+    ViewData["Title"] = "Almacenes — Módulo Almacén";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/modulos/inventario.css" asp-append-version="true" /> <!--actualizacion aca-->
+    <style>
+        body { background: var(--dark-900); }
+        .page-hero { background:var(--dark-900); padding:3.5rem 2rem 2.5rem; position:relative; overflow:hidden; border-bottom:1px solid var(--dark-700); }
+        .hero-grid-bg { position:absolute; inset:0; pointer-events:none; background-image: repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(192,57,43,.04) 59px,rgba(192,57,43,.04) 60px), repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(192,57,43,.04) 59px,rgba(192,57,43,.04) 60px); }
+        .hero-glow { position:absolute; width:500px; height:500px; background:radial-gradient(circle,rgba(192,57,43,.1) 0%,transparent 70%); top:-180px; right:-60px; pointer-events:none; }
+        .page-hero-inner { max-width:1200px; margin:0 auto; position:relative; z-index:2; display:flex; align-items:flex-end; justify-content:space-between; gap:2rem; flex-wrap:wrap; }
+        .page-eyebrow { display:inline-flex; align-items:center; gap:.6rem; font-family:var(--font-mono); font-size:.65rem; color:var(--gray-500); letter-spacing:1.5px; margin-bottom:.75rem; }
+        .eyebrow-dot { width:6px; height:6px; border-radius:50%; background:var(--red-500); animation:pulse-dot 2s ease infinite; }
+        @@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.75);}}
+        .page-title { font-family:var(--font-display); font-size:clamp(2.5rem,5vw,4rem); color:var(--white); letter-spacing:2px; line-height:.95; }
+        .page-title span { -webkit-text-stroke:2px var(--red-500); color:transparent; }
+        .page-subtitle { font-size:.88rem; color:var(--gray-500); margin-top:.6rem; font-family:var(--font-mono); }
+        .pg-breadcrumb { background:var(--dark-900); border-bottom:1px solid var(--dark-700); }
+        .pg-breadcrumb-inner { max-width:1200px; margin:0 auto; padding:.85rem 2rem; display:flex; align-items:center; gap:.4rem; font-size:.7rem; color:var(--gray-600); font-family:var(--font-mono); }
+        .pg-breadcrumb-inner a { color:var(--red-500); text-decoration:none; }
+        .pg-breadcrumb-inner a:hover { text-decoration:underline; }
+        .pg-breadcrumb-inner svg { width:10px; height:10px; stroke:var(--gray-600); fill:none; stroke-width:2.5; }
+        .page-body { max-width:1200px; margin:0 auto; padding:2.5rem 2rem 5rem; }
+        /* Detail header */
+        .detail-header { margin-bottom:2rem; padding-bottom:1.25rem; border-bottom:1px solid var(--dark-700); display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+        .detail-title { font-family:var(--font-display); font-size:clamp(1.8rem,3vw,2.8rem); color:var(--white); letter-spacing:1px; line-height:1; }
+        .detail-sub { font-family:var(--font-mono); font-size:.7rem; color:var(--gray-500); margin-top:.4rem; }
+        @@media(max-width:768px){ .page-hero-inner{flex-direction:column;align-items:flex-start;} .warehouse-card{flex-wrap:wrap;} .wh-capacity-wrap{width:100%;} }
+        @@media(max-width:640px){ .dept-grid{grid-template-columns:1fr 1fr;} }
+        @@media(max-width:400px){ .dept-grid{grid-template-columns:1fr;} }
+    </style>
+}
+
+<!-- Page hero -->
+<div class="page-hero">
+    <div class="hero-grid-bg"></div>
+    <div class="hero-glow"></div>
+    <div class="page-hero-inner">
+        <div>
+            <div class="page-eyebrow"><span class="eyebrow-dot"></span>INVENTARIO · ALMACENES</div>
+            <div class="page-title" id="heroTitle">ALMACENES <span>BOLIVIA</span></div>
+            <div class="page-subtitle" id="heroSub">Selecciona un departamento para ver el detalle</div>
+        </div>
+    </div>
+</div>
+
+<!-- Breadcrumb -->
+<div class="pg-breadcrumb">
+    <div class="pg-breadcrumb-inner">
+        <a asp-controller="Inventario" asp-action="IndexInventario">Inventario</a> <!-- cambio aca-->
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <span id="bcCur">Almacenes</span>
+    </div>
+</div>
+
+<!-- Vista: lista de departamentos -->
+<div class="page-body" id="viewDepts">
+    <div class="kpi-row">
+        <div class="kpi-card"><div class="kpi-label">Total almacenes</div><div class="kpi-value">27</div><div class="kpi-sub">en todo el país</div></div>
+        <div class="kpi-card"><div class="kpi-label">Capacidad total</div><div class="kpi-value">1 840</div><div class="kpi-sub">toneladas</div></div>
+        <div class="kpi-card"><div class="kpi-label">Ocupación media</div><div class="kpi-value">73%</div><div class="kpi-sub">promedio nacional</div></div>
+        <div class="kpi-card"><div class="kpi-label">Almacenes llenos</div><div class="kpi-value">4</div><div class="kpi-sub">&gt;90% capacidad</div></div>
+    </div>
+    <div class="dept-grid" id="deptGrid"></div>
+</div>
+
+<!-- Vista: detalle de un departamento -->
+<div class="page-body" id="viewDetail" style="display:none">
+    <button class="back-btn" onclick="backToDepts()">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Volver a departamentos
+    </button>
+    <div class="detail-header">
+        <div>
+            <div class="page-eyebrow" style="margin-bottom:.5rem"><span class="eyebrow-dot"></span><span id="detailTag">—</span></div>
+            <div class="detail-title" id="detailTitle">—</div>
+            <div class="detail-sub" id="detailSub">—</div>
+        </div>
+    </div>
+    <div class="warehouse-list" id="whList"></div>
+</div>
+
+@section Scripts {
+<script>
+    window.addEventListener('scroll',()=>document.getElementById('navbar')?.classList.toggle('scrolled',window.scrollY>10));
+
+    const DEPTS=[
+        {n:'La Paz',e:'🏔️',a:[{id:'ALM-LP-01',n:'Almacén Central La Paz',t:'Principal',cap:60,uso:55.6},{id:'ALM-LP-02',n:'Bodega El Alto',t:'Distribución',cap:30,uso:28.1},{id:'ALM-LP-03',n:'Depósito Sur Obrajes',t:'Secundario',cap:15,uso:9.4},{id:'ALM-LP-04',n:'Almacén Norte Achacachi',t:'Satélite',cap:10,uso:7.7}]},
+        {n:'Cochabamba',e:'🌸',a:[{id:'ALM-CB-01',n:'Almacén Central Cbba',t:'Principal',cap:50,uso:46.2},{id:'ALM-CB-02',n:'Bodega Quillacollo',t:'Distribución',cap:25,uso:22.8},{id:'ALM-CB-03',n:'Depósito Sacaba',t:'Secundario',cap:12,uso:10.1}]},
+        {n:'Santa Cruz',e:'🌴',a:[{id:'ALM-SC-01',n:'Almacén Central SCZ',t:'Principal',cap:80,uso:77.3},{id:'ALM-SC-02',n:'Bodega Montero',t:'Distribución',cap:40,uso:38.9},{id:'ALM-SC-03',n:'Depósito Warnes',t:'Secundario',cap:20,uso:14.5},{id:'ALM-SC-04',n:'Almacén Plan 3000',t:'Satélite',cap:10,uso:9.8}]},
+        {n:'Oruro',e:'⛏️',a:[{id:'ALM-OR-01',n:'Almacén Central Oruro',t:'Principal',cap:20,uso:12.4},{id:'ALM-OR-02',n:'Bodega Sur Caracollo',t:'Secundario',cap:8,uso:5.1}]},
+        {n:'Potosí',e:'🏺',a:[{id:'ALM-PT-01',n:'Almacén Central Potosí',t:'Principal',cap:18,uso:11.6},{id:'ALM-PT-02',n:'Bodega Uyuni',t:'Satélite',cap:8,uso:4.3}]},
+        {n:'Chuquisaca',e:'⚖️',a:[{id:'ALM-CH-01',n:'Almacén Central Sucre',t:'Principal',cap:22,uso:18.9},{id:'ALM-CH-02',n:'Bodega Camargo',t:'Secundario',cap:8,uso:5.8}]},
+        {n:'Tarija',e:'🍇',a:[{id:'ALM-TJ-01',n:'Almacén Central Tarija',t:'Principal',cap:18,uso:10.2},{id:'ALM-TJ-02',n:'Bodega Bermejo',t:'Satélite',cap:6,uso:3.1}]},
+        {n:'Beni',e:'🐊',a:[{id:'ALM-BN-01',n:'Almacén Central Trinidad',t:'Principal',cap:15,uso:8.7},{id:'ALM-BN-02',n:'Bodega Riberalta',t:'Satélite',cap:6,uso:4.2}]},
+        {n:'Pando',e:'🌿',a:[{id:'ALM-PD-01',n:'Almacén Central Cobija',t:'Principal',cap:10,uso:5.4}]},
+    ];
+
+    document.getElementById('deptGrid').innerHTML=DEPTS.map((d,i)=>`
+      <div class="dept-card" onclick="showDetail(${i})">
+        <span class="dept-card-map">${d.e}</span>
+        <div class="dept-card-name">${d.n}</div>
+        <div class="dept-card-count"><strong>${d.a.length}</strong> almacén${d.a.length>1?'es':''}</div>
+        <div class="dept-card-caret"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>`).join('');
+
+    function lvl(u,c){ const p=u/c*100; return p>=90?'full':p>=55?'mid':'low'; }
+
+    function showDetail(i){
+        const d=DEPTS[i];
+        document.getElementById('viewDepts').style.display='none';
+        document.getElementById('viewDetail').style.display='block';
+        document.getElementById('heroTitle').innerHTML=`${d.e} <span>${d.n.toUpperCase()}</span>`;
+        document.getElementById('heroSub').textContent=`${d.a.length} almacén${d.a.length>1?'es':''} registrados`;
+        document.getElementById('detailTag').textContent=d.n.toUpperCase()+' · ALMACENES';
+        document.getElementById('detailTitle').textContent=`${d.a.length} almacén${d.a.length>1?'es':''} en ${d.n}`;
+        document.getElementById('detailSub').textContent='Capacidad y ocupación actual';
+        document.getElementById('bcCur').textContent=d.n;
+        document.getElementById('whList').innerHTML=d.a.map(a=>{
+            const p=(a.uso/a.cap*100).toFixed(0);
+            return `<div class="warehouse-card">
+                <div class="wh-icon">🏭</div>
+                <div class="wh-info"><div class="wh-name">${a.n}</div><div class="wh-type">${a.t} · ${a.id}</div></div>
+                <div class="wh-capacity-wrap">
+                    <div class="wh-capacity-label"><span>Capacidad</span><strong>${a.uso} / ${a.cap} t &nbsp;(${p}%)</strong></div>
+                    <div class="wh-bar-track"><div class="wh-bar-fill ${lvl(a.uso,a.cap)}" style="width:${p}%"></div></div>
+                </div>
+            </div>`;}).join('');
+        window.scrollTo(0,0);
+    }
+
+    function backToDepts(){
+        document.getElementById('viewDetail').style.display='none';
+        document.getElementById('viewDepts').style.display='block';
+        document.getElementById('heroTitle').innerHTML='ALMACENES <span>BOLIVIA</span>';
+        document.getElementById('heroSub').textContent='Selecciona un departamento para ver el detalle';
+        document.getElementById('bcCur').textContent='Almacenes';
+        window.scrollTo(0,0);
+    }
+</script>
+}
