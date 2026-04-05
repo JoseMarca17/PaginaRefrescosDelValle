@@ -215,6 +215,40 @@ namespace RefrescosDelValle.Controllers
             
             return View();
         }
+        public IActionResult Comercial()
+        {
+            // ==========================================
+            // DATOS SIMULADOS PARA QUE LA VISTA FUNCIONE
+            // Aquí luego conectarás tu base de datos (ej: _context.Clientes.Count())
+            // ==========================================
+
+            // KPIs Ventas
+            ViewBag.VentasKpi_PedidosActivos = 12;
+            ViewBag.TotalClientes = 145;
+            ViewBag.VentasKpi_IngresosMes = 45250.50;
+            ViewBag.VentasKpi_PedidosHoy = 5;
+
+            // KPIs Compras
+            ViewBag.ComprasKpi_OrdenesPendientes = 3;
+            ViewBag.TotalProveedores = 24;
+            ViewBag.ComprasKpi_DeudaTotal = 12500.00;
+
+            // KPIs Logística
+            ViewBag.LogisticaKpi_VehiculosOperativos = 8;
+            ViewBag.LogisticaKpi_EntregasHoy = 15;
+            ViewBag.LogisticaKpi_DespachosRuta = 4;
+
+            // Actividad Operativa Simulada
+            ViewBag.ActividadOperativa = new List<dynamic>
+            {
+                new { Tipo = "venta", Descripcion = "Nuevo pedido registrado", Fecha = DateTime.Now.AddMinutes(-15), Referencia = "Cliente: Supermercado Fidalga" },
+                new { Tipo = "logistica", Descripcion = "Despacho en ruta", Fecha = DateTime.Now.AddMinutes(-45), Referencia = "Vehículo: ABC-123" },
+                new { Tipo = "compra", Descripcion = "Recepción de mercadería", Fecha = DateTime.Now.AddHours(-2), Referencia = "Orden #OC-1002" }
+            };
+
+            // Retorna la vista Comercial.cshtml que creaste en la carpeta Dashboard
+            return View();
+        }
     }
     
     // ViewModel para actividad reciente
