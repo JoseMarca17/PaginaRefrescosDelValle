@@ -1,0 +1,89 @@
+@{
+    ViewData["Title"] = "Matriz de Roles";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .roles-container { max-width: 1200px; margin: 0 auto; padding: 6rem 2rem; position: relative; z-index: 2; }
+        .page-header { margin-bottom: 3rem; border-left: 4px solid #d82c20; padding-left: 1.5rem; }
+        .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #ffffff; }
+        
+        /* Matriz de Roles */
+        .roles-matrix { background: #050202; border: 1px solid #3a2525; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .matrix-table { width: 100%; border-collapse: collapse; text-align: left; }
+        
+        .matrix-table th { background: #1a0f0f; color: #e55a4e; padding: 1.2rem; font-family: monospace; text-transform: uppercase; font-size: 0.8rem; border-bottom: 1px solid #3a2525; }
+        .matrix-table td { padding: 1.2rem; color: #9ca3af; border-bottom: 1px solid #1a0f0f; font-size: 0.9rem; }
+        
+        .role-name { color: #ffffff; font-weight: bold; }
+        .perm-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.7rem; font-family: monospace; margin-right: 0.4rem; margin-bottom: 0.4rem; }
+        
+        /* Colores por tipo de permiso */
+        .p-view { background: rgba(52, 152, 219, 0.1); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.2); }
+        .p-edit { background: rgba(241, 196, 15, 0.1); color: #f1c40f; border: 1px solid rgba(241, 196, 15, 0.2); }
+        .p-delete { background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.2); }
+        .p-admin { background: rgba(155, 89, 182, 0.1); color: #9b59b2; border: 1px solid rgba(155, 89, 182, 0.2); }
+
+        .btn-new-role { background: #d82c20; color: white; padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none; font-weight: bold; float: right; font-size: 0.8rem; }
+    </style>
+}
+
+<div class="roles-container">
+    <a href="#" class="btn-new-role">+ Crear Nuevo Rol</a>
+    <div class="page-header">
+        <h1 class="page-title">Matriz de Roles y Permisos</h1>
+        <p style="color: #6b7280;">Configuración de niveles de acceso por módulo.</p>
+    </div>
+
+    <div class="roles-matrix">
+        <table class="matrix-table">
+            <thead>
+                <tr>
+                    <th>ID_ROL</th>
+                    <th>NOMBRE DEL ROL</th>
+                    <th>MÓDULOS ASIGNADOS</th>
+                    <th>ACCIONES PERMITIDAS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>0x01</td>
+                    <td class="role-name">SuperAdmin</td>
+                    <td>TODOS</td>
+                    <td>
+                        <span class="perm-badge p-admin">SYSTEM_OWNER</span>
+                        <span class="perm-badge p-admin">ALL_ACCESS</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>0x02</td>
+                    <td class="role-name">AdminSeguridad</td>
+                    <td>Seguridad, Usuarios</td>
+                    <td>
+                        <span class="perm-badge p-view">VER</span>
+                        <span class="perm-badge p-edit">EDITAR</span>
+                        <span class="perm-badge p-delete">ELIMINAR</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>0x03</td>
+                    <td class="role-name">OperadorVentas</td>
+                    <td>Ventas, Clientes</td>
+                    <td>
+                        <span class="perm-badge p-view">VER</span>
+                        <span class="perm-badge p-edit">CREAR_PEDIDO</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>0x04</td>
+                    <td class="role-name">Auditor Externo</td>
+                    <td>Bitácora, Reportes</td>
+                    <td>
+                        <span class="perm-badge p-view">SOLO_LECTURA</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

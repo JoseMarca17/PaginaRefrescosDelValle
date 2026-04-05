@@ -1,0 +1,162 @@
+@model List<RefrescosDelValle.Models.ViewModels.EmpleadoViewModel>
+@{
+    ViewData["Title"] = "Empleados";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/modulos/rrhh.css" />
+}
+
+<div class="modulo-header">
+    <div class="modulo-header-info">
+        <h1 class="modulo-title">Gestión de Empleados</h1>
+        <p class="modulo-subtitle">Administra el personal de Refrescos del Valle</p>
+    </div>
+    <a href="@Url.Action("CrearEmpleado", "RRHH")" class="btn-primary-rrhh">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Nuevo Empleado
+    </a>
+</div>
+
+@if (TempData["Exito"] != null)
+{
+    <div class="alert-exito">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        @TempData["Exito"]
+    </div>
+}
+
+<!-- Tarjetas resumen -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-blue">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">@ViewBag.TotalEmpleados</span>
+            <span class="stat-label">Total empleados</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-green">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">@ViewBag.TotalActivos</span>
+            <span class="stat-label">Activos</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-purple">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 7h8M8 12h8M8 17h4"/>
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">@ViewBag.TotalDepartamentos</span>
+            <span class="stat-label">Departamentos</span>
+        </div>
+    </div>
+</div>
+
+<!-- Buscador -->
+<div class="search-bar">
+    <form method="get" asp-action="Empleados">
+        <div class="search-input-wrap">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" name="buscar" value="@ViewBag.Buscar"
+                   placeholder="Buscar por nombre, CI, cargo o departamento..." class="search-input" />
+            <button type="submit" class="btn-buscar">Buscar</button>
+        </div>
+    </form>
+</div>
+
+<!-- Tabla -->
+<div class="table-card">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" fill="none" stroke-width="1">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            </svg>
+            <p>No se encontraron empleados</p>
+            <a href="@Url.Action("CrearEmpleado", "RRHH")">Registrar el primero</a>
+        </div>
+    }
+    else
+    {
+        <table class="rrhh-table">
+            <thead>
+                <tr>
+                    <th>Empleado</th>
+                    <th>CI</th>
+                    <th>Cargo</th>
+                    <th>Departamento</th>
+                    <th>Salario</th>
+                    <th>Ingreso</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var e in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="empleado-info">
+                                <div class="empleado-avatar">@e.NombreCompleto[0]</div>
+                                <div>
+                                    <span class="empleado-nombre">@e.NombreCompleto</span>
+                                    <span class="empleado-correo">@(e.Correo ?? "-")</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>@e.CI</td>
+                        <td>@e.Cargo</td>
+                        <td>@e.Departamento</td>
+                        <td>Bs. @e.Salario.ToString("N2")</td>
+                        <td>@e.FechaIngreso.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <span class="badge badge-@(e.Estado == "Activo" ? "green" : "red")">
+                                @e.Estado
+                            </span>
+                        </td>
+                        <td>
+                            <div class="acciones">
+                                <a href="@Url.Action("DetalleEmpleado", "RRHH", new { id = e.EmpleadoID })"
+                                   class="btn-accion btn-ver" title="Ver detalle">
+                                    <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" fill="none" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </a>
+                                <form method="post" asp-action="ToggleEstadoEmpleado" asp-route-id="@e.EmpleadoID" style="display:inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-accion @(e.Estado == "Activo" ? "btn-warning" : "btn-success")"
+                                            title="@(e.Estado == "Activo" ? "Desactivar" : "Activar")">
+                                        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" fill="none" stroke-width="2">
+                                            <rect x="1" y="5" width="22" height="14" rx="7"/>
+                                            <circle cx="@(e.Estado == "Activo" ? "16" : "8")" cy="12" r="3" fill="currentColor"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

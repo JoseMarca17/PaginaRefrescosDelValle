@@ -1,0 +1,123 @@
+@model RefrescosDelValle.Models.ViewModels.CrearEmpleadoViewModel
+@{
+    ViewData["Title"] = "Nuevo Empleado";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/modulos/rrhh.css" />
+}
+
+<div class="modulo-header">
+    <div class="modulo-header-info">
+        <a href="@Url.Action("Empleados", "RRHH")" class="btn-volver">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Volver
+        </a>
+        <h1 class="modulo-title">Registrar Nuevo Empleado</h1>
+        <p class="modulo-subtitle">Completa los datos personales y laborales</p>
+    </div>
+</div>
+
+<div class="form-card">
+    <form asp-action="CrearEmpleado" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert-error"></div>
+
+        <!-- Sección: Datos Personales -->
+        <div class="form-section">
+            <h2 class="form-section-title">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                </svg>
+                Datos Personales
+            </h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="Nombres">Nombres</label>
+                    <input asp-for="Nombres" class="form-control" placeholder="Ej: Juan Carlos" />
+                    <span asp-validation-for="Nombres" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ApellidoPat">Apellido Paterno</label>
+                    <input asp-for="ApellidoPat" class="form-control" placeholder="Ej: Mamani" />
+                    <span asp-validation-for="ApellidoPat" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ApellidoMat">Apellido Materno</label>
+                    <input asp-for="ApellidoMat" class="form-control" placeholder="Opcional" />
+                    <span asp-validation-for="ApellidoMat" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="CI">CI (8 dígitos)</label>
+                    <input asp-for="CI" class="form-control" placeholder="Ej: 12345678" maxlength="8" />
+                    <span asp-validation-for="CI" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Correo">Correo Electrónico</label>
+                    <input asp-for="Correo" class="form-control" type="email" placeholder="Ej: juan@empresa.com" />
+                    <span asp-validation-for="Correo" class="field-error"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección: Datos Laborales -->
+        <div class="form-section">
+            <h2 class="form-section-title">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2">
+                    <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-4 0v2"/>
+                </svg>
+                Datos Laborales
+            </h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="CargoID">Cargo</label>
+                    <select asp-for="CargoID" asp-items="ViewBag.Cargos" class="form-control">
+                        <option value="">-- Seleccionar cargo --</option>
+                    </select>
+                    <span asp-validation-for="CargoID" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DepartamentoID">Departamento</label>
+                    <select asp-for="DepartamentoID" asp-items="ViewBag.Departamentos" class="form-control">
+                        <option value="">-- Seleccionar departamento --</option>
+                    </select>
+                    <span asp-validation-for="DepartamentoID" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SucursalID">Sucursal</label>
+                    <select asp-for="SucursalID" asp-items="ViewBag.Sucursales" class="form-control">
+                        <option value="">-- Seleccionar sucursal --</option>
+                    </select>
+                    <span asp-validation-for="SucursalID" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Salario">Salario (Bs.)</label>
+                    <input asp-for="Salario" class="form-control" type="number" step="0.01" min="0" placeholder="0.00" />
+                    <span asp-validation-for="Salario" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="FechaNacimiento">Fecha de Nacimiento</label>
+                    <input asp-for="FechaNacimiento" class="form-control" type="date" />
+                    <span asp-validation-for="FechaNacimiento" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="FechaIngreso">Fecha de Ingreso</label>
+                    <input asp-for="FechaIngreso" class="form-control" type="date" />
+                    <span asp-validation-for="FechaIngreso" class="field-error"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="@Url.Action("Empleados", "RRHH")" class="btn-cancelar">Cancelar</a>
+            <button type="submit" class="btn-primary-rrhh">Registrar Empleado</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

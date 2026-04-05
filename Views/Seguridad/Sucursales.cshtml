@@ -1,0 +1,46 @@
+@{
+    ViewData["Title"] = "Nodos de Red";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .page-wrapper { max-width: 1200px; margin: 0 auto; padding: 6rem 2rem; position: relative; z-index: 2; }
+        .page-header { margin-bottom: 2.5rem; border-left: 4px solid var(--red-600); padding-left: 1.5rem; }
+        .page-title { font-family: var(--font-display); font-size: 2.2rem; color: var(--white); margin-bottom: 0.5rem; }
+        .page-desc { color: var(--gray-400); font-size: 0.95rem; }
+
+        .nodes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .node-card { background: var(--dark-800); border: 1px solid var(--dark-600); border-radius: var(--radius-lg); padding: 1.8rem; position: relative; }
+        .node-status { position: absolute; top: 1.8rem; right: 1.8rem; width: 10px; height: 10px; border-radius: 50%; background: #27c93f; box-shadow: 0 0 10px #27c93f; }
+        
+        .node-id { font-family: var(--font-mono); color: var(--red-500); font-size: 0.75rem; margin-bottom: 0.5rem; letter-spacing: 1px; }
+        .node-name { font-family: var(--font-display); font-size: 1.4rem; color: var(--white); margin-bottom: 1rem; }
+        .node-address { color: var(--gray-400); font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.5; }
+        
+        .node-stats { display: flex; gap: 1rem; border-top: 1px solid var(--dark-700); padding-top: 1rem; }
+        .n-stat { display: flex; flex-direction: column; }
+        .n-stat-val { color: var(--white); font-weight: bold; font-size: 1.1rem; }
+        .n-stat-lbl { color: var(--gray-500); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
+    </style>
+}
+
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1 class="page-title">Topología de Nodos</h1>
+        <p class="page-desc">Puntos físicos de conexión y despliegue del sistema.</p>
+    </div>
+
+    <div class="nodes-grid">
+        <div class="node-card">
+            <div class="node-status"></div>
+            <div class="node-id">NODO_01</div>
+            <div class="node-name">Sede Central La Paz</div>
+            <div class="node-address">Av. Arce #1234, Edificio Corporativo<br>La Paz, Bolivia</div>
+            <div class="node-stats">
+                <div class="n-stat"><span class="n-stat-val">14</span><span class="n-stat-lbl">Terminales</span></div>
+                <div class="n-stat"><span class="n-stat-val">3</span><span class="n-stat-lbl">Almacenes</span></div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,114 @@
+@{
+    ViewData["Title"] = "SOC - Centro de Mando";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .hero-seg {
+            background: #0a0303;
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Centrado horizontal */
+            position: relative;
+            overflow: hidden;
+            padding: 2rem;
+        }
+
+        .hero-grid-bg {
+            position: absolute; inset: 0; pointer-events: none;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,40,30,0.05) 59px, rgba(200,40,30,0.05) 60px),
+                repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,40,30,0.05) 59px, rgba(200,40,30,0.05) 60px);
+        }
+
+        .hero-glow { position:absolute; width:600px; height:600px; background:radial-gradient(circle,rgba(200,40,30,.1) 0%,transparent 70%); top:50%; left:50%; transform:translate(-50%, -50%); pointer-events:none; }
+
+        .hero-seg-inner { 
+            max-width: 1000px; /* Reducido para compactar */
+            margin: 0 auto; 
+            width: 100%; 
+            position: relative; 
+            z-index: 2; 
+            text-align: center; /* Centramos el texto del lado izquierdo */
+        }
+
+        .hero-eyebrow { display:inline-flex; align-items:center; gap:.6rem; font-family:monospace; font-size:.7rem; color:#9ca3af; letter-spacing:2px; margin-bottom:1.5rem; }
+        .eyebrow-dot { width:6px; height:6px; border-radius:50%; background:#d82c20; }
+
+        .hero-seg-title { font-family: 'Playfair Display', serif; font-size: 4rem; color:#ffffff; line-height:1; margin-bottom:1.5rem; }
+        .title-stroke { -webkit-text-stroke:1px #d82c20; color:transparent; }
+        
+        .hero-seg-desc { color:#9ca3af; font-size:1rem; max-width:600px; margin: 0 auto 3rem; line-height:1.6; }
+
+        /* Grid de tarjetas centrado */
+        .module-grid-center { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 1.5rem; 
+            justify-content: center;
+        }
+
+        .module-card { 
+            background: #1a0f0f; 
+            border: 1px solid #3a2525; 
+            border-radius: 12px; 
+            padding: 1.5rem; 
+            text-decoration: none !important; 
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .module-card:hover { border-color: #d82c20; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+
+        .mc-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .mc-title { color: #ffffff; font-size: 1.2rem; font-family: 'Playfair Display', serif; margin-bottom: 0.5rem; }
+        .mc-desc { color: #6b7280; font-size: 0.8rem; }
+    </style>
+}
+
+<section class="hero-seg">
+    <div class="hero-grid-bg"></div>
+    <div class="hero-glow"></div>
+
+    <div class="hero-seg-inner">
+        <div class="hero-eyebrow">
+            <span class="eyebrow-dot"></span>
+            SECURITY OPERATIONS CENTER
+        </div>
+        <h1 class="hero-seg-title">
+            CONTROL DE <span class="title-stroke">ACCESOS</span>
+        </h1>
+        <p class="hero-seg-desc">
+            Administración centralizada de privilegios, auditoría de transacciones y monitoreo de nodos. 
+            No rompas nada, Jose.
+        </p>
+
+        <div class="module-grid-center">
+            <a asp-action="Usuarios" class="module-card">
+                <div class="mc-icon">👤</div>
+                <div class="mc-title">USUARIOS</div>
+                <div class="mc-desc">Gestión de identidades y alta de personal.</div>
+            </a>
+            <a asp-action="Roles" class="module-card">
+                <div class="mc-icon">🛡️</div>
+                <div class="mc-title">ROLES</div>
+                <div class="mc-desc">Definición de permisos y jerarquías de seguridad.</div>
+            </a>
+            <a asp-action="Sesiones" class="module-card">
+                <div class="mc-icon">💻</div>
+                <div class="mc-title">SESIONES</div>
+                <div class="mc-desc">Monitoreo de terminales activas en la red.</div>
+            </a>
+            <a asp-action="Auditoria" class="module-card">
+                <div class="mc-icon">📜</div>
+                <div class="mc-title">AUDITORÍA</div>
+                <div class="mc-desc">Registro inmutable de acciones en la DB.</div>
+            </a>
+        </div>
+    </div>
+</section>
