@@ -1,0 +1,34 @@
+@{
+    ViewData["Title"] = "Gestión de Ventas";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dashboard-header">
+    <div class="header-left">
+        <a href="@Url.Action("Comercial", "Dashboard")" class="back-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver al Panel
+        </a>
+        <div>
+            <h1 class="dashboard-title">Ventas y Clientes</h1>
+            <p class="dashboard-subtitle">Gestión de facturación y listado de clientes</p>
+        </div>
+    </div>
+    <div class="dashboard-header-right">
+        <a href="@Url.Action("NuevoPedido", "Ventas")" class="btn btn-primary" style="background: #C8281E; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; color: white; text-decoration: none;">
+            + Nuevo Pedido
+        </a>
+    </div>
+</div>
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Listado de Pedidos Recientes</h5>
+            <p class="text-muted">Aquí irá la tabla conectada a tu base de datos (Tabla: Pedidos).</p>
+            <!-- Aquí puedes meter un <table> normal o un DataTable en el futuro -->
+        </div>
+    </div>
+</div>
