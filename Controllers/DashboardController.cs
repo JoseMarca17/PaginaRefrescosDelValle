@@ -25,9 +25,6 @@ namespace RefrescosDelValle.Controllers
             {
                 int.TryParse(userIdClaim, out userId);
             }
-
-            // ==================== ESTADÍSTICAS BÁSICAS ====================
-            // Valores por defecto
             int totalProductos = 0;
             int pedidosHoy = 0;
             int stockBajo = 0;
