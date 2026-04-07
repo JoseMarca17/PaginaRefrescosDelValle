@@ -1,4 +1,3 @@
-```csharp
 // Controllers/ProduccionRecetasController.cs
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -81,4 +80,3 @@ namespace RefrescosDelValle.Controllers
         public int OrdenProceso { get; set; }
     }
 }
-```
