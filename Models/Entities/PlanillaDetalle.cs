@@ -1,28 +1,19 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace RefrescosDelValle.Models.Entities
+namespace RefrescosDelValle.Models.Entities;
+
+public partial class PlanillaDetalle
 {
-    [Table("PlanillaDetalle")]
-    public class PlanillaDetalle
-    {
-        [Key]
-        public int DetalleID { get; set; }
+    public int DetalleId { get; set; }
 
-        [Required]
-        public int PlanillaID { get; set; }
+    public int PlanillaId { get; set; }
 
-        [Required, Column(TypeName = "decimal(10,2)")]
-        public decimal AFP { get; set; }
+    public decimal Afp { get; set; }
 
-        [Required, Column(TypeName = "decimal(10,2)")]
-        public decimal RC_IVA { get; set; }
+    public decimal RcIva { get; set; }
 
-        [Required, Column(TypeName = "decimal(10,2)")]
-        public decimal CNS { get; set; }
+    public decimal Cns { get; set; }
 
-        // Navegación
-        [ForeignKey("PlanillaID")]
-        public virtual Planilla Planilla { get; set; } = null!;
-    }
+    public virtual Planilla Planilla { get; set; } = null!;
 }

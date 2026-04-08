@@ -1,56 +1,67 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace RefrescosDelValle.Models.Entities
+namespace RefrescosDelValle.Models.Entities;
+
+public partial class Empleado
 {
-    [Table("Empleados")]
-    public class Empleado
-    {
-        [Key]
-        public int EmpleadoID { get; set; }
+    public int EmpleadoId { get; set; }
 
-        [Required]
-        public int PersonaID { get; set; }
+    public int PersonaId { get; set; }
 
-        [Required]
-        public int CargoID { get; set; }
+    public int CargoId { get; set; }
 
-        [Required]
-        public int DepartamentoID { get; set; }
+    public int DepartamentoId { get; set; }
 
-        [Required]
-        public int SucursalID { get; set; }
+    public int SucursalId { get; set; }
 
-        [Required]
-        public DateOnly FechaNacimiento { get; set; }
+    public int? SupervisorId { get; set; }
 
-        [Required]
-        public DateOnly FechaIngreso { get; set; }
+    public int EstadoEmpleadoId { get; set; }
 
-        [Column(TypeName = "decimal(10,2)")]
-        public decimal Salario { get; set; } = 0;
+    public DateOnly FechaIngreso { get; set; }
 
-        [Required, MaxLength(20)]
-        public string Estado { get; set; } = "Activo";
+    public decimal Salario { get; set; }
 
-        public int? SupervisorID { get; set; }
-        public int? EstadoEmpleadoID { get; set; }
+    public virtual ICollection<AntecedentesAcademico> AntecedentesAcademicos { get; set; } = new List<AntecedentesAcademico>();
 
-        // Navegación
-        [ForeignKey("PersonaID")]
-        public virtual Persona Persona { get; set; } = null!;
+    public virtual ICollection<AntecedentesLaborale> AntecedentesLaborales { get; set; } = new List<AntecedentesLaborale>();
 
-        [ForeignKey("CargoID")]
-        public virtual Cargo Cargo { get; set; } = null!;
+    public virtual ICollection<Asistencium> Asistencia { get; set; } = new List<Asistencium>();
 
-        [ForeignKey("DepartamentoID")]
-        public virtual DepartamentoEmpresa Departamento { get; set; } = null!;
+    public virtual ICollection<Baja> Bajas { get; set; } = new List<Baja>();
 
-        [ForeignKey("SupervisorID")]
-        public virtual Empleado? Supervisor { get; set; }
+    public virtual ICollection<BeneficiosEmpleado> BeneficiosEmpleados { get; set; } = new List<BeneficiosEmpleado>();
 
-        public virtual ICollection<Asistencia> Asistencias { get; set; } = new List<Asistencia>();
-        public virtual ICollection<Planilla> Planillas { get; set; } = new List<Planilla>();
-        public virtual ICollection<Vacacion> Vacaciones { get; set; } = new List<Vacacion>();
-    }
+    public virtual ICollection<Capacitacione> Capacitaciones { get; set; } = new List<Capacitacione>();
+
+    public virtual Cargo Cargo { get; set; } = null!;
+
+    public virtual ICollection<ContratosEmpleado> ContratosEmpleados { get; set; } = new List<ContratosEmpleado>();
+
+    public virtual DepartamentosEmpresa Departamento { get; set; } = null!;
+
+    public virtual ICollection<DepartamentosEmpresa> DepartamentosEmpresas { get; set; } = new List<DepartamentosEmpresa>();
+
+    public virtual DominioValor EstadoEmpleado { get; set; } = null!;
+
+    public virtual ICollection<HistorialCargo> HistorialCargos { get; set; } = new List<HistorialCargo>();
+
+    public virtual ICollection<HorasExtra> HorasExtras { get; set; } = new List<HorasExtra>();
+
+    public virtual ICollection<Empleado> InverseSupervisor { get; set; } = new List<Empleado>();
+
+    public virtual Persona Persona { get; set; } = null!;
+
+    public virtual ICollection<Planilla> Planillas { get; set; } = new List<Planilla>();
+
+    public virtual ICollection<SaldoVacacione> SaldoVacaciones { get; set; } = new List<SaldoVacacione>();
+
+    public virtual ICollection<Sancione> Sanciones { get; set; } = new List<Sancione>();
+
+    public virtual Sucursale Sucursal { get; set; } = null!;
+
+    public virtual Empleado? Supervisor { get; set; }
+
+    public virtual ICollection<Vacacione> Vacaciones { get; set; } = new List<Vacacione>();
 }

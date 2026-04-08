@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using RefrescosDelValle.Models.Entities;
+using RefrescosDelValle.Models.Entities; // <-- Apunta al nuevo contexto escaneado
 
 namespace RefrescosDelValle.Data
 {
@@ -16,23 +16,17 @@ namespace RefrescosDelValle.Data
             if (await context.Usuarios.AnyAsync())
             {
                 Console.WriteLine("[WARN] Seeder OMITIDO: Se detectaron usuarios existentes en el Mainframe.");
-                
-                // Te mostramos qué usuario fantasma está bloqueando el sistema
-                var userFantasma = await context.Usuarios.Include(u => u.Persona).FirstOrDefaultAsync();
-                if (userFantasma != null)
-                {
-                    Console.WriteLine($"[INFO] Usuario detectado en BD -> Email: {userFantasma.Persona?.CorreoPrincipal} | Username: {userFantasma.NombreUsuario}");
-                }
                 return; 
             }
 
             Console.WriteLine("[SYS] Base de datos limpia. Inyectando Rol SuperAdmin...");
 
-            // 2. Crear el Rol 'SuperAdmin'
+            // 2. Crear el Rol 'SuperAdmin' si no existe
+            // Ojo: El scaffolding pudo haber llamado a la tabla "Roles" o "Rols"
             var rolAdmin = await context.Roles.FirstOrDefaultAsync(r => r.NombreRol == "SuperAdmin");
             if (rolAdmin == null)
             {
-                rolAdmin = new Rol { NombreRol = "SuperAdmin", Activo = true };
+                rolAdmin = new Role { NombreRol = "SuperAdmin", Activo = true };
                 context.Roles.Add(rolAdmin);
                 await context.SaveChangesAsync();
             }
@@ -44,12 +38,19 @@ namespace RefrescosDelValle.Data
 
             Console.WriteLine($"[SYS] Configurando credenciales para: {adminEmail}...");
 
+            // --- MAGIA V1.11: Buscar IDs obligatorios en DominioValor ---
+            // Nota: Verifica en tus clases si Entity Framework les llamó "DominioValores" o "DominioValors"
+            var tipoDocCI = await context.DominioValors.FirstOrDefaultAsync(d => d.DominioTipoId == 10 && d.Descripcion == "Carnet de Identidad");
+            var sexoIndet = await context.DominioValors.FirstOrDefaultAsync(d => d.DominioTipoId == 1 && d.Descripcion == "Indeterminado");
+
             // 4. Crear Persona
             var persona = new Persona
             {
                 Nombres = "Administrador",
                 ApellidoPat = "Sistema",
-                CI = "00000000",
+                TipoDocumentoId = tipoDocCI?.DominioValorId ?? 1, // ID obligatorio
+                NumeroDocumento = "00000000",                     // Antes era CI
+                SexoId = sexoIndet?.DominioValorId ?? 1,          // ID obligatorio
                 CorreoPrincipal = adminEmail,
                 Estado = "Activo",
                 FechaRegistro = DateTime.Now
@@ -60,9 +61,9 @@ namespace RefrescosDelValle.Data
             // 5. Crear Usuario
             var usuario = new Usuario
             {
-                PersonaID = persona.PersonaID,
+                PersonaId = persona.PersonaId,
                 NombreUsuario = adminUser,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPass),
+                Contrasena = BCrypt.Net.BCrypt.HashPassword(adminPass), // Antes era PasswordHash
                 Activo = true,
                 FechaCreacion = DateTime.Now
             };
@@ -70,10 +71,11 @@ namespace RefrescosDelValle.Data
             await context.SaveChangesAsync();
 
             // 6. Enlazar Usuario y Rol
-            var usuarioRol = new UsuarioRol
+            // Nota: Scaffolding a veces llama a esta clase "UsuariosRole" en vez de "UsuarioRol"
+            var usuarioRol = new UsuariosRole 
             {
-                UsuarioID = usuario.UsuarioID,
-                RolID = rolAdmin.RolID,
+                UsuarioId = usuario.UsuarioId,
+                RolId = rolAdmin.RolId,
                 FechaAsignacion = DateTime.Now
             };
             context.UsuariosRoles.Add(usuarioRol);

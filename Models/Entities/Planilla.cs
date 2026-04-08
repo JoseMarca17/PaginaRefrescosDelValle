@@ -1,44 +1,31 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace RefrescosDelValle.Models.Entities
+namespace RefrescosDelValle.Models.Entities;
+
+public partial class Planilla
 {
-    [Table("Planilla")]
-    public class Planilla
-    {
-        [Key]
-        public int PlanillaID { get; set; }
+    public int PlanillaId { get; set; }
 
-        [Required]
-        public int EmpleadoID { get; set; }
+    public int EmpleadoId { get; set; }
 
-        [Required]
-        public int Mes { get; set; }
+    public int Mes { get; set; }
 
-        [Required]
-        public int Anio { get; set; }
+    public int Anio { get; set; }
 
-        [Required, Column(TypeName = "decimal(10,2)")]
-        public decimal HaberBasico { get; set; }
+    public decimal HaberBasico { get; set; }
 
-        [Column(TypeName = "decimal(10,2)")]
-        public decimal Bonos { get; set; } = 0;
+    public decimal Bonos { get; set; }
 
-        [Column(TypeName = "decimal(10,2)")]
-        public decimal Descuentos { get; set; } = 0;
+    public decimal Descuentos { get; set; }
 
-        // Calculado en BD: HaberBasico + Bonos - Descuentos
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public decimal TotalLiquido { get; set; }
+    public decimal? TotalLiquido { get; set; }
 
-        public DateOnly? FechaPago { get; set; }
+    public DateOnly? FechaPago { get; set; }
 
-        public bool Pagado { get; set; } = false;
+    public bool Pagado { get; set; }
 
-        // Navegación
-        [ForeignKey("EmpleadoID")]
-        public virtual Empleado Empleado { get; set; } = null!;
+    public virtual Empleado Empleado { get; set; } = null!;
 
-        public virtual PlanillaDetalle? Detalle { get; set; }
-    }
+    public virtual PlanillaDetalle? PlanillaDetalle { get; set; }
 }

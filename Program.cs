@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using RefrescosDelValle.Data;
+using RefrescosDelValle.Data; // Necesario para que encuentre tu DbInitializer
+using RefrescosDelValle.Models.Entities; // <-- EL PARCHE: Aquí es donde vive el nuevo AppDbContext
 using RefrescosDelValle.Services;
 
 var builder = WebApplication.CreateBuilder(args);

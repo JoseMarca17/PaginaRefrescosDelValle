@@ -2,6 +2,9 @@
 @{
     ViewData["Title"] = "Detalle Empleado";
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    
+    // Rescatamos las asistencias del ViewBag y las convertimos a lista tipada
+    var asistencias = ViewBag.Asistencias as IEnumerable<RefrescosDelValle.Models.Entities.Asistencia> ?? new List<RefrescosDelValle.Models.Entities.Asistencia>();
 }
 
 @section Styles {
@@ -19,19 +22,17 @@
         <h1 class="modulo-title">@Model.Persona.Nombres @Model.Persona.ApellidoPat</h1>
         <p class="modulo-subtitle">Ficha del empleado</p>
     </div>
-    <span class="badge badge-@(Model.Estado == "Activo" ? "green" : "red") badge-lg">@Model.Estado</span>
+    <span class="badge badge-@(Model.Persona.Estado == "Activo" ? "green" : "red") badge-lg">@Model.Persona.Estado</span>
 </div>
 
 <div class="detalle-grid">
-    <!-- Datos personales -->
     <div class="detalle-card">
         <h3 class="detalle-card-title">Datos Personales</h3>
-        <div class="detalle-row"><span>CI</span><strong>@Model.Persona.CI</strong></div>
+        <div class="detalle-row"><span>CI</span><strong>@Model.Persona.NumeroDocumento</strong></div>
         <div class="detalle-row"><span>Correo</span><strong>@(Model.Persona.CorreoPrincipal ?? "-")</strong></div>
-        <div class="detalle-row"><span>Fecha Nacimiento</span><strong>@Model.FechaNacimiento.ToString("dd/MM/yyyy")</strong></div>
+        <div class="detalle-row"><span>Fecha Nacimiento</span><strong>@(Model.Persona.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "-")</strong></div>
     </div>
 
-    <!-- Datos laborales -->
     <div class="detalle-card">
         <h3 class="detalle-card-title">Datos Laborales</h3>
         <div class="detalle-row"><span>Cargo</span><strong>@Model.Cargo.NombreCargo</strong></div>
@@ -42,9 +43,8 @@
             <span>Antigüedad</span>
             <strong>
                 @{
-                    var hoy = DateOnly.FromDateTime(DateTime.Today);
-                    var anios = hoy.Year - Model.FechaIngreso.Year;
-                    if (Model.FechaIngreso > hoy.AddYears(-anios)) anios--;
+                    var anioIngreso = Model.FechaIngreso.Year;
+                    var anios = DateTime.Today.Year - anioIngreso;
                 }
                 @anios año(s)
             </strong>
@@ -52,10 +52,10 @@
     </div>
 </div>
 
-<!-- Últimas asistencias -->
 <div class="table-card" style="margin-top:1.5rem">
     <h3 class="detalle-card-title" style="padding:1rem 1.5rem 0">Últimas Asistencias</h3>
-    @if (!Model.Asistencias.Any())
+    
+    @if (!asistencias.Any())
     {
         <p class="empty-state-sm">Sin registros de asistencia</p>
     }
@@ -64,13 +64,21 @@
         <table class="rrhh-table">
             <thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Estado</th></tr></thead>
             <tbody>
-                @foreach (var a in Model.Asistencias.OrderByDescending(a => a.Fecha).Take(10))
+                @foreach (var a in asistencias.OrderByDescending(a => a.Fecha).Take(10))
                 {
                     <tr>
                         <td>@a.Fecha.ToString("dd/MM/yyyy")</td>
-                        <td>@a.HoraEntrada.ToString("HH:mm")</td>
-                        <td>@(a.HoraSalida.HasValue ? a.HoraSalida.Value.ToString("HH:mm") : "-")</td>
-                        <td><span class="badge badge-@(a.Estado == "Presente" ? "green" : a.Estado == "Tardanza" ? "yellow" : "red")">@a.Estado</span></td>
+                        <td>@a.HoraEntrada.ToString()</td>
+                        <td>@(a.HoraSalida?.ToString() ?? "-")</td>
+                        <td>
+                            @{
+                                // Mapeamos el ID de DominioValor (1=Presente, 2=Ausente, 3=Tardanza) a texto y color
+                                // Si tu tabla de DominioValor tiene IDs diferentes, puedes ajustarlos aquí
+                                string estadoStr = a.EstadoAsistenciaID == 1 ? "Presente" : (a.EstadoAsistenciaID == 3 ? "Tardanza" : "Ausente");
+                                string colorStr = a.EstadoAsistenciaID == 1 ? "green" : (a.EstadoAsistenciaID == 3 ? "yellow" : "red");
+                            }
+                            <span class="badge badge-@colorStr">@estadoStr</span>
+                        </td>
                     </tr>
                 }
             </tbody>

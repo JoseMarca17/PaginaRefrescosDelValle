@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using RefrescosDelValle.Data;
 using RefrescosDelValle.Models.Entities;
 
 namespace RefrescosDelValle.Services
@@ -15,8 +14,8 @@ namespace RefrescosDelValle.Services
 
         public async Task<string> GenerarYGuardarOTPAsync(int idUsuario)
         {
-            // Invalida códigos anteriores del mismo usuario
-            var anteriores = await _db.CodigosOTP
+            // Apuntamos directo al DbSet generado por EF
+            var anteriores = await _db.CodigosOtps
                 .Where(c => c.IdUsuario == idUsuario && !c.Usado)
                 .ToListAsync();
 
@@ -25,7 +24,8 @@ namespace RefrescosDelValle.Services
 
             var codigo = new Random().Next(100000, 999999).ToString();
 
-            _db.CodigosOTP.Add(new CodigoOTP
+            // Usamos la clase con la sintaxis exacta de EF: CodigosOtp
+            _db.CodigosOtps.Add(new CodigosOtp
             {
                 IdUsuario = idUsuario,
                 Codigo = codigo,
@@ -39,7 +39,7 @@ namespace RefrescosDelValle.Services
 
         public async Task<bool> ValidarOTPAsync(int idUsuario, string codigo)
         {
-            var otp = await _db.CodigosOTP
+            var otp = await _db.CodigosOtps
                 .Where(c => c.IdUsuario == idUsuario
                          && c.Codigo == codigo
                          && !c.Usado
@@ -55,27 +55,25 @@ namespace RefrescosDelValle.Services
 
         public async Task LimpiarOTPAsync(int idUsuario)
         {
-            // Limpiar el OTP después de uso exitoso
-            var otp = await _db.CodigosOTP
+            var otp = await _db.CodigosOtps
                 .FirstOrDefaultAsync(o => o.IdUsuario == idUsuario && !o.Usado);
             
             if (otp != null)
             {
-                _db.CodigosOTP.Remove(otp);
+                _db.CodigosOtps.Remove(otp);
                 await _db.SaveChangesAsync();
             }
         }
 
-        // Método adicional para limpiar OTPs expirados (opcional)
         public async Task LimpiarOTPsExpiradosAsync()
         {
-            var expirados = await _db.CodigosOTP
+            var expirados = await _db.CodigosOtps
                 .Where(o => o.FechaExpiracion < DateTime.Now && !o.Usado)
                 .ToListAsync();
 
             if (expirados.Any())
             {
-                _db.CodigosOTP.RemoveRange(expirados);
+                _db.CodigosOtps.RemoveRange(expirados);
                 await _db.SaveChangesAsync();
             }
         }

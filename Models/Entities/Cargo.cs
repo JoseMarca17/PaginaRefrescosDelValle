@@ -1,31 +1,27 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace RefrescosDelValle.Models.Entities
+namespace RefrescosDelValle.Models.Entities;
+
+public partial class Cargo
 {
-    [Table("Cargos")]
-    public class Cargo
-    {
-        [Key]
-        public int CargoID { get; set; }
+    public int CargoId { get; set; }
 
-        [Required, MaxLength(100)]
-        public string NombreCargo { get; set; } = null!;
+    public string NombreCargo { get; set; } = null!;
 
-        [MaxLength(200)]
-        public string? Descripcion { get; set; }
+    public string? Descripcion { get; set; }
 
-        [Column(TypeName = "decimal(10,2)")]
-        public decimal SalarioBase { get; set; } = 0;
+    public decimal SalarioBase { get; set; }
 
-        public bool Activo { get; set; } = true;
+    public int? CargoPadreId { get; set; }
 
-        public int? CargoPadreID { get; set; }
+    public bool Activo { get; set; }
 
-        // Navegación
-        [ForeignKey("CargoPadreID")]
-        public virtual Cargo? CargoPadre { get; set; }
+    public virtual Cargo? CargoPadre { get; set; }
 
-        public virtual ICollection<Empleado> Empleados { get; set; } = new List<Empleado>();
-    }
+    public virtual ICollection<Empleado> Empleados { get; set; } = new List<Empleado>();
+
+    public virtual ICollection<HistorialCargo> HistorialCargos { get; set; } = new List<HistorialCargo>();
+
+    public virtual ICollection<Cargo> InverseCargoPadre { get; set; } = new List<Cargo>();
 }

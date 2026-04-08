@@ -2,14 +2,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using RefrescosDelValle.Data;
-using RefrescosDelValle.Models.Entities;
+using RefrescosDelValle.Models.Entities; 
 using RefrescosDelValle.Models.ViewModels;
 
 namespace RefrescosDelValle.Controllers
 {
     [Authorize(Roles = "SuperAdmin,AdminRRHH")]
-    public class RRHHController : BaseController
+    public class RRHHController : Controller 
     {
         private readonly AppDbContext _context;
 
@@ -24,7 +23,7 @@ namespace RefrescosDelValle.Controllers
 
         public async Task<IActionResult> Empleados(string? buscar)
         {
-            var query = _context.Empleados
+            var query = _context.Set<Empleado>()
                 .Include(e => e.Persona)
                 .Include(e => e.Cargo)
                 .Include(e => e.Departamento)
@@ -36,29 +35,29 @@ namespace RefrescosDelValle.Controllers
                 query = query.Where(e =>
                     e.Persona.Nombres.ToLower().Contains(buscar) ||
                     e.Persona.ApellidoPat.ToLower().Contains(buscar) ||
-                    e.Persona.CI.Contains(buscar) ||
+                    e.Persona.NumeroDocumento.Contains(buscar) || 
                     e.Cargo.NombreCargo.ToLower().Contains(buscar) ||
                     e.Departamento.NombreDepartamento.ToLower().Contains(buscar));
             }
 
             var empleados = await query.Select(e => new EmpleadoViewModel
             {
-                EmpleadoID     = e.EmpleadoID,
+                EmpleadoID     = e.EmpleadoId, // <-- ID en mayúscula como en tu BD
                 NombreCompleto = e.Persona.Nombres + " " + e.Persona.ApellidoPat +
                                  (e.Persona.ApellidoMat != null ? " " + e.Persona.ApellidoMat : ""),
-                CI             = e.Persona.CI,
+                CI             = e.Persona.NumeroDocumento, 
                 Cargo          = e.Cargo.NombreCargo,
                 Departamento   = e.Departamento.NombreDepartamento,
-                Estado         = e.Estado,
+                Estado         = e.Persona.Estado,
                 Salario        = e.Salario,
-                FechaIngreso   = e.FechaIngreso,
-                Correo         = e.Persona.CorreoPrincipal   // corregido
+                FechaIngreso   = e.FechaIngreso, // <-- Asignación directa, sin magia rara
+                Correo         = e.Persona.CorreoPrincipal
             }).ToListAsync();
 
             ViewBag.Buscar             = buscar;
-            ViewBag.TotalEmpleados     = await _context.Empleados.CountAsync();
-            ViewBag.TotalActivos       = await _context.Empleados.CountAsync(e => e.Estado == "Activo");
-            ViewBag.TotalDepartamentos = await _context.DepartamentosEmpresa.CountAsync(d => d.Activo);
+            ViewBag.TotalEmpleados     = await _context.Set<Empleado>().CountAsync();
+            ViewBag.TotalActivos       = await _context.Set<Empleado>().CountAsync(e => e.Persona.Estado == "Activo");
+            ViewBag.TotalDepartamentos = await _context.Set<DepartamentosEmpresa>().CountAsync(d => d.Activo);
 
             return View(empleados);
         }
@@ -78,71 +77,88 @@ namespace RefrescosDelValle.Controllers
                 return View(vm);
             }
 
-            // Verificar CI único
-            if (await _context.Personas.AnyAsync(p => p.CI == vm.CI))
+            if (await _context.Personas.AnyAsync(p => p.NumeroDocumento == vm.CI))
             {
                 ModelState.AddModelError("CI", "Ya existe una persona registrada con ese CI.");
                 await CargarSelectLists();
                 return View(vm);
             }
 
-            // Crear Persona — solo con los campos que existen en el modelo
-            var persona = new Persona
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                Nombres          = vm.Nombres,
-                ApellidoPat      = vm.ApellidoPat,
-                ApellidoMat      = vm.ApellidoMat,
-                CI               = vm.CI,
-                CorreoPrincipal  = vm.Correo,   // corregido
-                Estado           = "Activo",
-                FechaRegistro    = DateTime.Now
-            };
-            _context.Personas.Add(persona);
-            await _context.SaveChangesAsync();
+                var tipoDocCI = await _context.Set<DominioValor>().FirstOrDefaultAsync(d => d.DominioTipoId == 10 && d.Descripcion == "Carnet de Identidad");
+                var sexoIndet = await _context.Set<DominioValor>().FirstOrDefaultAsync(d => d.DominioTipoId == 1 && d.Descripcion == "Indeterminado");
+                var estadoEmpActivo = await _context.Set<DominioValor>().FirstOrDefaultAsync(d => d.DominioTipoId == 20 && d.Descripcion == "Activo");
 
-            // Crear Empleado
-            var empleado = new Empleado
+                var persona = new Persona
+                {
+                    Nombres         = vm.Nombres,
+                    ApellidoPat     = vm.ApellidoPat,
+                    ApellidoMat     = vm.ApellidoMat,
+                    NumeroDocumento = vm.CI,
+                    TipoDocumentoId = tipoDocCI?.DominioValorId ?? 1,
+                    SexoId          = sexoIndet?.DominioValorId ?? 1,
+                    CorreoPrincipal = vm.Correo,
+                    Estado          = "Activo",
+                    FechaNacimiento = vm.FechaNacimiento 
+                };
+                _context.Personas.Add(persona);
+                await _context.SaveChangesAsync();
+
+                var empleado = new Empleado
+                {
+                    PersonaId        = persona.PersonaId,
+                    CargoId          = vm.CargoID,
+                    DepartamentoId   = vm.DepartamentoID,
+                    SucursalId       = vm.SucursalID,
+                    FechaIngreso     = vm.FechaIngreso,
+                    Salario          = vm.Salario,
+                    EstadoEmpleadoId = estadoEmpActivo?.DominioValorId ?? 1
+                };
+                _context.Set<Empleado>().Add(empleado);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                TempData["Exito"] = $"Empleado {persona.Nombres} {persona.ApellidoPat} registrado correctamente.";
+                return RedirectToAction(nameof(Empleados));
+            }
+            catch (Exception ex)
             {
-                PersonaID       = persona.PersonaID,
-                CargoID         = vm.CargoID,
-                DepartamentoID  = vm.DepartamentoID,
-                SucursalID      = vm.SucursalID,
-                FechaNacimiento = vm.FechaNacimiento,
-                FechaIngreso    = vm.FechaIngreso,
-                Salario         = vm.Salario,
-                Estado          = "Activo"
-            };
-            _context.Empleados.Add(empleado);
-            await _context.SaveChangesAsync();
-
-            TempData["Exito"] = $"Empleado {persona.Nombres} {persona.ApellidoPat} registrado correctamente.";
-            return RedirectToAction(nameof(Empleados));
+                await transaction.RollbackAsync();
+                ModelState.AddModelError("", "Error al registrar: " + ex.Message);
+                await CargarSelectLists();
+                return View(vm);
+            }
         }
 
         public async Task<IActionResult> DetalleEmpleado(int id)
         {
-            var empleado = await _context.Empleados
+            var empleado = await _context.Set<Empleado>()
                 .Include(e => e.Persona)
                 .Include(e => e.Cargo)
                 .Include(e => e.Departamento)
-                .Include(e => e.Asistencias)
-                .Include(e => e.Planillas)
-                .FirstOrDefaultAsync(e => e.EmpleadoID == id);
+                .FirstOrDefaultAsync(e => e.EmpleadoId == id);
 
             if (empleado == null) return NotFound();
+
+            ViewBag.Asistencias = await _context.Set<Asistencia>().Where(a => a.EmpleadoID == id).Take(10).ToListAsync();
+            ViewBag.Planillas = await _context.Set<Planilla>().Where(p => p.EmpleadoId == id).ToListAsync();
+
             return View(empleado);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleEstadoEmpleado(int id)
         {
-            var empleado = await _context.Empleados.FindAsync(id);
+            var empleado = await _context.Set<Empleado>().Include(e => e.Persona).FirstOrDefaultAsync(e => e.EmpleadoId == id);
             if (empleado == null) return NotFound();
 
-            empleado.Estado = empleado.Estado == "Activo" ? "Inactivo" : "Activo";
+            empleado.Persona.Estado = empleado.Persona.Estado == "Activo" ? "Baja" : "Activo";
             await _context.SaveChangesAsync();
 
-            TempData["Exito"] = $"Estado del empleado actualizado a {empleado.Estado}.";
+            TempData["Exito"] = $"Estado del empleado actualizado a {empleado.Persona.Estado}.";
             return RedirectToAction(nameof(Empleados));
         }
 
@@ -154,9 +170,9 @@ namespace RefrescosDelValle.Controllers
         {
             var fechaFiltro = fecha ?? DateOnly.FromDateTime(DateTime.Today);
 
-            var query = _context.Asistencias
+            // Revertido a la lógica original simple
+            var query = _context.Set<Asistencia>()
                 .Include(a => a.Empleado).ThenInclude(e => e.Persona)
-                .Where(a => a.Fecha == fechaFiltro)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(buscar))
@@ -167,17 +183,24 @@ namespace RefrescosDelValle.Controllers
                     a.Empleado.Persona.ApellidoPat.ToLower().Contains(buscar));
             }
 
-            var lista = await query.Select(a => new AsistenciaViewModel
-            {
-                AsistenciaID   = a.AsistenciaID,
-                NombreEmpleado = a.Empleado.Persona.Nombres + " " + a.Empleado.Persona.ApellidoPat,
-                Fecha          = a.Fecha,
-                HoraEntrada    = a.HoraEntrada,
-                HoraSalida     = a.HoraSalida,
-                Estado         = a.Estado,
-                Justificado    = a.Justificado,
-                Observaciones  = a.Observaciones
-            }).ToListAsync();
+            var dominios = await _context.Set<DominioValor>().Where(d => d.DominioTipoId == 21).ToDictionaryAsync(d => d.DominioValorId, d => d.Descripcion);
+
+            var listaResultados = await query.ToListAsync();
+            
+            // Filtramos en memoria para evitar choques entre DateOnly y DateTime en SQL
+            var lista = listaResultados
+                .Where(a => a.Fecha.ToString("yyyy-MM-dd") == fechaFiltro.ToString("yyyy-MM-dd"))
+                .Select(a => new AsistenciaViewModel
+                {
+                    AsistenciaID   = a.AsistenciaID,
+                    NombreEmpleado = a.Empleado.Persona.Nombres + " " + a.Empleado.Persona.ApellidoPat,
+                    Fecha          = a.Fecha, 
+                    HoraEntrada    = a.HoraEntrada, 
+                    HoraSalida     = a.HoraSalida, 
+                    Estado = dominios.ContainsKey(a.EstadoAsistenciaID ?? 0) ? dominios[a.EstadoAsistenciaID ?? 0] : "Desconocido",
+                    Justificado    = a.Justificado,
+                    Observaciones  = a.Observaciones
+                }).ToList();
 
             ViewBag.FechaFiltro = fechaFiltro;
             ViewBag.Buscar      = buscar;
@@ -203,24 +226,26 @@ namespace RefrescosDelValle.Controllers
                 return View(vm);
             }
 
-            if (await _context.Asistencias.AnyAsync(a => a.EmpleadoID == vm.EmpleadoID && a.Fecha == vm.Fecha))
+            if (await _context.Set<Asistencia>().AnyAsync(a => a.EmpleadoID == vm.EmpleadoID && a.Fecha == vm.Fecha))
             {
                 ModelState.AddModelError("", "Ya existe un registro de asistencia para este empleado en esa fecha.");
                 await CargarEmpleadosSelect();
                 return View(vm);
             }
 
+            var estadoDom = await _context.Set<DominioValor>().FirstOrDefaultAsync(d => d.DominioTipoId == 21 && d.Descripcion == vm.Estado);
+
             var asistencia = new Asistencia
             {
-                EmpleadoID    = vm.EmpleadoID,
-                Fecha         = vm.Fecha,
-                HoraEntrada   = vm.HoraEntrada,
-                HoraSalida    = vm.HoraSalida,
-                Estado        = vm.Estado,
-                Observaciones = vm.Observaciones,
-                Justificado   = vm.Justificado
+                EmpleadoID         = vm.EmpleadoID,
+                Fecha              = vm.Fecha, 
+                HoraEntrada        = vm.HoraEntrada, 
+                HoraSalida         = vm.HoraSalida, 
+                EstadoAsistenciaID = estadoDom?.DominioValorId ?? 1,
+                Observaciones      = vm.Observaciones,
+                Justificado        = vm.Justificado
             };
-            _context.Asistencias.Add(asistencia);
+            _context.Set<Asistencia>().Add(asistencia);
             await _context.SaveChangesAsync();
 
             TempData["Exito"] = "Asistencia registrada correctamente.";
@@ -236,13 +261,13 @@ namespace RefrescosDelValle.Controllers
             int anioFiltro = anio ?? DateTime.Now.Year;
             int mesFiltro  = mes  ?? DateTime.Now.Month;
 
-            var lista = await _context.Planillas
+            var lista = await _context.Set<Planilla>()
                 .Include(p => p.Empleado).ThenInclude(e => e.Persona)
                 .Include(p => p.Empleado).ThenInclude(e => e.Cargo)
                 .Where(p => p.Anio == anioFiltro && p.Mes == mesFiltro)
                 .Select(p => new PlanillaViewModel
                 {
-                    PlanillaID     = p.PlanillaID,
+                    PlanillaID     = p.PlanillaId,
                     NombreEmpleado = p.Empleado.Persona.Nombres + " " + p.Empleado.Persona.ApellidoPat,
                     Cargo          = p.Empleado.Cargo.NombreCargo,
                     Mes            = p.Mes,
@@ -250,9 +275,9 @@ namespace RefrescosDelValle.Controllers
                     HaberBasico    = p.HaberBasico,
                     Bonos          = p.Bonos,
                     Descuentos     = p.Descuentos,
-                    TotalLiquido   = p.TotalLiquido,
+                    TotalLiquido   = p.TotalLiquido ?? 0, 
                     Pagado         = p.Pagado,
-                    FechaPago      = p.FechaPago
+                    FechaPago      = p.FechaPago 
                 }).ToListAsync();
 
             ViewBag.AnioFiltro   = anioFiltro;
@@ -280,7 +305,7 @@ namespace RefrescosDelValle.Controllers
                 return View(vm);
             }
 
-            if (await _context.Planillas.AnyAsync(p => p.EmpleadoID == vm.EmpleadoID && p.Mes == vm.Mes && p.Anio == vm.Anio))
+            if (await _context.Set<Planilla>().AnyAsync(p => p.EmpleadoId == vm.EmpleadoID && p.Mes == vm.Mes && p.Anio == vm.Anio))
             {
                 ModelState.AddModelError("", "Ya existe planilla para este empleado en ese mes/año.");
                 await CargarEmpleadosSelect();
@@ -289,7 +314,7 @@ namespace RefrescosDelValle.Controllers
 
             var planilla = new Planilla
             {
-                EmpleadoID  = vm.EmpleadoID,
+                EmpleadoId  = vm.EmpleadoID,
                 Mes         = vm.Mes,
                 Anio        = vm.Anio,
                 HaberBasico = vm.HaberBasico,
@@ -297,17 +322,17 @@ namespace RefrescosDelValle.Controllers
                 Descuentos  = vm.Descuentos,
                 Pagado      = false
             };
-            _context.Planillas.Add(planilla);
-            await _context.SaveChangesAsync();
+            _context.Set<Planilla>().Add(planilla);
+            await _context.SaveChangesAsync(); 
 
             var detalle = new PlanillaDetalle
             {
-                PlanillaID = planilla.PlanillaID,
-                AFP        = vm.AFP,
-                RC_IVA     = vm.RC_IVA,
-                CNS        = vm.CNS
+                PlanillaId = planilla.PlanillaId,
+                Afp        = vm.AFP,
+                RcIva      = vm.RC_IVA, // Entity Framework convierte RC_IVA a RcIva
+                Cns        = vm.CNS
             };
-            _context.PlanillaDetalles.Add(detalle);
+            _context.Set<PlanillaDetalle>().Add(detalle);
             await _context.SaveChangesAsync();
 
             TempData["Exito"] = "Planilla generada correctamente.";
@@ -317,11 +342,13 @@ namespace RefrescosDelValle.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> MarcarPagado(int id)
         {
-            var planilla = await _context.Planillas.FindAsync(id);
+            var planilla = await _context.Set<Planilla>().FindAsync(id);
             if (planilla == null) return NotFound();
 
             planilla.Pagado    = true;
-            planilla.FechaPago = DateOnly.FromDateTime(DateTime.Today);
+            // Asumiendo que ahora ambos son DateTime o DateOnly. 
+            // Si te marca error aquí, usa simplemente DateTime.Today o DateOnly.FromDateTime(DateTime.Today) según corresponda.
+            planilla.FechaPago =  DateOnly.FromDateTime(DateTime.Today); 
             await _context.SaveChangesAsync();
 
             TempData["Exito"] = "Planilla marcada como pagada.";
@@ -335,26 +362,26 @@ namespace RefrescosDelValle.Controllers
         private async Task CargarSelectLists()
         {
             ViewBag.Cargos = new SelectList(
-                await _context.Cargos.Where(c => c.Activo).OrderBy(c => c.NombreCargo).ToListAsync(),
+                await _context.Set<Cargo>().Where(c => c.Activo).OrderBy(c => c.NombreCargo).ToListAsync(),
                 "CargoID", "NombreCargo");
 
             ViewBag.Departamentos = new SelectList(
-                await _context.DepartamentosEmpresa.Where(d => d.Activo).OrderBy(d => d.NombreDepartamento).ToListAsync(),
+                await _context.Set<DepartamentosEmpresa>().Where(d => d.Activo).OrderBy(d => d.NombreDepartamento).ToListAsync(),
                 "DepartamentoID", "NombreDepartamento");
 
             ViewBag.Sucursales = new SelectList(
-                await _context.Sucursales.Where(s => s.Activo).OrderBy(s => s.NombreSucursal).ToListAsync(),
+                await _context.Set<Sucursale>().Where(s => s.Activo).OrderBy(s => s.NombreSucursal).ToListAsync(),
                 "SucursalID", "NombreSucursal");
         }
 
         private async Task CargarEmpleadosSelect()
         {
-            var empleados = await _context.Empleados
+            var empleados = await _context.Set<Empleado>()
                 .Include(e => e.Persona)
-                .Where(e => e.Estado == "Activo")
+                .Where(e => e.Persona.Estado == "Activo")
                 .OrderBy(e => e.Persona.ApellidoPat)
                 .Select(e => new {
-                    e.EmpleadoID,
+                    e.EmpleadoId,
                     Nombre = e.Persona.Nombres + " " + e.Persona.ApellidoPat
                 })
                 .ToListAsync();
