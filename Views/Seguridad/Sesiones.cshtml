@@ -1,3 +1,5 @@
+@model IEnumerable<RefrescosDelValle.Models.Entities.Sesione>
+
 @{
     ViewData["Title"] = "Monitor de Sesiones";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -20,19 +22,20 @@
         .term-table th { text-align: left; padding: 1.2rem; background: #0a0a0a; color: var(--red-500); text-transform: uppercase; border-bottom: 1px solid var(--dark-700); }
         .term-table td { padding: 1.2rem; border-bottom: 1px dashed var(--dark-700); }
         .status-active { color: #00ff41; text-shadow: 0 0 5px rgba(0,255,65,0.4); font-weight: bold; }
+        .no-data { padding: 3rem; text-align: center; color: var(--gray-600); font-style: italic; }
     </style>
 }
 
 <div class="page-wrapper">
     <div class="page-header">
         <h1 class="page-title">Sesiones Activas</h1>
-        <p class="page-desc">Monitoreo de conexiones a la base de datos.</p>
+        <p class="page-desc">Monitoreo de conexiones en tiempo de ejecución (V1.11).</p>
     </div>
 
     <div class="terminal-box">
         <div class="term-head">
             <span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
-            <span class="term-cmd">root@soc:~# tail -f /var/log/auth.log</span>
+            <span class="term-cmd">root@soc:~# netstat -an | grep :443</span>
         </div>
         <div class="term-body">
             <table class="term-table">
@@ -42,19 +45,31 @@
                         <th>USUARIO</th>
                         <th>DIRECCIÓN_IP</th>
                         <th>DISPOSITIVO</th>
+                        <th>INICIO</th>
                         <th>ESTADO</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>#8842</td>
-                        <td>SysAdmin</td>
-                        <td>192.168.10.45</td>
-                        <td>Linux / Firefox</td>
-                        <td><span class="status-active">[ ACTIVA ]</span></td>
-                    </tr>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>#@item.SesionId</td>
+                            <td>@(item.Usuario?.NombreUsuario ?? "Infiltrado")</td>
+                            <td>@(item.DireccionIp ?? "127.0.0.1")</td>
+                            <td>@(item.Dispositivo ?? "Desconocido")</td>
+                            <td>@item.FechaInicio.ToString("HH:mm:ss")</td>
+                            <td><span class="status-active">[ ACTIVA ]</span></td>
+                        </tr>
+                    }
                 </tbody>
             </table>
+            
+            @if (!Model.Any())
+            {
+                <div class="no-data">
+                    > No se detectan túneles activos en este momento...
+                </div>
+            }
         </div>
     </div>
-</div>  
+</div>

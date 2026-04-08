@@ -1,3 +1,5 @@
+@model IEnumerable<RefrescosDelValle.Models.ViewModels.AuditoriaViewModel>
+
 @{
     ViewData["Title"] = "Auditoría SQL";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -5,18 +7,22 @@
 
 @section Styles {
     <style>
+        /* Mantenemos tus excelentes estilos originales */
         .page-wrapper { max-width: 1200px; margin: 0 auto; padding: 6rem 2rem; position: relative; z-index: 2; }
         .page-header { margin-bottom: 2.5rem; border-left: 4px solid var(--red-600); padding-left: 1.5rem; }
         .page-title { font-family: var(--font-display); font-size: 2.2rem; color: var(--white); margin-bottom: 0.5rem; }
         .page-desc { color: var(--gray-400); font-size: 0.95rem; }
-
         .audit-table-wrap { background: var(--dark-800); border: 1px solid var(--dark-600); border-radius: var(--radius-md); overflow-x: auto; }
         .audit-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; }
         .audit-table th { padding: 1.2rem 1rem; background: rgba(0,0,0,0.3); color: var(--red-400); font-family: var(--font-mono); border-bottom: 1px solid var(--dark-600); }
         .audit-table td { padding: 1rem; color: var(--gray-300); border-bottom: 1px solid var(--dark-700); }
         .audit-action { padding: 0.2rem 0.5rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.75rem; font-weight: bold; }
+        
+        /* Colores dinámicos para operaciones */
         .action-update { background: rgba(255,189,46,0.1); color: #ffbd2e; border: 1px solid rgba(255,189,46,0.3); }
         .action-delete { background: rgba(255,95,86,0.1); color: #ff5f56; border: 1px solid rgba(255,95,86,0.3); }
+        .action-insert { background: rgba(39,201,63,0.1); color: #27c93f; border: 1px solid rgba(39,201,63,0.3); }
+
         .code-block { font-family: var(--font-mono); color: #9ca3af; background: var(--dark-900); padding: 0.4rem; border-radius: 4px; border: 1px solid var(--dark-700); display: inline-block; }
     </style>
 }
@@ -24,7 +30,7 @@
 <div class="page-wrapper">
     <div class="page-header">
         <h1 class="page-title">Trazabilidad de Sistema</h1>
-        <p class="page-desc">Registros inmutables de operaciones DML en la base de datos.</p>
+        <p class="page-desc">Registros inmutables de operaciones DML en la base de datos V1.11.</p>
     </div>
 
     <div class="audit-table-wrap">
@@ -35,24 +41,32 @@
                     <th>USUARIO</th>
                     <th>OPERACIÓN</th>
                     <th>TABLA</th>
-                    <th>DETALLE (JSON)</th>
+                    <th>DETALLE</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>2026-04-05 14:30:22</td>
-                    <td>Jose_Admin</td>
-                    <td><span class="audit-action action-update">UPDATE</span></td>
-                    <td>[dbo].[Productos]</td>
-                    <td><span class="code-block">{ "Precio": 12.50 -> 15.00 }</span></td>
-                </tr>
-                <tr>
-                    <td>2026-04-05 11:15:00</td>
-                    <td>Sistema</td>
-                    <td><span class="audit-action action-delete">DELETE</span></td>
-                    <td>[dbo].[Sesiones]</td>
-                    <td><span class="code-block">{ "SesionID": 8840 }</span></td>
-                </tr>
+                @foreach (var log in Model)
+                {
+                    <tr>
+                        <td>@log.Fecha.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td>@log.Usuario</td>
+                        <td>
+                            @{
+                                string actionClass = log.Operacion.Contains("UPDATE") ? "action-update" : 
+                                                    log.Operacion.Contains("DELETE") ? "action-delete" : "action-insert";
+                            }
+                            <span class="audit-action @actionClass">@log.Operacion</span>
+                        </td>
+                        <td><span class="code-block">[dbo].[@log.Tabla]</span></td>
+                        <td><small>@log.Detalle</small></td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" style="text-align:center; padding: 2rem;">No hay registros de auditoría disponibles.</td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>

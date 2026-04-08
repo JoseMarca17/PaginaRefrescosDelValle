@@ -1,16 +1,15 @@
-@{
-    ViewData["Title"] = "Registrar Personal";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
 @model RefrescosDelValle.Models.ViewModels.RegistroEmpleadoViewModel
 
 @{
     ViewData["Title"] = "Aprovisionamiento de Personal";
     // Asumo que tu layout principal del dashboard está configurado por defecto en _ViewStart
+    // Si no, descomenta la siguiente línea:
+    // Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 }
 
 @section Styles {
     <style>
+        /* ══ ESTILOS ORIGINALES RESTAURADOS ══ */
         .cyber-panel {
             background: var(--dark-800, #1a0f0f);
             border: 1px solid var(--dark-600, #2a1a1a);
@@ -48,6 +47,7 @@
         .form-control, .form-select {
             width: 100%; padding: 0.8rem 1rem; background: #0a0303; border: 1px solid #2a1a1a;
             color: #fff; border-radius: 8px; transition: all 0.3s; box-sizing: border-box;
+            font-family: var(--font-body, sans-serif);
         }
         .form-control:focus, .form-select:focus {
             outline: none; border-color: #C8281E; box-shadow: 0 0 10px rgba(200, 40, 30, 0.2);
@@ -85,8 +85,18 @@
             border-radius: 8px; font-weight: bold; font-family: 'DM Mono', monospace;
             cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 2px;
             display: flex; align-items: center; gap: 10px; margin-top: 2rem;
+            width: fit-content;
         }
         .btn-ejecutar:hover { background: #a81f16; transform: translateY(-2px); }
+
+        /* Validación en rojo estilo Mono */
+        .field-validation-error {
+            color: #ef4444;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
 
         @@media (max-width: 900px) {
             .form-grid-3, .form-grid-2 { grid-template-columns: 1fr; }
@@ -94,7 +104,8 @@
     </style>
 }
 
-<div>
+<div class="container-fluid px-4" style="margin-top: 2rem;">
+    
     @if (TempData["SuccessMsg"] != null)
     {
         <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #34d399; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-family: 'DM Mono', monospace;">
@@ -103,6 +114,9 @@
     }
 
     <form asp-action="RegistrarPersonal" method="post">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="field-validation-error" style="margin-bottom: 1.5rem; font-size: 0.85rem;"></div>
         
         <div class="cyber-panel">
             <div class="panel-header">
@@ -114,14 +128,17 @@
                 <div class="form-group">
                     <label asp-for="CI" class="form-label">Cédula de Identidad</label>
                     <input asp-for="CI" class="form-control" placeholder="Ej. 12345678" />
+                    <span asp-validation-for="CI" class="field-validation-error"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="Nombres" class="form-label">Nombres</label>
                     <input asp-for="Nombres" class="form-control" placeholder="Nombre completo" />
+                    <span asp-validation-for="Nombres" class="field-validation-error"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="ApellidoPat" class="form-label">Apellido Paterno</label>
                     <input asp-for="ApellidoPat" class="form-control" placeholder="Paterno" />
+                    <span asp-validation-for="ApellidoPat" class="field-validation-error"></span>
                 </div>
             </div>
 
@@ -129,10 +146,12 @@
                 <div class="form-group">
                     <label asp-for="Email" class="form-label">Correo Corporativo (Usuario)</label>
                     <input asp-for="Email" type="email" class="form-control" placeholder="usuario@refrescosdelvalle.bo" />
+                    <span asp-validation-for="Email" class="field-validation-error"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="Password" class="form-label">Contraseña de Red</label>
                     <input asp-for="Password" type="password" class="form-control" placeholder="Asigne una contraseña segura" />
+                    <span asp-validation-for="Password" class="field-validation-error"></span>
                 </div>
             </div>
         </div>
@@ -149,12 +168,14 @@
                     <select asp-for="SucursalID" class="form-select" asp-items="ViewBag.Sucursales">
                         <option value="">-- Seleccionar Nodo --</option>
                     </select>
+                    <span asp-validation-for="SucursalID" class="field-validation-error"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="CargoID" class="form-label">Designación (Cargo)</label>
                     <select asp-for="CargoID" class="form-select" asp-items="ViewBag.Cargos">
                         <option value="">-- Asignar Puesto --</option>
                     </select>
+                    <span asp-validation-for="CargoID" class="field-validation-error"></span>
                 </div>
             </div>
         </div>
@@ -166,12 +187,21 @@
             </div>
 
             <div class="roles-grid">
-                @foreach (var rol in ViewBag.RolesDisponibles as List<SelectListItem>)
+                @if (ViewBag.RolesDisponibles != null)
                 {
-                    <label class="role-checkbox-wrapper">
-                        <input type="checkbox" name="RolesSeleccionados" value="@rol.Value" />
-                        <span class="role-name">@rol.Text</span>
-                    </label>
+                    foreach (var rol in ViewBag.RolesDisponibles as List<SelectListItem>)
+                    {
+                        <label class="role-checkbox-wrapper">
+                            <input type="checkbox" name="RolesSeleccionados" value="@rol.Value" />
+                            <span class="role-name">@rol.Text</span>
+                        </label>
+                    }
+                }
+                else
+                {
+                    <p style="color: #ef4444; font-family: 'DM Mono', monospace; font-size: 0.8rem;">
+                        > [SYS_ERR]: No se pudieron cargar los roles de seguridad.
+                    </p>
                 }
             </div>
 
@@ -186,3 +216,7 @@
 
     </form>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

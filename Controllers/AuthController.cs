@@ -63,7 +63,6 @@ namespace RefrescosDelValle.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            // Bloquear clones en la base de datos
             var existeCI = await _db.Personas.AnyAsync(p => p.NumeroDocumento == model.CI);
             var existeEmail = await _db.Personas.AnyAsync(p => p.CorreoPrincipal == model.Email);
 
@@ -76,11 +75,9 @@ namespace RefrescosDelValle.Controllers
             using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
-                // Buscar IDs obligatorios
                 var tipoDocCI = await _db.Set<DominioValor>().FirstOrDefaultAsync(d => d.DominioTipoId == 10 && d.Descripcion == "Carnet de Identidad");
                 var sexoIndet = await _db.Set<DominioValor>().FirstOrDefaultAsync(d => d.DominioTipoId == 1 && d.Descripcion == "Indeterminado");
 
-                // 1. Insertar Persona
                 var persona = new Persona
                 {
                     NumeroDocumento = model.CI,
@@ -95,7 +92,6 @@ namespace RefrescosDelValle.Controllers
                 _db.Personas.Add(persona);
                 await _db.SaveChangesAsync();
 
-                // 2. Insertar Usuario
                 var usuario = new Usuario
                 {
                     PersonaId = persona.PersonaId,
@@ -106,7 +102,6 @@ namespace RefrescosDelValle.Controllers
                 _db.Usuarios.Add(usuario);
                 await _db.SaveChangesAsync();
 
-                // 3. Asignar Rol de "Cliente"
                 var rolCliente = await _db.Set<Role>().FirstOrDefaultAsync(r => r.NombreRol == "Cliente");
                 if (rolCliente == null)
                 {
@@ -123,7 +118,6 @@ namespace RefrescosDelValle.Controllers
                 _db.Set<UsuariosRole>().Add(usuarioRol);
                 await _db.SaveChangesAsync();
 
-                // 4. [EL PARCHE CLAVE] Registrar en la tabla Clientes del ERP
                 var tipoClienteMinorista = await _db.Set<TiposCliente>().FirstOrDefaultAsync(t => t.Descripcion == "Minorista");
                 var cliente = new Cliente
                 {
@@ -134,9 +128,7 @@ namespace RefrescosDelValle.Controllers
                 _db.Set<Cliente>().Add(cliente);
                 await _db.SaveChangesAsync();
 
-                // 5. Commit final
                 await transaction.CommitAsync();
-
                 TempData["RegistroExitoso"] = "true";
                 return RedirectToAction("Login");
             }
@@ -144,7 +136,7 @@ namespace RefrescosDelValle.Controllers
             {
                 await transaction.RollbackAsync();
                 Console.WriteLine($"[CRITICAL] Fallo en el nodo de registro: {ex.Message}");
-                ModelState.AddModelError("", "Fallo crítico al ejecutar el INSERT en el servidor.");
+                ModelState.AddModelError("", "Fallo crítico al ejecutar el INSERT.");
                 return View(model);
             }
         }
@@ -205,6 +197,18 @@ namespace RefrescosDelValle.Controllers
 
             await _otpService.LimpiarOTPAsync(model.IdUsuario);
 
+            // ══ REGISTRO DE SESIÓN PARA MONITOR DE SEGURIDAD ══
+            var nuevaSesion = new Sesione
+            {
+                UsuarioId = usuario.UsuarioId,
+                FechaInicio = DateTime.Now,
+                DireccionIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1",
+                Dispositivo = Request.Headers["User-Agent"].ToString().Substring(0, Math.Min(100, Request.Headers["User-Agent"].ToString().Length)),
+                Activa = true
+            };
+            _db.Sesiones.Add(nuevaSesion);
+            await _db.SaveChangesAsync();
+
             if (roles.Contains("SuperAdmin") || roles.Contains("AdminSeguridad") || roles.Contains("AdminVentas"))
             {
                 return RedirectToAction("Index", "Dashboard");
@@ -230,6 +234,20 @@ namespace RefrescosDelValle.Controllers
 
         public async Task<IActionResult> Logout()
         {
+            // ══ CIERRE DE SESIÓN EN DB PARA MONITOR ══
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim != null)
+            {
+                int userId = int.Parse(userIdClaim);
+                var sesion = await _db.Sesiones.FirstOrDefaultAsync(s => s.UsuarioId == userId && s.Activa);
+                if (sesion != null)
+                {
+                    sesion.Activa = false;
+                    sesion.FechaCierre = DateTime.Now;
+                    await _db.SaveChangesAsync();
+                }
+            }
+
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login");
         }

@@ -1,61 +1,11 @@
-@* ===== Views/Pedidos/Index.cshtml ===== *@
-@* @model IEnumerable<PaginaRefrescosDelValle.Models.Entities.Pedido> *@
-@{
-    ViewData["Title"] = "Pedidos";
-    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
-}
 
-<div class="ventas-header">
-    <div>
-        <h2 class="ventas-titulo"><i class="bi bi-cart3"></i> Pedidos</h2>
-        <p class="ventas-subtitulo">Historial y gestión de pedidos</p>
-    </div>
-    <a asp-action="Create" class="btn-ventas-primary">
-        <i class="bi bi-plus-lg"></i> Nuevo Pedido
-    </a>
+<link rel="stylesheet" href="/css/modulos/Ventas.css" />
+<div class="container">
+<div class="card">
+<div class="title">Pedidos</div>
+<table class="table">
+<tr><th>PedidoID</th><th>ClienteID</th><th>Estado</th></tr>
+<tr><td>500</td><td>101</td><td>Pendiente</td></tr>
+</table>
 </div>
-
-@if (TempData["Exito"] != null)
-{
-    <div class="alert-ventas-exito"><i class="bi bi-check-circle-fill"></i> @TempData["Exito"]</div>
-}
-
-<div class="ventas-card">
-    <div class="table-responsive">
-        <table class="ventas-table">
-            <thead>
-                <tr>
-                    <th># Pedido</th>
-                    <th>Cliente</th>
-                    <th>Fecha</th>
-                    <th>Canal</th>
-                    <th>Estado</th>
-                    <th>Total</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var p in Model)
-                {
-                    <tr>
-                        <td><strong>PED-@p.PedidoID.ToString("D5")</strong></td>
-                        <td>@p.Cliente?.NombreCliente</td>
-                        <td>@p.FechaPedido.ToString("dd/MM/yyyy")</td>
-                        <td>@(p.CanalVenta?.NombreCanal ?? "—")</td>
-                        <td>
-                            <span class="estado-badge estado-@p.EstadoPedido?.NombreEstado?.Replace(" ", "").ToLower()">
-                                @p.EstadoPedido?.NombreEstado
-                            </span>
-                        </td>
-                        <td class="text-end fw-semibold">Bs @p.Total.ToString("N2")</td>
-                        <td class="acciones">
-                            <a asp-action="Details" asp-route-id="@p.PedidoID" class="btn-icono" title="Ver">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
 </div>
