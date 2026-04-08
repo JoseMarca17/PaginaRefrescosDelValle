@@ -1,0 +1,83 @@
+@model RefrescosDelValle.Models.Entities.RecepcionMercaderium
+
+@{
+    ViewData["Title"] = "Nueva Recepción";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Registrar Recepción de Mercadería</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="CrearRecepcion" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="OrdenCompraId" class="form-label">Orden de Compra</label>
+                        <select asp-for="OrdenCompraId" class="form-select" asp-items="ViewBag.OrdenesCompra">
+                            <option value="">Seleccione una orden</option>
+                        </select>
+                        <span asp-validation-for="OrdenCompraId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="productoId" class="form-label">Producto</label>
+                        <select id="productoId" name="productoId" class="form-select" asp-items="ViewBag.Productos">
+                            <option value="">Seleccione un producto</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="lote" class="form-label">Lote</label>
+                        <input type="text" id="lote" name="lote" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="fechaVencimiento" class="form-label">Fecha Vencimiento</label>
+                        <input type="date" id="fechaVencimiento" name="fechaVencimiento" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="costoUnitario" class="form-label">Costo Unitario</label>
+                        <input type="number" id="costoUnitario" name="costoUnitario" class="form-control" step="0.01" required />
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="CantidadRecibida" class="form-label">Cantidad Recibida</label>
+                        <input asp-for="CantidadRecibida" class="form-control" type="number" step="0.01" />
+                        <span asp-validation-for="CantidadRecibida" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="AlmacenId" class="form-label">Almacén</label>
+                        <select asp-for="AlmacenId" class="form-select" asp-items="ViewBag.Almacenes">
+                            <option value="">Seleccione un almacén</option>
+                        </select>
+                        <span asp-validation-for="AlmacenId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="FechaRecepcion" class="form-label">Fecha Recepción</label>
+                        <input asp-for="FechaRecepcion" class="form-control" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="FechaRecepcion" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Observaciones" class="form-label">Observaciones</label>
+                    <textarea asp-for="Observaciones" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Observaciones" class="text-danger"></span>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <a asp-action="Recepciones" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

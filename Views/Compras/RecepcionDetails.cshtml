@@ -1,0 +1,57 @@
+@model RefrescosDelValle.Models.Entities.RecepcionMercaderium
+
+@{
+    ViewData["Title"] = "Detalles de Recepción";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Detalles de Recepción</h1>
+
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Información de la Recepción</h5>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">ID Recepción</dt>
+                <dd class="col-sm-9">@Model.RecepcionId</dd>
+
+                <dt class="col-sm-3">N° Orden de Compra</dt>
+                <dd class="col-sm-9">@Model.OrdenCompra?.NumeroOrden</dd>
+
+                <dt class="col-sm-3">Proveedor</dt>
+                <dd class="col-sm-9">@Model.OrdenCompra?.Proveedor?.RazonSocial</dd>
+
+                <dt class="col-sm-3">Producto</dt>
+                <dd class="col-sm-9">@Model.Inventario?.Producto?.NombreProducto</dd>
+
+                <dt class="col-sm-3">Lote</dt>
+                <dd class="col-sm-9">@Model.Inventario?.Lote</dd>
+
+                <dt class="col-sm-3">Fecha Vencimiento</dt>
+                <dd class="col-sm-9">@(Model.Inventario?.FechaVencimiento?.ToString("dd/MM/yyyy") ?? "N/A")</dd>
+
+                <dt class="col-sm-3">Costo Unitario</dt>
+                <dd class="col-sm-9">@(Model.Inventario?.CostoUnitario.ToString("C") ?? "N/A")</dd>
+
+                <dt class="col-sm-3">Cantidad Recibida</dt>
+                <dd class="col-sm-9">@Model.CantidadRecibida.ToString("N2")</dd>
+
+                <dt class="col-sm-3">Almacén</dt>
+                <dd class="col-sm-9">@Model.Almacen?.NombreAlmacen</dd>
+
+                <dt class="col-sm-3">Fecha Recepción</dt>
+                <dd class="col-sm-9">@Model.FechaRecepcion.ToString("dd/MM/yyyy")</dd>
+
+                <dt class="col-sm-3">Usuario Registró</dt>
+                <dd class="col-sm-9">@Model.Usuario?.NombreUsuario</dd>
+
+                <dt class="col-sm-3">Observaciones</dt>
+                <dd class="col-sm-9">@Model.Observaciones</dd>
+            </dl>
+        </div>
+        <div class="card-footer">
+            <a asp-action="Recepciones" class="btn btn-secondary">Volver</a>
+        </div>
+    </div>
+</div>
