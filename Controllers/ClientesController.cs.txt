@@ -1,0 +1,177 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using PaginaRefrescosDelValle.Data;
+using PaginaRefrescosDelValle.Models.Entities;
+using PaginaRefrescosDelValle.Models.ViewModels;
+
+namespace PaginaRefrescosDelValle.Controllers
+{
+    public class ClientesController : BaseController
+    {
+        private readonly AppDbContext _db;
+
+        public ClientesController(AppDbContext db)
+        {
+            _db = db;
+        }
+
+        // GET: /Clientes
+        public async Task<IActionResult> Index()
+        {
+            var clientes = await _db.Clientes
+                .Include(c => c.Ciudad)
+                .Include(c => c.Zona)
+                .Include(c => c.TipoCliente)
+                .Include(c => c.Vendedor)
+                .Include(c => c.CondicionPago)
+                .Where(c => c.Activo)
+                .OrderBy(c => c.NombreCliente)
+                .ToListAsync();
+
+            return View(clientes);
+        }
+
+        // GET: /Clientes/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var cliente = await _db.Clientes
+                .Include(c => c.Ciudad).ThenInclude(ci => ci!.Departamento).ThenInclude(d => d!.Pais)
+                .Include(c => c.Zona)
+                .Include(c => c.TipoCliente)
+                .Include(c => c.Vendedor)
+                .Include(c => c.CondicionPago)
+                .Include(c => c.Pedidos)
+                .FirstOrDefaultAsync(c => c.ClienteID == id);
+
+            if (cliente == null) return NotFound();
+            return View(cliente);
+        }
+
+        // GET: /Clientes/Create
+        public async Task<IActionResult> Create()
+        {
+            await CargarSelectLists();
+            return View(new ClienteViewModel());
+        }
+
+        // POST: /Clientes/Create
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(ClienteViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                await CargarSelectLists();
+                return View(vm);
+            }
+
+            var cliente = new Cliente
+            {
+                NombreCliente   = vm.NombreCliente,
+                NIT             = vm.NIT,
+                Telefono        = vm.Telefono,
+                Calle           = vm.Calle,
+                NumeroExterior  = vm.NumeroExterior,
+                Complemento     = vm.Complemento,
+                CiudadID        = vm.CiudadID,
+                ZonaID          = vm.ZonaID,
+                TipoClienteID   = vm.TipoClienteID,
+                VendedorID      = vm.VendedorID,
+                CondicionPagoID = vm.CondicionPagoID,
+                FechaRegistro   = DateTime.Now,
+                Activo          = true
+            };
+
+            _db.Clientes.Add(cliente);
+            await _db.SaveChangesAsync();
+
+            TempData["Exito"] = "Cliente registrado correctamente.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: /Clientes/Edit/5
+        public async Task<IActionResult> Edit(int id)
+        {
+            var cliente = await _db.Clientes.FindAsync(id);
+            if (cliente == null) return NotFound();
+
+            var vm = new ClienteViewModel
+            {
+                ClienteID       = cliente.ClienteID,
+                NombreCliente   = cliente.NombreCliente,
+                NIT             = cliente.NIT,
+                Telefono        = cliente.Telefono,
+                Calle           = cliente.Calle,
+                NumeroExterior  = cliente.NumeroExterior,
+                Complemento     = cliente.Complemento,
+                CiudadID        = cliente.CiudadID,
+                ZonaID          = cliente.ZonaID,
+                TipoClienteID   = cliente.TipoClienteID,
+                VendedorID      = cliente.VendedorID,
+                CondicionPagoID = cliente.CondicionPagoID,
+                Activo          = cliente.Activo
+            };
+
+            await CargarSelectLists(vm);
+            return View(vm);
+        }
+
+        // POST: /Clientes/Edit/5
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, ClienteViewModel vm)
+        {
+            if (id != vm.ClienteID) return BadRequest();
+
+            if (!ModelState.IsValid)
+            {
+                await CargarSelectLists(vm);
+                return View(vm);
+            }
+
+            var cliente = await _db.Clientes.FindAsync(id);
+            if (cliente == null) return NotFound();
+
+            cliente.NombreCliente   = vm.NombreCliente;
+            cliente.NIT             = vm.NIT;
+            cliente.Telefono        = vm.Telefono;
+            cliente.Calle           = vm.Calle;
+            cliente.NumeroExterior  = vm.NumeroExterior;
+            cliente.Complemento     = vm.Complemento;
+            cliente.CiudadID        = vm.CiudadID;
+            cliente.ZonaID          = vm.ZonaID;
+            cliente.TipoClienteID   = vm.TipoClienteID;
+            cliente.VendedorID      = vm.VendedorID;
+            cliente.CondicionPagoID = vm.CondicionPagoID;
+            cliente.Activo          = vm.Activo;
+
+            await _db.SaveChangesAsync();
+
+            TempData["Exito"] = "Cliente actualizado correctamente.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: /Clientes/Delete/5 (baja lógica)
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var cliente = await _db.Clientes.FindAsync(id);
+            if (cliente == null) return NotFound();
+
+            cliente.Activo = false;
+            await _db.SaveChangesAsync();
+
+            TempData["Exito"] = "Cliente desactivado correctamente.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // ── Helpers ─────────────────────────────────────────────────────────
+        private async Task CargarSelectLists(ClienteViewModel? vm = null)
+        {
+            ViewBag.Ciudades       = new SelectList(await _db.Ciudades.OrderBy(c => c.NombreCiudad).ToListAsync(),       "CiudadID",        "NombreCiudad",        vm?.CiudadID);
+            ViewBag.Zonas          = new SelectList(await _db.Zonas.OrderBy(z => z.NombreZona).ToListAsync(),            "ZonaID",          "NombreZona",          vm?.ZonaID);
+            ViewBag.TipoClientes   = new SelectList(await _db.TipoClientes.OrderBy(t => t.NombreTipo).ToListAsync(),    "TipoClienteID",   "NombreTipo",          vm?.TipoClienteID);
+            ViewBag.Vendedores     = new SelectList(await _db.Vendedores.Where(v => v.Activo).OrderBy(v => v.NombreVendedor).ToListAsync(), "VendedorID", "NombreVendedor", vm?.VendedorID);
+            ViewBag.CondicionesPago = new SelectList(await _db.CondicionesPago.OrderBy(c => c.DiasCredito).ToListAsync(), "CondicionPagoID", "NombreCondicion",     vm?.CondicionPagoID);
+        }
+    }
+}

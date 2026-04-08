@@ -1,0 +1,90 @@
+@* @model IEnumerable<PaginaRefrescosDelValle.Models.Entities.Cliente> *@
+@{
+    ViewData["Title"] = "Clientes";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="ventas-header">
+    <div>
+        <h2 class="ventas-titulo"><i class="bi bi-people-fill"></i> Clientes</h2>
+        <p class="ventas-subtitulo">Gestión de clientes registrados</p>
+    </div>
+    <a asp-action="Create" class="btn-ventas-primary">
+        <i class="bi bi-plus-lg"></i> Nuevo Cliente
+    </a>
+</div>
+
+@if (TempData["Exito"] != null)
+{
+    <div class="alert-ventas-exito">
+        <i class="bi bi-check-circle-fill"></i> @TempData["Exito"]
+    </div>
+}
+
+<div class="ventas-card">
+    <div class="ventas-card-toolbar">
+        <input type="text" id="buscador" class="ventas-search" placeholder="🔍 Buscar cliente...">
+        <span class="badge-count">@Model.Count() clientes activos</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="ventas-table" id="tablaClientes">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nombre / Razón Social</th>
+                    <th>NIT</th>
+                    <th>Teléfono</th>
+                    <th>Ciudad</th>
+                    <th>Zona</th>
+                    <th>Tipo</th>
+                    <th>Vendedor</th>
+                    <th>Condición Pago</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model)
+                {
+                    <tr>
+                        <td>@c.ClienteID</td>
+                        <td class="fw-semibold">@c.NombreCliente</td>
+                        <td>@(c.NIT ?? "—")</td>
+                        <td>@(c.Telefono ?? "—")</td>
+                        <td>@c.Ciudad?.NombreCiudad</td>
+                        <td>@c.Zona?.NombreZona</td>
+                        <td><span class="badge-tipo">@c.TipoCliente?.NombreTipo</span></td>
+                        <td>@c.Vendedor?.NombreVendedor</td>
+                        <td>@c.CondicionPago?.NombreCondicion</td>
+                        <td class="acciones">
+                            <a asp-action="Details" asp-route-id="@c.ClienteID" class="btn-icono" title="Ver detalle">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@c.ClienteID" class="btn-icono edit" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form asp-action="Delete" asp-route-id="@c.ClienteID" method="post" style="display:inline"
+                                  onsubmit="return confirm('¿Desactivar a @c.NombreCliente?')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn-icono danger" title="Desactivar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('buscador').addEventListener('input', function () {
+            const filtro = this.value.toLowerCase();
+            document.querySelectorAll('#tablaClientes tbody tr').forEach(fila => {
+                fila.style.display = fila.textContent.toLowerCase().includes(filtro) ? '' : 'none';
+            });
+        });
+    </script>
+}

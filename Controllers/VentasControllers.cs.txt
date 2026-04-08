@@ -1,0 +1,362 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using PaginaRefrescosDelValle.Data;
+using PaginaRefrescosDelValle.Models.Entities;
+using PaginaRefrescosDelValle.Models.ViewModels;
+
+namespace PaginaRefrescosDelValle.Controllers
+{
+    // =========================================================================
+    //  PEDIDOS
+    // =========================================================================
+    public class PedidosController : BaseController
+    {
+        private readonly AppDbContext _db;
+        public PedidosController(AppDbContext db) { _db = db; }
+
+        // GET: /Pedidos
+        public async Task<IActionResult> Index()
+        {
+            var pedidos = await _db.Pedidos
+                .Include(p => p.Cliente)
+                .Include(p => p.EstadoPedido)
+                .Include(p => p.CanalVenta)
+                .OrderByDescending(p => p.FechaPedido)
+                .ToListAsync();
+
+            return View(pedidos);
+        }
+
+        // GET: /Pedidos/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var pedido = await _db.Pedidos
+                .Include(p => p.Cliente)
+                .Include(p => p.EstadoPedido)
+                .Include(p => p.CanalVenta)
+                .Include(p => p.CondicionPago)
+                .Include(p => p.PedidosDetalle).ThenInclude(d => d.Producto)
+                .Include(p => p.Entregas)
+                .Include(p => p.Facturas).ThenInclude(f => f.EstadoFactura)
+                .FirstOrDefaultAsync(p => p.PedidoID == id);
+
+            if (pedido == null) return NotFound();
+            return View(pedido);
+        }
+
+        // GET: /Pedidos/Create
+        public async Task<IActionResult> Create()
+        {
+            await CargarSelectLists();
+            return View(new PedidoViewModel { FechaPedido = DateTime.Now });
+        }
+
+        // POST: /Pedidos/Create
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(PedidoViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                await CargarSelectLists(vm);
+                return View(vm);
+            }
+
+            var pedido = new Pedido
+            {
+                ClienteID       = vm.ClienteID,
+                FechaPedido     = vm.FechaPedido,
+                EstadoPedidoID  = vm.EstadoPedidoID,
+                CanalVentaID    = vm.CanalVentaID,
+                CondicionPagoID = vm.CondicionPagoID,
+                DescuentoID     = vm.DescuentoID,
+                Total           = 0
+            };
+
+            _db.Pedidos.Add(pedido);
+            await _db.SaveChangesAsync();
+
+            // Agregar detalles
+            foreach (var det in vm.Detalles.Where(d => d.ProductoID > 0))
+            {
+                _db.PedidosDetalle.Add(new PedidoDetalle
+                {
+                    PedidoID       = pedido.PedidoID,
+                    ProductoID     = det.ProductoID,
+                    ListaPrecioID  = det.ListaPrecioID,
+                    Cantidad       = det.Cantidad,
+                    PrecioUnitario = det.PrecioUnitario
+                });
+            }
+
+            // Calcular total
+            pedido.Total = vm.Detalles.Sum(d => d.Cantidad * d.PrecioUnitario);
+            await _db.SaveChangesAsync();
+
+            TempData["Exito"] = "Pedido registrado correctamente.";
+            return RedirectToAction(nameof(Details), new { id = pedido.PedidoID });
+        }
+
+        // POST: /Pedidos/CambiarEstado
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> CambiarEstado(int pedidoId, int estadoId)
+        {
+            var pedido = await _db.Pedidos.FindAsync(pedidoId);
+            if (pedido == null) return NotFound();
+
+            pedido.EstadoPedidoID = estadoId;
+            await _db.SaveChangesAsync();
+
+            TempData["Exito"] = "Estado actualizado.";
+            return RedirectToAction(nameof(Details), new { id = pedidoId });
+        }
+
+        private async Task CargarSelectLists(PedidoViewModel? vm = null)
+        {
+            ViewBag.Clientes        = new SelectList(await _db.Clientes.Where(c => c.Activo).OrderBy(c => c.NombreCliente).ToListAsync(), "ClienteID", "NombreCliente", vm?.ClienteID);
+            ViewBag.EstadosPedido   = new SelectList(await _db.EstadosPedido.ToListAsync(),  "EstadoPedidoID",  "NombreEstado",    vm?.EstadoPedidoID);
+            ViewBag.CanalesVenta    = new SelectList(await _db.CanalesVenta.ToListAsync(),   "CanalVentaID",    "NombreCanal",     vm?.CanalVentaID);
+            ViewBag.CondicionesPago = new SelectList(await _db.CondicionesPago.ToListAsync(),"CondicionPagoID", "NombreCondicion", vm?.CondicionPagoID);
+            ViewBag.Descuentos      = new SelectList(await _db.Descuentos.Where(d => d.Activo).ToListAsync(), "DescuentoID", "DescuentoID", vm?.DescuentoID);
+            ViewBag.Productos       = new SelectList(await _db.Productos.Where(p => p.Activo).OrderBy(p => p.NombreProducto).ToListAsync(), "ProductoID", "NombreProducto");
+        }
+    }
+
+    // =========================================================================
+    //  FACTURAS
+    // =========================================================================
+    public class FacturasController : BaseController
+    {
+        private readonly AppDbContext _db;
+        public FacturasController(AppDbContext db) { _db = db; }
+
+        // GET: /Facturas
+        public async Task<IActionResult> Index()
+        {
+            var facturas = await _db.Facturas
+                .Include(f => f.Pedido).ThenInclude(p => p!.Cliente)
+                .Include(f => f.TipoFactura)
+                .Include(f => f.EstadoFactura)
+                .OrderByDescending(f => f.FechaFactura)
+                .ToListAsync();
+
+            return View(facturas);
+        }
+
+        // GET: /Facturas/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var factura = await _db.Facturas
+                .Include(f => f.Pedido).ThenInclude(p => p!.Cliente)
+                .Include(f => f.TipoFactura)
+                .Include(f => f.EstadoFactura)
+                .Include(f => f.FacturasDetalle).ThenInclude(d => d.Producto)
+                .Include(f => f.Pagos).ThenInclude(p => p.TipoPago)
+                .Include(f => f.NotasCredito)
+                .Include(f => f.HistorialEstados).ThenInclude(h => h.EstadoFactura)
+                .FirstOrDefaultAsync(f => f.FacturaID == id);
+
+            if (factura == null) return NotFound();
+            return View(factura);
+        }
+
+        // GET: /Facturas/Create?pedidoId=5
+        public async Task<IActionResult> Create(int pedidoId)
+        {
+            var pedido = await _db.Pedidos
+                .Include(p => p.Cliente)
+                .Include(p => p.PedidosDetalle).ThenInclude(d => d.Producto)
+                .FirstOrDefaultAsync(p => p.PedidoID == pedidoId);
+
+            if (pedido == null) return NotFound();
+
+            await CargarSelectLists();
+
+            var vm = new FacturaViewModel
+            {
+                PedidoID       = pedidoId,
+                FechaFactura   = DateTime.Now,
+                NombreCliente  = pedido.Cliente?.NombreCliente,
+                NIT            = pedido.Cliente?.NIT,
+                Subtotal       = pedido.Total,
+                Total          = pedido.Total
+            };
+
+            return View(vm);
+        }
+
+        // POST: /Facturas/Create
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(FacturaViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                await CargarSelectLists(vm);
+                return View(vm);
+            }
+
+            // Verificar que no exista el número de factura
+            if (await _db.Facturas.AnyAsync(f => f.NumeroFactura == vm.NumeroFactura))
+            {
+                ModelState.AddModelError(nameof(vm.NumeroFactura), "Ese número de factura ya existe.");
+                await CargarSelectLists(vm);
+                return View(vm);
+            }
+
+            var factura = new Factura
+            {
+                PedidoID        = vm.PedidoID,
+                TipoFacturaID   = vm.TipoFacturaID,
+                EstadoFacturaID = vm.EstadoFacturaID,
+                NumeroFactura   = vm.NumeroFactura,
+                FechaFactura    = vm.FechaFactura,
+                FechaVencimiento = vm.FechaVencimiento,
+                NIT             = vm.NIT,
+                Subtotal        = vm.Subtotal,
+                ImpuestoTotal   = vm.ImpuestoTotal,
+                Total           = vm.Total,
+                Observaciones   = vm.Observaciones
+            };
+
+            _db.Facturas.Add(factura);
+            await _db.SaveChangesAsync();
+
+            // Registrar historial de estado inicial
+            _db.HistorialEstadoFactura.Add(new HistorialEstadoFactura
+            {
+                FacturaID       = factura.FacturaID,
+                EstadoFacturaID = factura.EstadoFacturaID,
+                FechaCambio     = DateTime.Now,
+                Observaciones   = "Factura creada"
+            });
+            await _db.SaveChangesAsync();
+
+            TempData["Exito"] = $"Factura {factura.NumeroFactura} creada correctamente.";
+            return RedirectToAction(nameof(Details), new { id = factura.FacturaID });
+        }
+
+        // POST: /Facturas/RegistrarPago
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> RegistrarPago(PagoViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Datos de pago inválidos.";
+                return RedirectToAction(nameof(Details), new { id = vm.FacturaID });
+            }
+
+            _db.Pagos.Add(new Pago
+            {
+                FacturaID     = vm.FacturaID,
+                TipoPagoID    = vm.TipoPagoID,
+                BancoID       = vm.BancoID,
+                FechaPago     = vm.FechaPago,
+                Monto         = vm.Monto,
+                Referencia    = vm.Referencia,
+                CuentaDestino = vm.CuentaDestino,
+                Observaciones = vm.Observaciones
+            });
+
+            // Verificar si la factura queda pagada
+            var factura = await _db.Facturas.Include(f => f.Pagos).FirstOrDefaultAsync(f => f.FacturaID == vm.FacturaID);
+            if (factura != null)
+            {
+                var totalPagado = factura.Pagos.Sum(p => p.Monto) + vm.Monto;
+                if (totalPagado >= factura.Total)
+                {
+                    var estadoPagada = await _db.EstadosFactura.FirstOrDefaultAsync(e => e.NombreEstado == "Pagada");
+                    if (estadoPagada != null)
+                    {
+                        factura.EstadoFacturaID = estadoPagada.EstadoFacturaID;
+                        _db.HistorialEstadoFactura.Add(new HistorialEstadoFactura
+                        {
+                            FacturaID       = factura.FacturaID,
+                            EstadoFacturaID = estadoPagada.EstadoFacturaID,
+                            FechaCambio     = DateTime.Now,
+                            Observaciones   = "Pago completo registrado"
+                        });
+                    }
+                }
+            }
+
+            await _db.SaveChangesAsync();
+            TempData["Exito"] = "Pago registrado correctamente.";
+            return RedirectToAction(nameof(Details), new { id = vm.FacturaID });
+        }
+
+        private async Task CargarSelectLists(FacturaViewModel? vm = null)
+        {
+            ViewBag.TiposFactura  = new SelectList(await _db.TiposFactura.ToListAsync(),  "TipoFacturaID",   "NombreTipo",   vm?.TipoFacturaID);
+            ViewBag.EstadosFactura = new SelectList(await _db.EstadosFactura.ToListAsync(),"EstadoFacturaID", "NombreEstado", vm?.EstadoFacturaID);
+            ViewBag.TiposPago     = new SelectList(await _db.TiposPago.Where(t => t.Activo).ToListAsync(), "TipoPagoID", "NombreTipo");
+            ViewBag.Bancos        = new SelectList(await _db.Bancos.Where(b => b.Activo).ToListAsync(), "BancoID", "NombreBanco");
+        }
+    }
+
+    // =========================================================================
+    //  VENTAS (Dashboard general del módulo)
+    // =========================================================================
+    public class VentasController : BaseController
+    {
+        private readonly AppDbContext _db;
+        public VentasController(AppDbContext db) { _db = db; }
+
+        public async Task<IActionResult> Index()
+        {
+            var hoy       = DateTime.Today;
+            var inicioMes = new DateTime(hoy.Year, hoy.Month, 1);
+
+            var vm = new VentasDashboardViewModel
+            {
+                TotalClientes     = await _db.Clientes.CountAsync(c => c.Activo),
+                PedidosPendientes = await _db.Pedidos
+                    .Include(p => p.EstadoPedido)
+                    .CountAsync(p => p.EstadoPedido!.NombreEstado == "Pendiente"),
+                FacturasPorVencer = await _db.Facturas
+                    .CountAsync(f => f.FechaVencimiento != null &&
+                                     f.FechaVencimiento <= DateOnly.FromDateTime(hoy.AddDays(7)) &&
+                                     f.EstadoFactura!.NombreEstado != "Pagada"),
+                VentasDelMes = await _db.Pedidos
+                    .Where(p => p.FechaPedido >= inicioMes)
+                    .SumAsync(p => p.Total),
+                CobradoDelMes = await _db.Pagos
+                    .Where(p => p.FechaPago >= inicioMes)
+                    .SumAsync(p => p.Monto),
+
+                UltimosPedidos = await _db.Pedidos
+                    .Include(p => p.Cliente)
+                    .Include(p => p.EstadoPedido)
+                    .OrderByDescending(p => p.FechaPedido)
+                    .Take(8)
+                    .Select(p => new PedidoResumenViewModel
+                    {
+                        PedidoID = p.PedidoID,
+                        Cliente  = p.Cliente!.NombreCliente,
+                        Fecha    = p.FechaPedido,
+                        Estado   = p.EstadoPedido!.NombreEstado,
+                        Total    = p.Total
+                    }).ToListAsync(),
+
+                FacturasVencidas = await _db.Facturas
+                    .Include(f => f.Pedido).ThenInclude(p => p!.Cliente)
+                    .Include(f => f.EstadoFactura)
+                    .Where(f => f.FechaVencimiento < DateOnly.FromDateTime(hoy) &&
+                                f.EstadoFactura!.NombreEstado != "Pagada")
+                    .OrderBy(f => f.FechaVencimiento)
+                    .Take(5)
+                    .Select(f => new FacturaResumenViewModel
+                    {
+                        FacturaID     = f.FacturaID,
+                        NumeroFactura = f.NumeroFactura,
+                        Cliente       = f.Pedido!.Cliente!.NombreCliente,
+                        Vencimiento   = f.FechaVencimiento,
+                        Total         = f.Total,
+                        Estado        = f.EstadoFactura!.NombreEstado
+                    }).ToListAsync()
+            };
+
+            vm.PorCobrar = vm.VentasDelMes - vm.CobradoDelMes;
+            return View(vm);
+        }
+    }
+}

@@ -1,0 +1,274 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace PaginaRefrescosDelValle.Models.Entities
+{
+    // ── Vendedores ───────────────────────────────────────────────────────────
+    public class Vendedor
+    {
+        [Key] public int VendedorID { get; set; }
+        [Required, MaxLength(100)] public string NombreVendedor { get; set; } = "";
+        [MaxLength(20)]            public string? Telefono      { get; set; }
+        public int  ZonaID { get; set; }
+        public bool Activo  { get; set; } = true;
+
+        [ForeignKey(nameof(ZonaID))] public Zona? Zona { get; set; }
+        public ICollection<Cliente> Clientes { get; set; } = [];
+    }
+
+    // ── Clientes ─────────────────────────────────────────────────────────────
+    public class Cliente
+    {
+        [Key] public int ClienteID { get; set; }
+
+        [Required, MaxLength(150)] public string NombreCliente { get; set; } = "";
+        [MaxLength(20)]            public string? NIT           { get; set; }
+        [MaxLength(20)]            public string? Telefono      { get; set; }
+
+        // Dirección atomizada (1NF)
+        [Required, MaxLength(150)] public string Calle          { get; set; } = "";
+        [MaxLength(20)]            public string? NumeroExterior { get; set; }
+        [MaxLength(100)]           public string? Complemento    { get; set; }
+
+        public int CiudadID        { get; set; }
+        public int ZonaID          { get; set; }
+        public int TipoClienteID   { get; set; }
+        public int VendedorID      { get; set; }
+        public int CondicionPagoID { get; set; }
+
+        public DateTime FechaRegistro { get; set; } = DateTime.Now;
+        public bool     Activo        { get; set; } = true;
+
+        [ForeignKey(nameof(CiudadID))]        public Ciudad?        Ciudad        { get; set; }
+        [ForeignKey(nameof(ZonaID))]          public Zona?          Zona          { get; set; }
+        [ForeignKey(nameof(TipoClienteID))]   public TipoCliente?   TipoCliente   { get; set; }
+        [ForeignKey(nameof(VendedorID))]      public Vendedor?      Vendedor      { get; set; }
+        [ForeignKey(nameof(CondicionPagoID))] public CondicionPago? CondicionPago { get; set; }
+
+        public ICollection<Pedido> Pedidos { get; set; } = [];
+    }
+
+    // ── ListaPrecios ─────────────────────────────────────────────────────────
+    public class ListaPrecio
+    {
+        [Key] public int ListaPrecioID { get; set; }
+        public int      ProductoID    { get; set; }
+        public int      TipoClienteID { get; set; }
+        [Column(TypeName = "decimal(12,2)")] public decimal Precio { get; set; }
+        public DateOnly VigenciaDesde { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+        public DateOnly? VigenciaHasta { get; set; }
+
+        [ForeignKey(nameof(ProductoID))]    public Producto?    Producto    { get; set; }
+        [ForeignKey(nameof(TipoClienteID))] public TipoCliente? TipoCliente { get; set; }
+        public ICollection<PedidoDetalle> PedidosDetalle { get; set; } = [];
+    }
+
+    // ── Descuentos ───────────────────────────────────────────────────────────
+    public class Descuento
+    {
+        [Key] public int DescuentoID     { get; set; }
+        public int TipoDescuentoID { get; set; }
+        [Column(TypeName = "decimal(5,2)")] public decimal Porcentaje     { get; set; }
+        public int  CantidadMinima { get; set; } = 1;
+        public bool Activo         { get; set; } = true;
+
+        [ForeignKey(nameof(TipoDescuentoID))] public TipoDescuento? TipoDescuento { get; set; }
+        public ICollection<Pedido>                  Pedidos { get; set; } = [];
+        public ICollection<PedidoDetalleDescuento>  PedidoDetalleDescuentos { get; set; } = [];
+    }
+
+    // ── Pedidos ──────────────────────────────────────────────────────────────
+    public class Pedido
+    {
+        [Key] public int PedidoID { get; set; }
+        public int      ClienteID      { get; set; }
+        public DateTime FechaPedido    { get; set; } = DateTime.Now;
+        public int      EstadoPedidoID { get; set; }
+        public int?     CanalVentaID   { get; set; }
+        public int?     CondicionPagoID { get; set; }
+        public int?     DescuentoID    { get; set; }
+        [Column(TypeName = "decimal(12,2)")] public decimal Total { get; set; } = 0;
+
+        [ForeignKey(nameof(ClienteID))]       public Cliente?      Cliente       { get; set; }
+        [ForeignKey(nameof(EstadoPedidoID))]  public EstadoPedido? EstadoPedido  { get; set; }
+        [ForeignKey(nameof(CanalVentaID))]    public CanalVenta?   CanalVenta    { get; set; }
+        [ForeignKey(nameof(CondicionPagoID))] public CondicionPago? CondicionPago { get; set; }
+        [ForeignKey(nameof(DescuentoID))]     public Descuento?    Descuento     { get; set; }
+
+        public ICollection<PedidoDetalle> PedidosDetalle { get; set; } = [];
+        public ICollection<Entrega>       Entregas       { get; set; } = [];
+        public ICollection<Factura>       Facturas       { get; set; } = [];
+    }
+
+    // ── PedidosDetalle ───────────────────────────────────────────────────────
+    public class PedidoDetalle
+    {
+        [Key] public int DetallePedidoID { get; set; }
+        public int PedidoID      { get; set; }
+        public int ProductoID    { get; set; }
+        public int? ListaPrecioID { get; set; }
+        public int     Cantidad        { get; set; }
+        [Column(TypeName = "decimal(12,2)")] public decimal PrecioUnitario { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        [Column(TypeName = "decimal(12,2)")] public decimal? Subtotal { get; set; }
+
+        [ForeignKey(nameof(PedidoID))]      public Pedido?      Pedido      { get; set; }
+        [ForeignKey(nameof(ProductoID))]    public Producto?    Producto    { get; set; }
+        [ForeignKey(nameof(ListaPrecioID))] public ListaPrecio? ListaPrecio { get; set; }
+
+        public ICollection<PedidoDetalleDescuento> Descuentos { get; set; } = [];
+    }
+
+    // ── PedidoDetalleDescuento ───────────────────────────────────────────────
+    public class PedidoDetalleDescuento
+    {
+        [Key] public int PedidoDetalleDescuentoID { get; set; }
+        public int DetallePedidoID { get; set; }
+        public int DescuentoID     { get; set; }
+
+        [ForeignKey(nameof(DetallePedidoID))] public PedidoDetalle? PedidoDetalle { get; set; }
+        [ForeignKey(nameof(DescuentoID))]     public Descuento?     Descuento     { get; set; }
+    }
+
+    // ── Entregas ─────────────────────────────────────────────────────────────
+    public class Entrega
+    {
+        [Key] public int EntregaID { get; set; }
+        public int       PedidoID      { get; set; }
+        public int?      RutaID        { get; set; }
+        public DateTime? FechaEntrega  { get; set; }
+        public DateTime? FechaPromesa  { get; set; }
+        [MaxLength(200)] public string? Observaciones { get; set; }
+
+        [ForeignKey(nameof(PedidoID))] public Pedido?      Pedido { get; set; }
+        [ForeignKey(nameof(RutaID))]   public RutaEntrega? Ruta   { get; set; }
+    }
+
+    // ── Facturas ─────────────────────────────────────────────────────────────
+    public class Factura
+    {
+        [Key] public int FacturaID { get; set; }
+        public int    PedidoID        { get; set; }
+        public int    TipoFacturaID   { get; set; }
+        public int    EstadoFacturaID { get; set; }
+        [Required, MaxLength(30)] public string NumeroFactura { get; set; } = "";
+        public DateTime FechaFactura     { get; set; } = DateTime.Now;
+        public DateOnly? FechaVencimiento { get; set; }
+        [MaxLength(20)] public string? NIT { get; set; }
+        [Column(TypeName = "decimal(12,2)")] public decimal Subtotal      { get; set; } = 0;
+        [Column(TypeName = "decimal(12,2)")] public decimal ImpuestoTotal { get; set; } = 0;
+        [Column(TypeName = "decimal(12,2)")] public decimal Total         { get; set; } = 0;
+        [MaxLength(200)] public string? Observaciones { get; set; }
+
+        [ForeignKey(nameof(PedidoID))]        public Pedido?        Pedido        { get; set; }
+        [ForeignKey(nameof(TipoFacturaID))]   public TipoFactura?   TipoFactura   { get; set; }
+        [ForeignKey(nameof(EstadoFacturaID))] public EstadoFactura? EstadoFactura { get; set; }
+
+        public ICollection<FacturaDetalle>        FacturasDetalle   { get; set; } = [];
+        public ICollection<Pago>                  Pagos             { get; set; } = [];
+        public ICollection<NotaCredito>           NotasCredito      { get; set; } = [];
+        public ICollection<Devolucion>            Devoluciones      { get; set; } = [];
+        public ICollection<HistorialEstadoFactura> HistorialEstados  { get; set; } = [];
+    }
+
+    // ── FacturasDetalle ──────────────────────────────────────────────────────
+    public class FacturaDetalle
+    {
+        [Key] public int DetalleFacturaID { get; set; }
+        public int FacturaID  { get; set; }
+        public int ProductoID { get; set; }
+        public int Cantidad   { get; set; }
+        [Column(TypeName = "decimal(12,2)")] public decimal PrecioUnitario { get; set; }
+        [Column(TypeName = "decimal(5,2)")]  public decimal PorcentajeIVA  { get; set; } = 0;
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        [Column(TypeName = "decimal(12,2)")] public decimal? Subtotal { get; set; }
+
+        [ForeignKey(nameof(FacturaID))]  public Factura?  Factura  { get; set; }
+        [ForeignKey(nameof(ProductoID))] public Producto? Producto { get; set; }
+    }
+
+    // ── Pagos ────────────────────────────────────────────────────────────────
+    public class Pago
+    {
+        [Key] public int PagoID { get; set; }
+        public int      FacturaID  { get; set; }
+        public int      TipoPagoID { get; set; }
+        public int?     BancoID    { get; set; }
+        public DateTime FechaPago  { get; set; } = DateTime.Now;
+        [Column(TypeName = "decimal(12,2)")] public decimal Monto { get; set; }
+        [MaxLength(100)] public string? Referencia    { get; set; }
+        [MaxLength(30)]  public string? CuentaDestino { get; set; }
+        [MaxLength(200)] public string? Observaciones { get; set; }
+
+        [ForeignKey(nameof(FacturaID))]  public Factura?  Factura  { get; set; }
+        [ForeignKey(nameof(TipoPagoID))] public TipoPago? TipoPago { get; set; }
+        [ForeignKey(nameof(BancoID))]    public Banco?    Banco    { get; set; }
+    }
+
+    // ── NotasCredito ─────────────────────────────────────────────────────────
+    public class NotaCredito
+    {
+        [Key] public int NotaCreditoID { get; set; }
+        public int      FacturaID        { get; set; }
+        public DateTime Fecha            { get; set; } = DateTime.Now;
+        public int      MotivoID         { get; set; }
+        [MaxLength(200)] public string? DetalleAdicional { get; set; }
+        [Column(TypeName = "decimal(12,2)")] public decimal Monto { get; set; }
+
+        [ForeignKey(nameof(FacturaID))] public Factura?          Factura { get; set; }
+        [ForeignKey(nameof(MotivoID))]  public MotivoNotaCredito? Motivo  { get; set; }
+        public ICollection<Devolucion> Devoluciones { get; set; } = [];
+    }
+
+    // ── Devoluciones ─────────────────────────────────────────────────────────
+    public class Devolucion
+    {
+        [Key] public int DevolucionID { get; set; }
+        public int       FacturaID          { get; set; }
+        public int?      NotaCreditoID      { get; set; }
+        public int       EstadoDevolucionID { get; set; }
+        public int       MotivoDevolucionID { get; set; }
+        public DateTime  FechaSolicitud     { get; set; } = DateTime.Now;
+        public DateTime? FechaResolucion    { get; set; }
+        [MaxLength(200)] public string? Observaciones { get; set; }
+
+        [ForeignKey(nameof(FacturaID))]          public Factura?          Factura          { get; set; }
+        [ForeignKey(nameof(NotaCreditoID))]      public NotaCredito?      NotaCredito      { get; set; }
+        [ForeignKey(nameof(EstadoDevolucionID))] public EstadoDevolucion? EstadoDevolucion { get; set; }
+        [ForeignKey(nameof(MotivoDevolucionID))] public MotivoDevolucion? MotivoDevolucion { get; set; }
+
+        public ICollection<DevolucionDetalle> Detalles { get; set; } = [];
+    }
+
+    // ── DevolucionesDetalle ──────────────────────────────────────────────────
+    public class DevolucionDetalle
+    {
+        [Key] public int DetalleDevolucionID { get; set; }
+        public int DevolucionID  { get; set; }
+        public int ProductoID    { get; set; }
+        public int Cantidad      { get; set; }
+        [Column(TypeName = "decimal(12,2)")] public decimal PrecioUnitario { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        [Column(TypeName = "decimal(12,2)")] public decimal? Subtotal { get; set; }
+
+        [ForeignKey(nameof(DevolucionID))] public Devolucion? Devolucion { get; set; }
+        [ForeignKey(nameof(ProductoID))]   public Producto?   Producto   { get; set; }
+    }
+
+    // ── HistorialEstadoFactura ───────────────────────────────────────────────
+    public class HistorialEstadoFactura
+    {
+        [Key] public int HistorialID { get; set; }
+        public int      FacturaID       { get; set; }
+        public int      EstadoFacturaID { get; set; }
+        public DateTime FechaCambio     { get; set; } = DateTime.Now;
+        [MaxLength(60)]  public string? UsuarioRespons { get; set; }
+        [MaxLength(200)] public string? Observaciones  { get; set; }
+
+        [ForeignKey(nameof(FacturaID))]       public Factura?       Factura       { get; set; }
+        [ForeignKey(nameof(EstadoFacturaID))] public EstadoFactura? EstadoFactura { get; set; }
+    }
+}

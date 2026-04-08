@@ -1,0 +1,240 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace PaginaRefrescosDelValle.Models.ViewModels
+{
+    // =========================================================================
+    //  CLIENTES
+    // =========================================================================
+
+    public class ClienteViewModel
+    {
+        public int ClienteID { get; set; }
+
+        [Required(ErrorMessage = "El nombre es obligatorio")]
+        [Display(Name = "Nombre / Razón Social")]
+        [MaxLength(150)] public string NombreCliente { get; set; } = "";
+
+        [Display(Name = "NIT")]
+        [MaxLength(20)] public string? NIT { get; set; }
+
+        [Display(Name = "Teléfono")]
+        [MaxLength(20)] public string? Telefono { get; set; }
+
+        [Required(ErrorMessage = "La calle es obligatoria")]
+        [Display(Name = "Calle / Av.")]
+        [MaxLength(150)] public string Calle { get; set; } = "";
+
+        [Display(Name = "N° Exterior")]
+        [MaxLength(20)] public string? NumeroExterior { get; set; }
+
+        [Display(Name = "Complemento")]
+        [MaxLength(100)] public string? Complemento { get; set; }
+
+        [Required(ErrorMessage = "Seleccione una ciudad")]
+        [Display(Name = "Ciudad")]
+        public int CiudadID { get; set; }
+
+        [Required(ErrorMessage = "Seleccione una zona")]
+        [Display(Name = "Zona")]
+        public int ZonaID { get; set; }
+
+        [Required(ErrorMessage = "Seleccione el tipo de cliente")]
+        [Display(Name = "Tipo de cliente")]
+        public int TipoClienteID { get; set; }
+
+        [Required(ErrorMessage = "Seleccione un vendedor")]
+        [Display(Name = "Vendedor asignado")]
+        public int VendedorID { get; set; }
+
+        [Required(ErrorMessage = "Seleccione la condición de pago")]
+        [Display(Name = "Condición de pago")]
+        public int CondicionPagoID { get; set; }
+
+        public bool Activo { get; set; } = true;
+    }
+
+    // =========================================================================
+    //  PEDIDOS
+    // =========================================================================
+
+    public class PedidoViewModel
+    {
+        public int PedidoID { get; set; }
+
+        [Required(ErrorMessage = "Seleccione un cliente")]
+        [Display(Name = "Cliente")]
+        public int ClienteID { get; set; }
+
+        [Display(Name = "Fecha del pedido")]
+        public DateTime FechaPedido { get; set; } = DateTime.Now;
+
+        [Required(ErrorMessage = "Seleccione el estado")]
+        [Display(Name = "Estado")]
+        public int EstadoPedidoID { get; set; }
+
+        [Display(Name = "Canal de venta")]
+        public int? CanalVentaID { get; set; }
+
+        [Display(Name = "Condición de pago")]
+        public int? CondicionPagoID { get; set; }
+
+        [Display(Name = "Descuento")]
+        public int? DescuentoID { get; set; }
+
+        [Display(Name = "Total")]
+        public decimal Total { get; set; }
+
+        public List<PedidoDetalleViewModel> Detalles { get; set; } = [];
+    }
+
+    public class PedidoDetalleViewModel
+    {
+        public int DetallePedidoID { get; set; }
+        public int PedidoID        { get; set; }
+
+        [Required(ErrorMessage = "Seleccione un producto")]
+        [Display(Name = "Producto")]
+        public int ProductoID { get; set; }
+
+        public int? ListaPrecioID { get; set; }
+
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser mayor a 0")]
+        [Display(Name = "Cantidad")]
+        public int Cantidad { get; set; }
+
+        [Required]
+        [Range(0.01, double.MaxValue, ErrorMessage = "El precio debe ser mayor a 0")]
+        [Display(Name = "Precio unitario")]
+        public decimal PrecioUnitario { get; set; }
+
+        public decimal? Subtotal => Cantidad * PrecioUnitario;
+
+        // Para mostrar en la vista
+        public string? NombreProducto { get; set; }
+    }
+
+    // =========================================================================
+    //  FACTURAS
+    // =========================================================================
+
+    public class FacturaViewModel
+    {
+        public int FacturaID { get; set; }
+
+        [Required]
+        [Display(Name = "Pedido")]
+        public int PedidoID { get; set; }
+
+        [Required(ErrorMessage = "Seleccione el tipo de factura")]
+        [Display(Name = "Tipo de factura")]
+        public int TipoFacturaID { get; set; }
+
+        [Required(ErrorMessage = "Seleccione el estado")]
+        [Display(Name = "Estado")]
+        public int EstadoFacturaID { get; set; }
+
+        [Required(ErrorMessage = "El número de factura es obligatorio")]
+        [Display(Name = "N° Factura")]
+        [MaxLength(30)] public string NumeroFactura { get; set; } = "";
+
+        [Display(Name = "Fecha de emisión")]
+        public DateTime FechaFactura { get; set; } = DateTime.Now;
+
+        [Display(Name = "Fecha de vencimiento")]
+        public DateOnly? FechaVencimiento { get; set; }
+
+        [Display(Name = "NIT")]
+        [MaxLength(20)] public string? NIT { get; set; }
+
+        [Display(Name = "Subtotal")]
+        public decimal Subtotal { get; set; }
+
+        [Display(Name = "Impuesto")]
+        public decimal ImpuestoTotal { get; set; }
+
+        [Display(Name = "Total")]
+        public decimal Total { get; set; }
+
+        [Display(Name = "Observaciones")]
+        [MaxLength(200)] public string? Observaciones { get; set; }
+
+        // Para mostrar
+        public string? NombreCliente     { get; set; }
+        public string? NombreEstado      { get; set; }
+        public string? NombreTipoFactura { get; set; }
+    }
+
+    // =========================================================================
+    //  PAGOS
+    // =========================================================================
+
+    public class PagoViewModel
+    {
+        public int PagoID { get; set; }
+
+        [Required]
+        [Display(Name = "Factura")]
+        public int FacturaID { get; set; }
+
+        [Required(ErrorMessage = "Seleccione el tipo de pago")]
+        [Display(Name = "Tipo de pago")]
+        public int TipoPagoID { get; set; }
+
+        [Display(Name = "Banco")]
+        public int? BancoID { get; set; }
+
+        [Display(Name = "Fecha de pago")]
+        public DateTime FechaPago { get; set; } = DateTime.Now;
+
+        [Required]
+        [Range(0.01, double.MaxValue, ErrorMessage = "El monto debe ser mayor a 0")]
+        [Display(Name = "Monto")]
+        public decimal Monto { get; set; }
+
+        [Display(Name = "Referencia")]
+        [MaxLength(100)] public string? Referencia { get; set; }
+
+        [Display(Name = "Cuenta destino")]
+        [MaxLength(30)] public string? CuentaDestino { get; set; }
+
+        [Display(Name = "Observaciones")]
+        [MaxLength(200)] public string? Observaciones { get; set; }
+    }
+
+    // =========================================================================
+    //  DASHBOARD DE VENTAS (resumen)
+    // =========================================================================
+
+    public class VentasDashboardViewModel
+    {
+        public int     TotalClientes        { get; set; }
+        public int     PedidosPendientes    { get; set; }
+        public int     FacturasPorVencer    { get; set; }
+        public decimal VentasDelMes        { get; set; }
+        public decimal CobradoDelMes       { get; set; }
+        public decimal PorCobrar           { get; set; }
+
+        public List<PedidoResumenViewModel>  UltimosPedidos   { get; set; } = [];
+        public List<FacturaResumenViewModel> FacturasVencidas { get; set; } = [];
+    }
+
+    public class PedidoResumenViewModel
+    {
+        public int      PedidoID     { get; set; }
+        public string   Cliente      { get; set; } = "";
+        public DateTime Fecha        { get; set; }
+        public string   Estado       { get; set; } = "";
+        public decimal  Total        { get; set; }
+    }
+
+    public class FacturaResumenViewModel
+    {
+        public int      FacturaID      { get; set; }
+        public string   NumeroFactura  { get; set; } = "";
+        public string   Cliente        { get; set; } = "";
+        public DateOnly? Vencimiento   { get; set; }
+        public decimal  Total          { get; set; }
+        public string   Estado         { get; set; } = "";
+    }
+}
