@@ -1,39 +1,134 @@
 @{
     ViewData["Title"] = "Módulo de Compras";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
 }
 
-<div class="container mt-4">
-    <h1 class="mb-4">Módulo de Compras</h1>
-    
-    <div class="row">
-        <div class="col-md-4 mb-3">
-            <div class="card text-white bg-primary h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Proveedores</h5>
-                    <p class="card-text">Administrar catálogo de proveedores</p>
-                    <a asp-action="Proveedores" class="btn btn-light">Administrar</a>
-                </div>
-            </div>
+<div class="dashboard-header">
+    <div class="header-left">
+        <a href="/Dashboard" class="back-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver al Dashboard
+        </a>
+        <div>
+            <h1 class="dashboard-title">Módulo de Compras</h1>
+            <p class="dashboard-subtitle">Gestión de proveedores, órdenes y recepciones</p>
         </div>
-        
-        <div class="col-md-4 mb-3">
-            <div class="card text-white bg-success h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Órdenes de Compra</h5>
-                    <p class="card-text">Gestionar órdenes de compra a proveedores</p>
-                    <a asp-action="OrdenesCompra" class="btn btn-light">Administrar</a>
-                </div>
-            </div>
+    </div>
+    <div class="dashboard-header-right" style="display: flex; align-items: center; gap: 1rem;">
+        <div class="date-badge">
+            <svg viewBox="0 0 24 24" width="16" height="16">
+                <rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>@DateTime.Now.ToString("dddd, dd MMMM yyyy")</span>
         </div>
-        
-        <div class="col-md-4 mb-3">
-            <div class="card text-white bg-info h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Recepciones</h5>
-                    <p class="card-text">Registrar recepción de mercadería</p>
-                    <a asp-action="Recepciones" class="btn btn-light">Administrar</a>
-                </div>
+    </div>
+</div>
+
+<div class="modules-grid">
+    <div class="module-card" onclick="location.href='/Compras/Proveedores'">
+        <div class="module-card-header">
+            <div class="module-icon compras">
+                <svg viewBox="0 0 24 24" width="28" height="28">
+                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" fill="none"/>
+                    <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor"/>
+                    <path d="M16 10a4 4 0 01-8 0" stroke="currentColor"/>
+                </svg>
             </div>
+            <span class="module-badge">Gestión</span>
         </div>
+        <h3 class="module-title">Proveedores</h3>
+        <p class="module-desc">Administrar catálogo de proveedores y datos de contacto</p>
+        <div class="module-stats">
+            <span class="stat-badge">@ViewBag.ProveedoresActivos Proveedores activos</span>
+            <span class="stat-badge">@ViewBag.TotalProveedores Total registrados</span>
+        </div>
+        <div class="module-footer">
+            <span class="module-link">Administrar proveedores →</span>
+        </div>
+    </div>
+
+    <div class="module-card" onclick="location.href='/Compras/OrdenesCompra'">
+        <div class="module-card-header">
+            <div class="module-icon compras">
+                <svg viewBox="0 0 24 24" width="28" height="28">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" fill="none"/>
+                    <polyline points="14 2 14 8 20 8" stroke="currentColor"/>
+                    <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor"/>
+                    <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor"/>
+                    <polyline points="10 9 9 9 8 9" stroke="currentColor"/>
+                </svg>
+            </div>
+            <span class="module-badge warning">@ViewBag.OrdenesPendientes pendientes</span>
+        </div>
+        <h3 class="module-title">Órdenes de Compra</h3>
+        <p class="module-desc">Gestionar órdenes de compra a proveedores</p>
+        <div class="module-stats">
+            <span class="stat-badge">@ViewBag.OrdenesCompra Total</span>
+            <span class="stat-badge success">@ViewBag.OrdenesMes Este mes</span>
+        </div>
+        <div class="module-footer">
+            <span class="module-link">Gestionar órdenes →</span>
+        </div>
+    </div>
+
+    <div class="module-card" onclick="location.href='/Compras/Recepciones'">
+        <div class="module-card-header">
+            <div class="module-icon compras">
+                <svg viewBox="0 0 24 24" width="28" height="28">
+                    <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" fill="none"/>
+                    <path d="M8 7v10M16 7v10M7 12h10" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                </svg>
+            </div>
+            <span class="module-badge success">Recepción</span>
+        </div>
+        <h3 class="module-title">Recepciones</h3>
+        <p class="module-desc">Registrar y verificar recepción de mercadería</p>
+        <div class="module-stats">
+            <span class="stat-badge">@ViewBag.RecepcionesHoy Recepciones hoy</span>
+            <span class="stat-badge">@ViewBag.RecepcionesMes Este mes</span>
+        </div>
+        <div class="module-footer">
+            <span class="module-link">Registrar recepción →</span>
+        </div>
+    </div>
+</div>
+
+<div class="activity-section">
+    <div class="activity-header">
+        <h3 class="activity-title">Órdenes de Compra Recientes</h3>
+        <a href="/Compras/OrdenesCompra" class="activity-link">Ver todas →</a>
+    </div>
+    <div class="activity-list">
+        @if (ViewBag.OrdenesRecientes != null && ViewBag.OrdenesRecientes.Count > 0)
+        {
+            @foreach (var orden in ViewBag.OrdenesRecientes)
+            {
+                <div class="activity-item">
+                    <div class="activity-icon @orden.Estado">
+                        <svg viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" fill="none"/>
+                            <polyline points="14 2 14 8 20 8" stroke="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="activity-content">
+                        <p class="activity-text">OC-@orden.NumeroOrden · @orden.Proveedor</p>
+                        <span class="activity-time">@orden.Fecha.ToString("HH:mm") · @orden.Fecha.ToString("dd/MM/yyyy")</span>
+                    </div>
+                    <div class="activity-amount">Bs. @orden.Total.ToString("N2")</div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="activity-item">
+                <p class="activity-text" style="color: var(--text-muted);">No hay órdenes de compra recientes</p>
+            </div>
+        }
     </div>
 </div>
