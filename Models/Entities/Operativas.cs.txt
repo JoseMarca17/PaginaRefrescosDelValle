@@ -12,7 +12,7 @@ namespace PaginaRefrescosDelValle.Models.Entities
         public int  ZonaID { get; set; }
         public bool Activo  { get; set; } = true;
 
-        [ForeignKey(nameof(ZonaID))] public Zona? Zona { get; set; }
+        // [ForeignKey(nameof(ZonaID))] public Zona? Zona { get; set; }
         public ICollection<Cliente> Clientes { get; set; } = [];
     }
 
