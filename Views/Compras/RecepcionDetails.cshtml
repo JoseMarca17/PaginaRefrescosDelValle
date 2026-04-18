@@ -1,0 +1,200 @@
+@model RefrescosDelValle.Models.Entities.RecepcionMercaderium
+
+@{
+    ViewData["Title"] = "Detalles de Recepción";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dashboard-header">
+    <div class="header-left">
+        <a href="/Compras/Recepciones" class="back-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver a Recepciones
+        </a>
+        <div>
+            <h1 class="dashboard-title">Detalles de Recepción</h1>
+            <p class="dashboard-subtitle">Recepción #@Model.RecepcionId</p>
+        </div>
+    </div>
+    <div class="dashboard-header-right" style="display: flex; align-items: center; gap: 1rem;">
+        <div class="date-badge">
+            <svg viewBox="0 0 24 24" width="16" height="16">
+                <rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>@DateTime.Now.ToString("dddd, dd MMMM yyyy")</span>
+        </div>
+    </div>
+</div>
+
+<div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; backdrop-filter: blur(10px);">
+    <div style="padding: 1.5rem 2rem; background: rgba(0, 255, 255, 0.05); border-bottom: 1px solid var(--border-color);">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 48px; height: 48px; background: rgba(0, 255, 255, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(0, 255, 255, 0.3);">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="#00ffff" fill="none" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M8 7v10M16 7v10M7 12h10"/>
+                </svg>
+            </div>
+            <div>
+                <h2 style="color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; margin: 0 0 0.25rem 0;">
+                    Información de la Recepción
+                </h2>
+                <p style="color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.85rem; margin: 0;">
+                    Registrada el @Model.FechaRecepcion.ToString("dd/MM/yyyy HH:mm")
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div style="padding: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem;">
+            <div>
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+                        Datos de la Orden
+                    </h3>
+                    <dl style="display: grid; gap: 1rem; margin: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <dt style="color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase;">ID Recepción</dt>
+                            <dd style="color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-weight: 500; margin: 0;">#@Model.RecepcionId.ToString("D6")</dd>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <dt style="color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase;">N° Orden de Compra</dt>
+                            <dd style="color: #00ffff; font-family: 'DM Mono', monospace; font-weight: bold; margin: 0;">@Model.OrdenCompra?.NumeroOrden</dd>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <dt style="color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase;">Proveedor</dt>
+                            <dd style="color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; margin: 0;">@Model.OrdenCompra?.Proveedor?.RazonSocial</dd>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <dt style="color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase;">Usuario Registró</dt>
+                            <dd style="color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; margin: 0;">@Model.Usuario?.NombreUsuario</dd>
+                        </div>
+                    </dl>
+                </div>
+                
+                <div>
+                    <h3 style="color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+                        Datos del Producto
+                    </h3>
+                    <dl style="display: grid; gap: 1rem; margin: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <dt style="color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase;">Producto</dt>
+                            <dd style="color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-weight: 500; margin: 0;">@Model.Inventario?.Producto?.NombreProducto</dd>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <dt style="color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase;">Lote</dt>
+                            <dd style="color: #00ff88; font-family: 'DM Mono', monospace; margin: 0;">@Model.Inventario?.Lote</dd>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <dt style="color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase;">Fecha Vencimiento</dt>
+                            <dd style="color: var(--text-primary); font-family: 'DM Mono', monospace; margin: 0;">
+                                @if (Model.Inventario?.FechaVencimiento != null)
+{
+    var diasRestantes = Model.Inventario.FechaVencimiento.Value.DayNumber - DateOnly.FromDateTime(DateTime.Today).DayNumber;
+    <span style="color: @(diasRestantes < 30 ? "#ffc107" : "var(--text-primary)")">
+        @Model.Inventario.FechaVencimiento.Value.ToString("dd/MM/yyyy")
+        <span style="font-size: 0.75rem; margin-left: 8px; color: var(--text-muted);">
+            (@diasRestantes días)
+        </span>
+    </span>
+}
+else
+{
+    <span>N/A</span>
+}
+                            </dd>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <dt style="color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase;">Costo Unitario</dt>
+                            <dd style="color: #00ff88; font-family: 'DM Mono', monospace; font-weight: bold; margin: 0;">@(Model.Inventario?.CostoUnitario.ToString("C") ?? "N/A")</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+            
+            <div>
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+                        Datos de Recepción
+                    </h3>
+                    <dl style="display: grid; gap: 1rem; margin: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <dt style="color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase;">Cantidad Recibida</dt>
+                            <dd style="color: #00ff88; font-family: 'DM Mono', monospace; font-size: 1.2rem; font-weight: bold; margin: 0;">@Model.CantidadRecibida.ToString("N2")</dd>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <dt style="color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase;">Costo Total</dt>
+                            <dd style="color: #C8281E; font-family: 'DM Mono', monospace; font-size: 1.1rem; font-weight: bold; margin: 0;">
+                                @((Model.CantidadRecibida * (Model.Inventario?.CostoUnitario ?? 0)).ToString("C"))
+                            </dd>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <dt style="color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase;">Almacén</dt>
+                            <dd style="color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; margin: 0;">@Model.Almacen?.NombreAlmacen</dd>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <dt style="color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase;">Fecha Recepción</dt>
+                            <dd style="color: var(--text-primary); font-family: 'DM Mono', monospace; margin: 0;">@Model.FechaRecepcion.ToString("dd/MM/yyyy HH:mm")</dd>
+                        </div>
+                    </dl>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(Model.Observaciones))
+                {
+                    <div>
+                        <h3 style="color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+                            Observaciones
+                        </h3>
+                        <div style="background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
+                            <p style="color: var(--text-secondary); font-family: 'Space Grotesk', sans-serif; margin: 0; line-height: 1.6;">
+                                @Model.Observaciones
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <div style="padding: 1.5rem 2rem; background: rgba(200, 40, 30, 0.02); border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 1rem;">
+        <a href="/Compras/Recepciones" style="background: transparent; color: var(--text-secondary); padding: 0.75rem 2rem; border-radius: 8px; border: 1px solid var(--border-color); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.85rem; text-transform: uppercase; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver a Recepciones
+        </a>
+    </div>
+</div>
+
+<style>
+    a[href="/Compras/Recepciones"]:hover {
+        background: var(--input-bg) !important;
+        color: var(--text-primary) !important;
+        transform: translateX(-5px);
+    }
+    
+    dl div {
+        transition: all 0.3s;
+    }
+    
+    dl div:hover {
+        background: var(--input-bg);
+        padding-left: 0.5rem;
+        border-radius: 4px;
+    }
+</style>

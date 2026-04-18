@@ -1,0 +1,194 @@
+@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Órdenes de Compra";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dashboard-header">
+    <div class="header-left">
+        <a href="/Dashboard" class="back-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver al Dashboard
+        </a>
+        <div>
+            <h1 class="dashboard-title">Órdenes de Compra</h1>
+            <p class="dashboard-subtitle">Gestión de órdenes de compra a proveedores</p>
+        </div>
+    </div>
+    <div class="dashboard-header-right" style="display: flex; align-items: center; gap: 1rem;">
+        <a href="/Compras/CrearOrdenCompra" style="background: #C8281E; color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-family: 'DM Mono', monospace; font-weight: bold; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; transition: all 0.3s; text-transform: uppercase; border: 1px solid #ff4d4d; box-shadow: 0 0 10px rgba(200, 40, 30, 0.3);">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Nueva Orden
+        </a>
+        <div class="date-badge">
+            <svg viewBox="0 0 24 24" width="16" height="16">
+                <rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>@DateTime.Now.ToString("dddd, dd MMMM yyyy")</span>
+        </div>
+    </div>
+</div>
+
+<div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(10px);">
+    <form asp-action="OrdenesCompra" method="get" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
+        <div style="flex: 1; min-width: 200px;">
+            <label style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
+                Buscar
+            </label>
+            <input type="text" name="searchString" placeholder="Número o Proveedor..." value="@ViewBag.CurrentFilter" 
+                   style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;" />
+        </div>
+        
+        <div style="flex: 1; min-width: 200px;">
+            <label style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
+                Proveedor
+            </label>
+            <select name="proveedorId" asp-items="ViewBag.Proveedores" 
+                    style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;">
+                <option value="">Todos los proveedores</option>
+            </select>
+        </div>
+        
+        <div style="flex: 1; min-width: 150px;">
+            <label style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
+                Desde
+            </label>
+            <input type="date" name="fechaDesde" value="@ViewBag.FechaDesde" 
+                   style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;" />
+        </div>
+        
+        <div style="flex: 1; min-width: 150px;">
+            <label style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
+                Hasta
+            </label>
+            <input type="date" name="fechaHasta" value="@ViewBag.FechaHasta" 
+                   style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;" />
+        </div>
+        
+        <div style="display: flex; gap: 0.5rem;">
+            <button type="submit" style="background: #C8281E; color: white; padding: 0.7rem 1.5rem; border-radius: 8px; border: 1px solid #ff4d4d; font-family: 'DM Mono', monospace; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">
+                Buscar
+            </button>
+            <a href="/Compras/OrdenesCompra" style="background: transparent; color: var(--text-secondary); padding: 0.7rem 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.85rem; text-transform: uppercase; transition: all 0.3s;">
+                Limpiar
+            </a>
+        </div>
+    </form>
+</div>
+
+<div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; backdrop-filter: blur(10px);">
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: rgba(200, 40, 30, 0.1); border-bottom: 2px solid #C8281E;">
+                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">N° Orden</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Proveedor</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Fecha Emisión</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Fecha Entrega</th>
+                    <th style="padding: 1rem; text-align: right; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Monto Total</th>
+                    <th style="padding: 1rem; text-align: center; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Estado</th>
+                    <th style="padding: 1rem; text-align: center; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.3s;" 
+                        onmouseover="this.style.background='var(--input-bg)'" 
+                        onmouseout="this.style.background='transparent'">
+                        <td style="padding: 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-weight: 500;">@item.NumeroOrden</td>
+                        <td style="padding: 1rem; color: var(--text-secondary); font-family: 'Space Grotesk', sans-serif;">@item.ProveedorNombre</td>
+                        <td style="padding: 1rem; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.85rem;">@item.FechaEmision.ToString("dd/MM/yyyy")</td>
+                        <td style="padding: 1rem; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.85rem;">
+                            @(item.FechaEntregaEsp?.ToString("dd/MM/yyyy") ?? "Pendiente")
+                        </td>
+                        <td style="padding: 1rem; text-align: right; color: #00ff88; font-family: 'DM Mono', monospace; font-weight: bold;">@item.MontoTotal.ToString("C")</td>
+                        <td style="padding: 1rem; text-align: center;">
+                            @if (item.CantidadRecepciones == 0)
+                            {
+                                <span style="background: rgba(255, 193, 7, 0.15); color: #ffc107; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-family: 'DM Mono', monospace; text-transform: uppercase; border: 1px solid rgba(255, 193, 7, 0.3);">Pendiente</span>
+                            }
+                            else if (item.TotalRecibido >= item.MontoTotal)
+                            {
+                                <span style="background: rgba(0, 255, 136, 0.1); color: #00ff88; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-family: 'DM Mono', monospace; text-transform: uppercase; border: 1px solid rgba(0, 255, 136, 0.3);">Completada</span>
+                            }
+                            else
+                            {
+                                <span style="background: rgba(0, 255, 255, 0.1); color: #00ffff; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-family: 'DM Mono', monospace; text-transform: uppercase; border: 1px solid rgba(0, 255, 255, 0.3);">Parcial</span>
+                            }
+                        </td>
+                        <td style="padding: 1rem;">
+                            <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                                <a href="/Compras/OrdenCompraDetails/@item.OrdenCompraId" style="background: rgba(0, 255, 255, 0.1); color: #00ffff; padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; border: 1px solid rgba(0, 255, 255, 0.3); transition: all 0.3s;">
+                                    Detalles
+                                </a>
+                                <a href="/Compras/EditarOrdenCompra/@item.OrdenCompraId" style="background: rgba(255, 193, 7, 0.1); color: #ffc107; padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; border: 1px solid rgba(255, 193, 7, 0.3); transition: all 0.3s;">
+                                    Editar
+                                </a>
+                                <button type="button" onclick="confirmDelete(@item.OrdenCompraId, '@item.NumeroOrden')" 
+                                        style="background: rgba(200, 40, 30, 0.1); color: #C8281E; padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(200, 40, 30, 0.3); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">
+                                    Eliminar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" style="padding: 3rem; text-align: center; color: var(--text-muted); font-family: 'DM Mono', monospace;">
+                            No se encontraron órdenes de compra
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<form id="deleteForm" asp-action="EliminarOrdenCompra" method="post" style="display:none;">
+    <input type="hidden" id="deleteId" name="id" />
+</form>
+
+<style>
+    button[type="submit"]:hover {
+        background: #a02018 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 0 20px rgba(200, 40, 30, 0.5);
+    }
+    
+    a[href="/Compras/OrdenesCompra"]:hover {
+        background: var(--input-bg) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    td a:hover {
+        filter: brightness(1.2);
+        transform: translateY(-1px);
+    }
+    
+    td button:hover {
+        background: rgba(200, 40, 30, 0.2) !important;
+        transform: translateY(-1px);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function confirmDelete(id, numero) {
+            if (confirm(`¿Está seguro de eliminar la orden "${numero}"?`)) {
+                document.getElementById('deleteId').value = id;
+                document.getElementById('deleteForm').submit();
+            }
+        }
+    </script>
+}

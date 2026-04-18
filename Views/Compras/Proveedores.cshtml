@@ -1,0 +1,225 @@
+@model IEnumerable<RefrescosDelValle.Models.Entities.Proveedore>
+
+@{
+    ViewData["Title"] = "Proveedores";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dashboard-header">
+    <div class="header-left">
+        <a href="/Dashboard" class="back-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver al Dashboard
+        </a>
+        <div>
+            <h1 class="dashboard-title">Proveedores</h1>
+            <p class="dashboard-subtitle">Gestión del catálogo de proveedores</p>
+        </div>
+    </div>
+    <div class="dashboard-header-right" style="display: flex; align-items: center; gap: 1rem;">
+        <a href="/Compras/CrearProveedor" style="background: #C8281E; color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-family: 'DM Mono', monospace; font-weight: bold; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; transition: all 0.3s; text-transform: uppercase; border: 1px solid #ff4d4d; box-shadow: 0 0 10px rgba(200, 40, 30, 0.3);">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Nuevo Proveedor
+        </a>
+        <div class="date-badge">
+            <svg viewBox="0 0 24 24" width="16" height="16">
+                <rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>@DateTime.Now.ToString("dddd, dd MMMM yyyy")</span>
+        </div>
+    </div>
+</div>
+
+<div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(10px);">
+    <form asp-action="Proveedores" method="get" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
+        <div style="flex: 2; min-width: 250px;">
+            <label style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
+                Buscar
+            </label>
+            <input type="text" name="searchString" placeholder="Buscar por Razón Social o NIT..." value="@ViewBag.CurrentFilter" 
+                   style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;" />
+        </div>
+        
+        <div style="flex: 1; min-width: 150px;">
+            <label style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
+                Estado
+            </label>
+            <select name="activo" style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;">
+                <option value="">Todos</option>
+                @if (ViewBag.CurrentActivo == true)
+                {
+                    <option value="true" selected>Activos</option>
+                    <option value="false">Inactivos</option>
+                }
+                else if (ViewBag.CurrentActivo == false)
+                {
+                    <option value="true">Activos</option>
+                    <option value="false" selected>Inactivos</option>
+                }
+                else
+                {
+                    <option value="true">Activos</option>
+                    <option value="false">Inactivos</option>
+                }
+            </select>
+        </div>
+        
+        <div style="display: flex; gap: 0.5rem;">
+            <button type="submit" style="background: #C8281E; color: white; padding: 0.7rem 1.5rem; border-radius: 8px; border: 1px solid #ff4d4d; font-family: 'DM Mono', monospace; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">
+                <svg viewBox="0 0 24 24" width="14" height="14" style="display: inline; margin-right: 6px; vertical-align: middle;">
+                    <circle cx="11" cy="11" r="8" stroke="currentColor" fill="none" stroke-width="2"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                Buscar
+            </button>
+            <a href="/Compras/Proveedores" style="background: transparent; color: var(--text-secondary); padding: 0.7rem 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.85rem; text-transform: uppercase; transition: all 0.3s;">
+                Limpiar
+            </a>
+        </div>
+    </form>
+</div>
+
+<div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; backdrop-filter: blur(10px);">
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: rgba(200, 40, 30, 0.1); border-bottom: 2px solid #C8281E;">
+                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">ID</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Razón Social</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">NIT</th>
+                    <th style="padding: 1rem; text-align: center; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Estado</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Fecha Registro</th>
+                    <th style="padding: 1rem; text-align: center; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.3s;" 
+                        onmouseover="this.style.background='var(--input-bg)'" 
+                        onmouseout="this.style.background='transparent'">
+                        <td style="padding: 1rem; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.85rem;">
+                            #@item.ProveedorId.ToString("D4")
+                        </td>
+                        <td style="padding: 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-weight: 500;">
+                            @item.RazonSocial
+                        </td>
+                        <td style="padding: 1rem; color: var(--text-secondary); font-family: 'DM Mono', monospace;">
+                            @item.Nit
+                        </td>
+                        <td style="padding: 1rem; text-align: center;">
+                            @if (item.Activo == true)
+                            {
+                                <span style="background: rgba(0, 255, 136, 0.1); color: #00ff88; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-family: 'DM Mono', monospace; text-transform: uppercase; border: 1px solid rgba(0, 255, 136, 0.3);">
+                                    <span style="display: inline-block; width: 8px; height: 8px; background: #00ff88; border-radius: 50%; margin-right: 6px; box-shadow: 0 0 10px #00ff88;"></span>
+                                    Activo
+                                </span>
+                            }
+                            else
+                            {
+                                <span style="background: rgba(200, 40, 30, 0.1); color: #C8281E; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-family: 'DM Mono', monospace; text-transform: uppercase; border: 1px solid rgba(200, 40, 30, 0.3);">
+                                    <span style="display: inline-block; width: 8px; height: 8px; background: #C8281E; border-radius: 50%; margin-right: 6px;"></span>
+                                    Inactivo
+                                </span>
+                            }
+                        </td>
+                        <td style="padding: 1rem; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.85rem;">
+                            @item.FechaRegistro.ToString("dd/MM/yyyy")
+                        </td>
+                        <td style="padding: 1rem;">
+                            <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                                <a href="/Compras/ProveedorDetails/@item.ProveedorId" style="background: rgba(0, 255, 255, 0.1); color: #00ffff; padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; border: 1px solid rgba(0, 255, 255, 0.3); transition: all 0.3s;">
+                                    <svg viewBox="0 0 24 24" width="12" height="12" style="display: inline; margin-right: 4px; vertical-align: middle;">
+                                        <circle cx="12" cy="12" r="3" stroke="currentColor" fill="none"/>
+                                        <path d="M22 12c-2.667 4.667-6 7-10 7s-7.333-2.333-10-7c2.667-4.667 6-7 10-7s7.333 2.333 10 7z" stroke="currentColor" fill="none"/>
+                                    </svg>
+                                    Detalles
+                                </a>
+                                <a href="/Compras/EditarProveedor/@item.ProveedorId" style="background: rgba(255, 193, 7, 0.1); color: #ffc107; padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; border: 1px solid rgba(255, 193, 7, 0.3); transition: all 0.3s;">
+                                    <svg viewBox="0 0 24 24" width="12" height="12" style="display: inline; margin-right: 4px; vertical-align: middle;">
+                                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" fill="none"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" fill="none"/>
+                                    </svg>
+                                    Editar
+                                </a>
+                                <button type="button" onclick="confirmDelete(@item.ProveedorId, '@item.RazonSocial')" 
+                                        style="background: rgba(200, 40, 30, 0.1); color: #C8281E; padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(200, 40, 30, 0.3); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">
+                                    <svg viewBox="0 0 24 24" width="12" height="12" style="display: inline; margin-right: 4px; vertical-align: middle;">
+                                        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke="currentColor" fill="none"/>
+                                    </svg>
+                                    Eliminar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" style="padding: 3rem; text-align: center; color: var(--text-muted); font-family: 'DM Mono', monospace;">
+                            <svg viewBox="0 0 24 24" width="48" height="48" style="margin-bottom: 1rem; opacity: 0.3;">
+                                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" fill="none"/>
+                                <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor"/>
+                                <path d="M16 10a4 4 0 01-8 0" stroke="currentColor"/>
+                            </svg>
+                            <br />
+                            No se encontraron proveedores
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<form id="deleteForm" asp-action="EliminarProveedor" method="post" style="display:none;">
+    <input type="hidden" id="deleteId" name="id" />
+</form>
+
+<style>
+    button[type="submit"]:hover {
+        background: #a02018 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 0 20px rgba(200, 40, 30, 0.5);
+    }
+    
+    a[href="/Compras/Proveedores"]:hover {
+        background: var(--input-bg) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    td a:hover {
+        filter: brightness(1.2);
+        transform: translateY(-1px);
+    }
+    
+    td button:hover {
+        background: rgba(200, 40, 30, 0.2) !important;
+        transform: translateY(-1px);
+    }
+    
+    .dashboard-header a[href="/Compras/CrearProveedor"]:hover {
+        background: #a02018 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 0 20px rgba(200, 40, 30, 0.5);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function confirmDelete(id, nombre) {
+            if (confirm(`¿Está seguro de eliminar el proveedor "${nombre}"?`)) {
+                document.getElementById('deleteId').value = id;
+                document.getElementById('deleteForm').submit();
+            }
+        }
+    </script>
+}
