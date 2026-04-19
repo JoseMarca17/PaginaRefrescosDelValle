@@ -13,7 +13,7 @@ namespace RefrescosDelValle.Data
 
             Console.WriteLine("\n[SYS] --- INICIANDO SINCRONIZACIÓN DE ADMINS ---");
 
-            // 1. Asegurar que el Rol 'SuperAdmin' exista (Indispensable)
+            // 1. Asegurar que el Rol 'SuperAdmin' exista
             var rolAdmin = await context.Roles.FirstOrDefaultAsync(r => r.NombreRol == "SuperAdmin");
             if (rolAdmin == null)
             {
@@ -23,74 +23,82 @@ namespace RefrescosDelValle.Data
                 Console.WriteLine("[SYS] Rol 'SuperAdmin' creado.");
             }
 
-            // 2. Obtener lista de Admins desde el JSON
-            // Esto mapea tanto el objeto único como una lista si decides cambiar el formato
-            var adminsToCreate = config.GetSection("AdminSetup").GetChildren().Any() 
-                ? config.GetSection("AdminSetup").Get<List<AdminConfig>>() // Si lo vuelves lista
-                : new List<AdminConfig> { new AdminConfig { // O mantener el actual por defecto
-                    Email = config["AdminSetup:Email"], 
-                    Username = config["AdminSetup:Username"], 
-                    Password = config["AdminSetup:Password"] 
-                }};
+            // 2. Obtener lista de Admins desde appsettings.json
+            var adminsToCreate = config.GetSection("AdminSetup").Get<List<AdminConfig>>()
+                                 ?? new List<AdminConfig>();
+
+            if (!adminsToCreate.Any())
+            {
+                Console.WriteLine("[WARN] No se encontraron admins en AdminSetup. Revisa appsettings.json.");
+                return;
+            }
 
             // 3. IDs Auxiliares
             var tipoDocCI = await context.DominioValors.FirstOrDefaultAsync(d => d.DominioTipoId == 10 && d.Descripcion == "Carnet de Identidad");
-            var sexoIndet = await context.DominioValors.FirstOrDefaultAsync(d => d.DominioTipoId == 1 && d.Descripcion == "Indeterminado");
+            var sexoIndet = await context.DominioValors.FirstOrDefaultAsync(d => d.DominioTipoId == 1  && d.Descripcion == "Indeterminado");
+
+            int contador = 0;
 
             foreach (var admin in adminsToCreate.Where(a => !string.IsNullOrEmpty(a.Email)))
             {
-                // CRÍTICO: Verificar si el usuario ya existe por Email para no duplicar
                 var existePersona = await context.Personas.AnyAsync(p => p.CorreoPrincipal == admin.Email);
-                
+
                 if (!existePersona)
                 {
                     Console.WriteLine($"[SYS] Inyectando nuevo admin: {admin.Email}...");
 
+                    // Número de documento único por admin para evitar conflictos de UNIQUE constraint
+                    var numDoc = $"ADMIN{contador:D5}";
+
                     var persona = new Persona
                     {
-                        Nombres = "Admin",
-                        ApellidoPat = admin.Username,
-                        TipoDocumentoId = tipoDocCI?.DominioValorId ?? 1,
-                        NumeroDocumento = "00000000",
-                        SexoId = sexoIndet?.DominioValorId ?? 1,
-                        CorreoPrincipal = admin.Email,
-                        Estado = "Activo",
-                        FechaRegistro = DateTime.Now
+                        Nombres          = "Admin",
+                        ApellidoPat      = admin.Username,
+                        TipoDocumentoId  = tipoDocCI?.DominioValorId ?? 1,
+                        NumeroDocumento  = numDoc,
+                        SexoId           = sexoIndet?.DominioValorId ?? 1,
+                        CorreoPrincipal  = admin.Email,
+                        Estado           = "Activo",
+                        FechaRegistro    = DateTime.Now
                     };
                     context.Personas.Add(persona);
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(); // Necesario para obtener PersonaId
 
                     var usuario = new Usuario
                     {
-                        PersonaId = persona.PersonaId,
+                        PersonaId     = persona.PersonaId,
                         NombreUsuario = admin.Username,
-                        Contrasena = BCrypt.Net.BCrypt.HashPassword(admin.Password),
-                        Activo = true,
+                        Contrasena    = BCrypt.Net.BCrypt.HashPassword(admin.Password),
+                        Activo        = true,
                         FechaCreacion = DateTime.Now
                     };
                     context.Usuarios.Add(usuario);
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(); // Necesario para obtener UsuarioId
 
-                    context.UsuariosRoles.Add(new UsuariosRole {
-                        UsuarioId = usuario.UsuarioId,
-                        RolId = rolAdmin.RolId,
+                    context.UsuariosRoles.Add(new UsuariosRole
+                    {
+                        UsuarioId       = usuario.UsuarioId,
+                        RolId           = rolAdmin.RolId,
                         FechaAsignacion = DateTime.Now
                     });
                     await context.SaveChangesAsync();
-                    
-                    Console.WriteLine($"[OK] Admin {admin.Username} vinculado correctamente.");
+
+                    Console.WriteLine($"[OK] Admin '{admin.Username}' creado y vinculado correctamente.");
+                    contador++;
                 }
                 else
                 {
-                    Console.WriteLine($"[INFO] El admin {admin.Email} ya existe. Saltando...");
+                    Console.WriteLine($"[INFO] Admin '{admin.Email}' ya existe. Saltando...");
                 }
             }
+
+            Console.WriteLine($"[SYS] --- SINCRONIZACIÓN COMPLETADA ({contador} admin(s) nuevos) ---\n");
         }
     }
 
-    // Clase auxiliar para el mapeo
-    public class AdminConfig {
-        public string Email { get; set; }
+    public class AdminConfig
+    {
+        public string Email    { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
     }
