@@ -1,0 +1,312 @@
+@* 
+    Vista: Views/Produccion/Index.cshtml
+    Módulo: Control de Producción - Refrescos Del Valle
+*@
+
+@{
+    ViewData["Title"] = "Control de Producción";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/modulos/produccion.css" />
+
+<div class="container">
+    <!-- Título de Sección -->
+    <div class="section-title">
+        <h1>Control de Producción</h1>
+        <p>Seguimiento y gestión de órdenes de producción</p>
+    </div>
+
+    <!-- Dashboard de Resumen -->
+    <div class="dashboard-grid">
+        <!-- Card 1: Órdenes Totales -->
+        <div class="card anim-up">
+            <div class="card-icon">📊</div>
+            <div class="card-stats">
+                <span class="stats-number" id="totalOrdenes">156</span>
+                <span class="stats-label">Órdenes Totales</span>
+            </div>
+            <div class="card-footer">
+                <span class="pill-success">+12 este mes</span>
+            </div>
+        </div>
+
+        <!-- Card 2: Órdenes en Curso -->
+        <div class="card anim-up" style="animation-delay: 0.1s;">
+            <div class="card-icon">⚙️</div>
+            <div class="card-stats">
+                <span class="stats-number" id="ordenesEnCurso">8</span>
+                <span class="stats-label">Órdenes Activas</span>
+            </div>
+            <div class="card-footer">
+                <span class="pill-warning">3 en producción</span>
+            </div>
+        </div>
+
+        <!-- Card 3: Eficiencia -->
+        <div class="card anim-up" style="animation-delay: 0.2s;">
+            <div class="card-icon">🎯</div>
+            <div class="card-stats">
+                <span class="stats-number" id="eficienciaProduccion">87.5</span>
+                <span class="stats-label">% Eficiencia Global</span>
+            </div>
+            <div class="card-footer">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 87.5%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4: Producción Diaria -->
+        <div class="card anim-up" style="animation-delay: 0.3s;">
+            <div class="card-icon">🏭</div>
+            <div class="card-stats">
+                <span class="stats-number" id="produccionHoy">12,450</span>
+                <span class="stats-label">Litros Hoy</span>
+            </div>
+            <div class="card-footer">
+                <span class="pill-primary">+8% vs ayer</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros Rápidos -->
+    <div class="filtros-bar">
+        <div class="filtros-group">
+            <select id="filtroLinea" class="filtro-select">
+                <option value="">Todas las líneas</option>
+                <option value="1">Línea 1 - Envasado</option>
+                <option value="2">Línea 2 - Carbonatación</option>
+                <option value="3">Línea 3 - Embotellado</option>
+            </select>
+            <select id="filtroEstado" class="filtro-select">
+                <option value="">Todos los estados</option>
+                <option value="en-proceso">En Proceso</option>
+                <option value="planificada">Planificada</option>
+                <option value="pausada">Pausada</option>
+                <option value="completada">Completada</option>
+            </select>
+            <input type="date" id="filtroFecha" class="filtro-date" placeholder="Fecha">
+        </div>
+        <button class="btn-primary" id="btnNuevaOrden">
+            <span>+</span> Nueva Orden
+        </button>
+    </div>
+
+    <!-- Órdenes de Producción -->
+    <div class="card">
+        <div class="card-header">
+            <h2>🚀 Órdenes en Progreso</h2>
+            <div class="header-actions">
+                <button class="btn-icon btn-refresh" id="btnRefresh" title="Actualizar">🔄</button>
+            </div>
+        </div>
+        <div class="ordenes-grid" id="ordenesProduccionGrid">
+            <!-- Tarjeta de orden dinámica -->
+            <div class="orden-card">
+                <div class="orden-header">
+                    <div>
+                        <span class="orden-numero">#ORD-2401-001</span>
+                        <span class="orden-producto">Refresco Cola</span>
+                    </div>
+                    <span class="pill-success">En Proceso</span>
+                </div>
+                <div class="orden-body">
+                    <div class="orden-info">
+                        <span class="info-label">Línea</span>
+                        <span class="info-value">Línea 1 - Envasado</span>
+                    </div>
+                    <div class="orden-info">
+                        <span class="info-label">Cantidad</span>
+                        <span class="info-value">5,000 L</span>
+                    </div>
+                    <div class="orden-info">
+                        <span class="info-label">Inicio</span>
+                        <span class="info-value">15/01/2024</span>
+                    </div>
+                    <div class="orden-info">
+                        <span class="info-label">Fin Estimado</span>
+                        <span class="info-value">18/01/2024</span>
+                    </div>
+                </div>
+                <div class="orden-footer">
+                    <div class="progress-label">
+                        <span>Progreso: 65%</span>
+                        <span class="litros-producidos">3,250 L / 5,000 L</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 65%"></div>
+                    </div>
+                    <div class="orden-actions">
+                        <button class="btn-sm btn-pausar" data-id="1">⏸️ Pausar</button>
+                        <button class="btn-sm btn-avanzar" data-id="1">▶️ Avanzar</button>
+                        <button class="btn-sm btn-detalle" data-id="1">📋 Detalle</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="orden-card">
+                <div class="orden-header">
+                    <div>
+                        <span class="orden-numero">#ORD-2401-002</span>
+                        <span class="orden-producto">Naranja Sabor Intenso</span>
+                    </div>
+                    <span class="pill-warning">Planificada</span>
+                </div>
+                <div class="orden-body">
+                    <div class="orden-info">
+                        <span class="info-label">Línea</span>
+                        <span class="info-value">Línea 2 - Carbonatación</span>
+                    </div>
+                    <div class="orden-info">
+                        <span class="info-label">Cantidad</span>
+                        <span class="info-value">3,200 L</span>
+                    </div>
+                    <div class="orden-info">
+                        <span class="info-label">Inicio</span>
+                        <span class="info-value">22/01/2024</span>
+                    </div>
+                    <div class="orden-info">
+                        <span class="info-label">Fin Estimado</span>
+                        <span class="info-value">24/01/2024</span>
+                    </div>
+                </div>
+                <div class="orden-footer">
+                    <div class="progress-label">Progreso: 0%</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="orden-actions">
+                        <button class="btn-sm btn-iniciar" data-id="2">▶️ Iniciar</button>
+                        <button class="btn-sm btn-editar" data-id="2">✏️ Editar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="orden-card">
+                <div class="orden-header">
+                    <div>
+                        <span class="orden-numero">#ORD-2401-003</span>
+                        <span class="orden-producto">Lima Limón Zero</span>
+                    </div>
+                    <span class="pill-danger">Pausada</span>
+                </div>
+                <div class="orden-body">
+                    <div class="orden-info">
+                        <span class="info-label">Línea</span>
+                        <span class="info-value">Línea 3 - Embotellado</span>
+                    </div>
+                    <div class="orden-info">
+                        <span class="info-label">Cantidad</span>
+                        <span class="info-value">4,500 L</span>
+                    </div>
+                    <div class="orden-info">
+                        <span class="info-label">Inicio</span>
+                        <span class="info-value">10/01/2024</span>
+                    </div>
+                    <div class="orden-info">
+                        <span class="info-label">Pausa Motivo</span>
+                        <span class="info-value">Mantenimiento</span>
+                    </div>
+                </div>
+                <div class="orden-footer">
+                    <div class="progress-label">Progreso: 42%</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 42%"></div>
+                    </div>
+                    <div class="orden-actions">
+                        <button class="btn-sm btn-reanudar" data-id="3">▶️ Reanudar</button>
+                        <button class="btn-sm btn-detalle" data-id="3">📋 Detalle</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Historial de Producción -->
+    <div class="card">
+        <div class="card-header">
+            <h2>📜 Historial de Producción</h2>
+            <button class="btn-outline" id="btnExportar">📊 Exportar</button>
+        </div>
+        <div class="table-responsive">
+            <table class="table-elegante">
+                <thead>
+                    <tr>
+                        <th>Orden #</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Fin</th>
+                        <th>Estado</th>
+                        <th>Eficiencia</th>
+                    </tr>
+                </thead>
+                <tbody id="historialBody">
+                    <tr>
+                        <td><strong>#ORD-2312-045</strong></td>
+                        <td>Refresco Cola</td>
+                        <td>10,000 L</td>
+                        <td>20/12/2023</td>
+                        <td>22/12/2023</td>
+                        <td><span class="pill-success">Completada</span></td>
+                        <td>94%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>#ORD-2312-044</strong></td>
+                        <td>Manzana Verde</td>
+                        <td>6,500 L</td>
+                        <td>18/12/2023</td>
+                        <td>21/12/2023</td>
+                        <td><span class="pill-success">Completada</span></td>
+                        <td>88%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nueva Orden -->
+<div id="modalNuevaOrden" class="modal">
+    <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <h3>➕ Nueva Orden de Producción</h3>
+        <form id="formNuevaOrden">
+            <div class="form-group">
+                <label>Producto / Receta</label>
+                <select id="ordenProducto" required>
+                    <option value="">Seleccionar receta...</option>
+                    <option value="1">Refresco Cola v2.1.0</option>
+                    <option value="2">Naranja Sabor Intenso v1.5.2</option>
+                    <option value="3">Lima Limón Zero v3.0.0</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Línea de Producción</label>
+                <select id="ordenLinea" required>
+                    <option value="1">Línea 1 - Envasado</option>
+                    <option value="2">Línea 2 - Carbonatación</option>
+                    <option value="3">Línea 3 - Embotellado</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Cantidad (Litros)</label>
+                <input type="number" id="ordenCantidad" step="100" min="100" required>
+            </div>
+            <div class="form-group">
+                <label>Fecha de Inicio</label>
+                <input type="date" id="ordenFechaInicio" required>
+            </div>
+            <div class="form-group">
+                <label>Notas Adicionales</label>
+                <textarea rows="3" placeholder="Instrucciones especiales..."></textarea>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%;">Crear Orden</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/modulos/produccion.js"></script>
+}

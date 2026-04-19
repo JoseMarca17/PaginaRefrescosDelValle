@@ -1,0 +1,313 @@
+@* 
+    Vista: Views/Recetas/Index.cshtml
+    Módulo: Gestión de Recetas - Refrescos Del Valle
+*@
+
+@{
+    ViewData["Title"] = "Gestión de Recetas";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/modulos/recetas.css" />
+
+<div class="container">
+    <!-- Título de Sección -->
+    <div class="section-title">
+        <h1>Gestión de Recetas</h1>
+        <p>Creación, edición y control de fórmulas para bebidas</p>
+    </div>
+
+    <!-- Dashboard de Recetas -->
+    <div class="dashboard-grid">
+        <div class="card anim-up">
+            <div class="card-icon">📋</div>
+            <div class="card-stats">
+                <span class="stats-number" id="totalRecetas">24</span>
+                <span class="stats-label">Total Recetas</span>
+            </div>
+            <div class="card-footer">
+                <span class="pill-success">18 activas</span>
+            </div>
+        </div>
+
+        <div class="card anim-up" style="animation-delay: 0.1s;">
+            <div class="card-icon">🔄</div>
+            <div class="card-stats">
+                <span class="stats-number" id="versionesPendientes">5</span>
+                <span class="stats-label">Versiones Pendientes</span>
+            </div>
+            <div class="card-footer">
+                <span class="pill-warning">Requieren revisión</span>
+            </div>
+        </div>
+
+        <div class="card anim-up" style="animation-delay: 0.2s;">
+            <div class="card-icon">🔒</div>
+            <div class="card-stats">
+                <span class="stats-number" id="recetasConfidenciales">8</span>
+                <span class="stats-label">Confidenciales</span>
+            </div>
+            <div class="card-footer">
+                <span class="pill-danger">Acceso restringido</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de Búsqueda y Filtros -->
+    <div class="search-bar">
+        <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchReceta" placeholder="Buscar por producto, ingrediente o versión..." class="search-input">
+        </div>
+        <div class="filter-buttons">
+            <button class="filter-chip active" data-filter="todas">Todas</button>
+            <button class="filter-chip" data-filter="activas">Activas</button>
+            <button class="filter-chip" data-filter="inactivas">Inactivas</button>
+            <button class="filter-chip" data-filter="confidencial">Confidencial</button>
+        </div>
+        <button class="btn-primary" id="btnNuevaReceta">
+            <span>+</span> Nueva Receta
+        </button>
+    </div>
+
+    <!-- Listado de Recetas -->
+    <div class="recetas-container">
+        <div class="receta-card" data-id="1" data-estado="activa">
+            <div class="receta-header">
+                <div class="receta-info">
+                    <h3 class="receta-nombre">Refresco Cola</h3>
+                    <div class="receta-meta">
+                        <span class="pill-primary">v2.1.0</span>
+                        <span class="pill-success">Activa</span>
+                        <span class="pill-danger">Confidencial</span>
+                    </div>
+                </div>
+                <div class="receta-actions">
+                    <button class="btn-icon btn-editar" title="Editar">✏️</button>
+                    <button class="btn-icon btn-duplicar" title="Duplicar">📋</button>
+                    <button class="btn-icon btn-historial" title="Historial de Versiones">📊</button>
+                    <button class="btn-icon btn-eliminar" title="Eliminar">🗑️</button>
+                </div>
+            </div>
+            <div class="receta-body">
+                <div class="receta-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Tipo</span>
+                        <span class="stat-value">Premium</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Ingredientes</span>
+                        <span class="stat-value">8</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Última modificación</span>
+                        <span class="stat-value">10/01/2024</span>
+                    </div>
+                </div>
+                <div class="receta-preview">
+                    <div class="preview-title">Ingredientes principales:</div>
+                    <div class="preview-ingredientes">
+                        <span class="ingrediente-tag">Jarabe de Maíz</span>
+                        <span class="ingrediente-tag">Agua Purificada</span>
+                        <span class="ingrediente-tag">Gas Carbónico</span>
+                        <span class="ingrediente-more">+5 más</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="receta-card" data-id="2" data-estado="activa">
+            <div class="receta-header">
+                <div class="receta-info">
+                    <h3 class="receta-nombre">Naranja Sabor Intenso</h3>
+                    <div class="receta-meta">
+                        <span class="pill-primary">v1.5.2</span>
+                        <span class="pill-success">Activa</span>
+                        <span class="pill-danger">Confidencial</span>
+                    </div>
+                </div>
+                <div class="receta-actions">
+                    <button class="btn-icon btn-editar">✏️</button>
+                    <button class="btn-icon btn-duplicar">📋</button>
+                    <button class="btn-icon btn-historial">📊</button>
+                    <button class="btn-icon btn-eliminar">🗑️</button>
+                </div>
+            </div>
+            <div class="receta-body">
+                <div class="receta-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Tipo</span>
+                        <span class="stat-value">Premium</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Ingredientes</span>
+                        <span class="stat-value">6</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Última modificación</span>
+                        <span class="stat-value">05/01/2024</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="receta-card" data-id="3" data-estado="activa">
+            <div class="receta-header">
+                <div class="receta-info">
+                    <h3 class="receta-nombre">Lima Limón Zero</h3>
+                    <div class="receta-meta">
+                        <span class="pill-primary">v3.0.0</span>
+                        <span class="pill-success">Activa</span>
+                        <span class="pill-gray">No Confidencial</span>
+                    </div>
+                </div>
+                <div class="receta-actions">
+                    <button class="btn-icon btn-editar">✏️</button>
+                    <button class="btn-icon btn-duplicar">📋</button>
+                    <button class="btn-icon btn-historial">📊</button>
+                    <button class="btn-icon btn-eliminar">🗑️</button>
+                </div>
+            </div>
+            <div class="receta-body">
+                <div class="receta-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Tipo</span>
+                        <span class="stat-value">Light</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Ingredientes</span>
+                        <span class="stat-value">7</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Última modificación</span>
+                        <span class="stat-value">12/01/2024</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Editor de Recetas (Expandible) -->
+    <div class="receta-editor" id="recetaEditor" style="display: none;">
+        <div class="card">
+            <div class="card-header">
+                <h2>🧪 Editor de Fórmula: <span id="recetaSeleccionada">Refresco Cola v2.1.0</span></h2>
+                <button class="btn-success" id="btnAgregarIngrediente">+ Agregar Ingrediente</button>
+            </div>
+            
+            <div class="ingredientes-grid">
+                <div class="grid-header">
+                    <div>Ingrediente</div>
+                    <div>Cantidad</div>
+                    <div>Unidad</div>
+                    <div>Orden</div>
+                    <div>Costo Unitario</div>
+                    <div></div>
+                </div>
+                <div id="listaIngredientes">
+                    <div class="grid-row ingrediente-item">
+                        <select class="select-ingrediente">
+                            <option value="1" selected>Jarabe de Maíz</option>
+                            <option value="2">Azúcar Refinada</option>
+                            <option value="3">Agua Purificada</option>
+                            <option value="4">Gas Carbónico</option>
+                        </select>
+                        <input type="number" class="input-cantidad" value="25.5" step="0.1">
+                        <select class="select-unidad">
+                            <option value="1">kg</option>
+                            <option value="2">L</option>
+                            <option value="3">g</option>
+                        </select>
+                        <input type="number" class="input-orden" value="1">
+                        <input type="text" class="input-costo" value="$12.50" readonly disabled>
+                        <button class="btn-eliminar-fila">🗑️</button>
+                    </div>
+                    <div class="grid-row ingrediente-item">
+                        <select class="select-ingrediente">
+                            <option value="3" selected>Agua Purificada</option>
+                            <option value="4">Gas Carbónico</option>
+                            <option value="1">Jarabe de Maíz</option>
+                        </select>
+                        <input type="number" class="input-cantidad" value="100.0" step="0.1">
+                        <select class="select-unidad">
+                            <option value="2" selected>L</option>
+                            <option value="3">g</option>
+                        </select>
+                        <input type="number" class="input-orden" value="2">
+                        <input type="text" class="input-costo" value="$0.05" readonly disabled>
+                        <button class="btn-eliminar-fila">🗑️</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn-outline" id="btnCerrarEditor">Cerrar Editor</button>
+                <button class="btn-primary" id="btnGuardarReceta">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nueva/Editar Receta -->
+<div id="modalReceta" class="modal">
+    <div class="modal-content modal-large">
+        <span class="modal-close">&times;</span>
+        <h3 id="modalTitle">📝 Nueva Receta</h3>
+        <form id="formReceta">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nombre del Producto</label>
+                    <input type="text" id="recetaNombre" required placeholder="Ej: Refresco Cola">
+                </div>
+                <div class="form-group">
+                    <label>Versión</label>
+                    <input type="text" id="recetaVersion" value="1.0.0" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tipo de Receta</label>
+                    <select id="recetaTipo">
+                        <option>Estándar</option>
+                        <option>Premium</option>
+                        <option>Light</option>
+                        <option>Zero</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="recetaCategoria">
+                        <option>Cola</option>
+                        <option>Cítricos</option>
+                        <option>Frutales</option>
+                        <option>Energéticos</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Rendimiento (Litros)</label>
+                    <input type="number" id="recetaRendimiento" value="1000" step="100">
+                </div>
+                <div class="form-group">
+                    <label>Tiempo de Producción (min)</label>
+                    <input type="number" id="recetaTiempo" value="45" step="5">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="recetaConfidencial"> Esta receta es confidencial
+                </label>
+            </div>
+            <div class="form-group">
+                <label>Notas de producción</label>
+                <textarea rows="3" placeholder="Instrucciones especiales, controles de calidad, etc..."></textarea>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%;">Guardar Receta</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/modulos/recetas.js"></script>
+}
