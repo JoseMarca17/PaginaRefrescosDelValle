@@ -1,3 +1,4 @@
+@model RefrescosDelValle.Models.ViewModels.InventarioIndexViewModel
 @{
     ViewData["Title"] = "Módulo Inventario";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -114,17 +115,17 @@
             </p>
             <div class="hero-numbers">
                 <div class="hn-item">
-                    <span class="hn-val">847K</span>
+                    <span class="hn-val">@Model.TotalUnidades.ToString("N0")</span>
                     <span class="hn-label">UNIDADES</span>
                 </div>
                 <div class="hn-sep"></div>
                 <div class="hn-item">
-                    <span class="hn-val">27</span>
+                    <span class="hn-val">@Model.TotalAlmacenes</span>
                     <span class="hn-label">ALMACENES</span>
                 </div>
                 <div class="hn-sep"></div>
                 <div class="hn-item">
-                    <span class="hn-val">9</span>
+                    <span class="hn-val">@Model.TotalDepartamentos</span>
                     <span class="hn-label">DEPARTAMENTOS</span>
                 </div>
             </div>

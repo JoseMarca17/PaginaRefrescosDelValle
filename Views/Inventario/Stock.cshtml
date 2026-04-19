@@ -1,10 +1,21 @@
+@using RefrescosDelValle.Models.Entities
+@model IEnumerable<RefrescosDelValle.Models.Entities.VwStockAlmacen>
+
 @{
     ViewData["Title"] = "Stock — Módulo Almacén";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    
+    // Forzamos el tipado para que Visual Studio no se confunda
+    var datos = (Model ?? Enumerable.Empty<VwStockAlmacen>()).ToList();
+
+    // Usamos ?. para evitar errores si algo viene nulo
+    var totalUnidades = datos.Sum(x => x.CantidadDisponible ?? 0);
+    var productosActivos = datos.Select(x => x.ProductoId).Distinct().Count();
+    var stockCritico = datos.Count(x => x.BajoMinimo == 1);
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/modulos/inventario.css" asp-append-version="true" /> <!--actualizacion aca-->
+    <link rel="stylesheet" href="~/css/modulos/inventario.css" asp-append-version="true" />
     <style>
         body { background: var(--dark-900); }
         .page-hero { background:var(--dark-900); padding:3.5rem 2rem 2.5rem; position:relative; overflow:hidden; border-bottom:1px solid var(--dark-700); }
@@ -24,10 +35,13 @@
         .pg-breadcrumb-inner a:hover { text-decoration:underline; }
         .pg-breadcrumb-inner svg { width:10px; height:10px; stroke:var(--gray-600); fill:none; stroke-width:2.5; }
         .page-body { max-width:1200px; margin:0 auto; padding:2.5rem 2rem 5rem; }
+        
+        /* Ajuste para la tabla con datos reales */
+        .stock-badge.critical { background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid #e74c3c; }
+        .stock-badge.ok { background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid #2ecc71; }
     </style>
 }
 
-<!-- Page hero -->
 <div class="page-hero">
     <div class="hero-grid-bg"></div>
     <div class="hero-glow"></div>
@@ -35,10 +49,10 @@
         <div>
             <div class="page-eyebrow"><span class="eyebrow-dot"></span>INVENTARIO · STOCK</div>
             <div class="page-title">STOCK <span>ACTUAL</span></div>
-            <div class="page-subtitle">Inventario disponible por departamento y producto</div>
+            <div class="page-subtitle">Inventario disponible por sucursal y producto</div>
         </div>
         <div class="page-hero-btns">
-            <button class="btn-secondary" onclick="loadTable()">
+            <button class="btn-secondary" onclick="location.reload()">
                 <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;margin-right:5px" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Actualizar
             </button>
             <button class="btn-primary">
@@ -48,153 +62,146 @@
     </div>
 </div>
 
-<!-- Breadcrumb -->
 <div class="pg-breadcrumb">
     <div class="pg-breadcrumb-inner">
-        <a asp-controller="Inventario" asp-action="IndexInventario">Inventario</a> <!-- cambio aca-->
+        <a asp-controller="Inventario" asp-action="IndexInventario">Inventario</a>
         <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         <span>Stock</span>
     </div>
 </div>
 
-<!-- Contenido -->
 <div class="page-body">
-    <!-- KPIs -->
     <div class="kpi-row">
         <div class="kpi-card">
             <div class="kpi-label">Total unidades</div>
-            <div class="kpi-value">847K</div>
-            <div class="kpi-sub">en todos los deptos.</div>
+            <div class="kpi-value">@totalUnidades.ToString("N0")</div>
+            <div class="kpi-sub">en todos los almacenes</div>
         </div>
         <div class="kpi-card">
             <div class="kpi-label">Productos activos</div>
-            <div class="kpi-value">38</div>
-            <div class="kpi-sub">SKUs en inventario</div>
+            <div class="kpi-value">@productosActivos</div>
+            <div class="kpi-sub">SKUs detectados</div>
         </div>
         <div class="kpi-card">
             <div class="kpi-label">Stock crítico</div>
-            <div class="kpi-value">3</div>
+            <div class="kpi-value" style="color:var(--red-500)">@stockCritico</div>
             <div class="kpi-sub">por debajo del mínimo</div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-label">Actualización</div>
-            <div class="kpi-value" style="font-size:1.25rem;margin-top:4px">HOY 08:32</div>
-            <div class="kpi-sub">sincronizado</div>
+            <div class="kpi-label">Última Sincronización</div>
+            <div class="kpi-value" style="font-size:1.25rem;margin-top:4px">@DateTime.Now.ToString("HH:mm")</div>
+            <div class="kpi-sub">@DateTime.Now.ToString("dd MMM yyyy")</div>
         </div>
     </div>
 
-    <!-- Filtros -->
     <div class="filter-bar">
         <div class="filter-group">
-            <span class="filter-label">Departamento</span>
-            <div class="dept-dropdown" id="deptDd">
-                <button class="dept-trigger" type="button" onclick="toggleDept()">
-                    <span id="deptLabel">Todos</span>
-                    <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-                </button>
-                <div class="dept-menu">
-                    <label class="dept-menu-item all-option">
-                        <input type="checkbox" id="chkTodos" checked onchange="toggleTodos(this)"/>
-                        <span>Todos</span>
-                    </label>
-                    @foreach (var depto in new[]{"La Paz","Cochabamba","Santa Cruz","Oruro","Potosí","Chuquisaca","Tarija","Beni","Pando"})
-                    {
-                        <label class="dept-menu-item">
-                            <input type="checkbox" class="dchk" value="@depto" onchange="updateLabel()"/>
-                            <span>@depto</span>
-                        </label>
-                    }
-                </div>
-            </div>
-        </div>
-
-        <div class="filter-group">
-            <span class="filter-label">Producto</span>
+            <span class="filter-label">Buscador Rápido</span>
             <div class="product-search-wrap">
                 <svg class="product-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" class="product-search-input" id="prodInput"
-                       placeholder="Todo — escribe y Enter"
-                       onkeydown="if(event.key==='Enter')loadTable()"/>
+                <input type="text" class="product-search-input" id="tableSearch" 
+                       placeholder="Filtrar por producto o sucursal..." onkeyup="filterTable()">
             </div>
-        </div>
-
-        <div class="filter-group">
-            <span class="filter-label">&nbsp;</span>
-            <button class="btn-primary" type="button" onclick="loadTable()">Buscar</button>
         </div>
     </div>
 
-    <!-- Tabla -->
     <div class="data-table-wrap">
         <div class="data-table-header">
-            <span class="data-table-title">Stock por departamento</span>
-            <span class="data-table-count" id="rowCount">— registros</span>
+            <span class="data-table-title">Registros en Tiempo Real</span>
+            <span class="data-table-count" id="rowCount">@(Model?.Count() ?? 0) registros</span>
         </div>
         <div style="overflow-x:auto">
-            <table class="data-table">
+            <table class="data-table" id="stockTable">
                 <thead>
                     <tr>
-                        <th>Departamento</th>
+                        <th>Sucursal / Almacén</th>
                         <th>Producto</th>
                         <th>SKU</th>
-                        <th>Cajas</th>
-                        <th>Botellas</th>
+                        <th>Stock Actual</th>
+                        <th>Mínimo</th>
+                        <th>Lote</th>
                         <th>Estado</th>
-                        <th>Actualización</th>
                     </tr>
                 </thead>
-                <tbody id="stockBody"></tbody>
+                <tbody id="stockBody">
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr class="stock-row">
+                                <td>
+                                    <strong style="color:var(--white)">@item.NombreSucursal</strong><br />
+                                    <small class="text-muted">@item.NombreAlmacen</small>
+                                </td>
+                                <td>@item.NombreProducto</td>
+                                <td class="id-cell">@item.CodigoSku</td>
+                                <td class="num-cell fw-bold @(item.BajoMinimo == 1 ? "text-danger" : "")">
+                                    @item.CantidadDisponible?.ToString("N2")
+                                </td>
+                                <td class="num-cell">@item.CantidadMinima?.ToString("N2")</td>
+                                <td class="mono-cell">@item.Lote</td>
+                                <td>
+                                    @if (item.BajoMinimo == 1)
+                                    {
+                                        <span class="stock-badge critical">STOCK BAJO</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="stock-badge ok">DISPONIBLE</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">📦</div>
+                                    <div class="empty-state-title">Sin datos</div>
+                                    <div class="empty-state-sub">No se encontraron registros en la base de datos.</div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
             </table>
         </div>
     </div>
 </div>
 
 @section Scripts {
-<script>
-    window.addEventListener('scroll',()=>document.getElementById('navbar')?.classList.toggle('scrolled',window.scrollY>10));
+    <script>
+    // Filtro rápido en pantalla
+    function filterTable() {
+        const input = document.getElementById("tableSearch") || document.getElementById("prodInput");
+        const filter = input.value.toLowerCase();
+        const rows = document.querySelectorAll(".stock-row");
+        let count = 0;
 
-    function toggleDept(){ document.getElementById('deptDd').classList.toggle('open'); }
-    document.addEventListener('click',e=>{ const d=document.getElementById('deptDd'); if(d&&!d.contains(e.target)) d.classList.remove('open'); });
-    function toggleTodos(cb){ document.querySelectorAll('.dchk').forEach(c=>c.checked=false); if(!cb.checked)cb.checked=true; updateLabel(); }
-    function updateLabel(){ const s=[...document.querySelectorAll('.dchk:checked')].map(c=>c.value); if(!s.length){document.getElementById('chkTodos').checked=true;document.getElementById('deptLabel').textContent='Todos';}else{document.getElementById('chkTodos').checked=false;document.getElementById('deptLabel').textContent=s.length===1?s[0]:`${s.length} departamentos`;} }
-
-    const DATA=[
-        ['La Paz','Refresco Cola 500ml','BV-COL-500',4820,28920,'ok'],
-        ['Cochabamba','Refresco Cola 500ml','BV-COL-500',3110,18660,'ok'],
-        ['Santa Cruz','Refresco Cola 500ml','BV-COL-500',5640,33840,'ok'],
-        ['Oruro','Refresco Cola 500ml','BV-COL-500',980,5880,'low'],
-        ['Potosí','Refresco Cola 500ml','BV-COL-500',760,4560,'low'],
-        ['Chuquisaca','Refresco Cola 500ml','BV-COL-500',1230,7380,'ok'],
-        ['Tarija','Refresco Cola 500ml','BV-COL-500',540,3240,'critical'],
-        ['Beni','Refresco Cola 500ml','BV-COL-500',320,1920,'critical'],
-        ['Pando','Refresco Cola 500ml','BV-COL-500',210,1260,'critical'],
-        ['La Paz','Agua Mineral 600ml','BV-AGU-600',6200,37200,'ok'],
-        ['Cochabamba','Agua Mineral 600ml','BV-AGU-600',4100,24600,'ok'],
-        ['Santa Cruz','Agua Mineral 600ml','BV-AGU-600',7200,43200,'ok'],
-    ];
-
-    const SL={ok:'Normal',low:'Bajo mín.',critical:'Crítico'};
-    const SC={ok:'ok',low:'low',critical:'critical'};
-
-    function loadTable(){
-        const p=document.getElementById('prodInput').value.trim().toLowerCase();
-        const s=[...document.querySelectorAll('.dchk:checked')].map(c=>c.value);
-        const t=document.getElementById('chkTodos').checked;
-        const f=DATA.filter(r=>(!p||r[1].toLowerCase().includes(p))&&(t||s.includes(r[0])));
-        document.getElementById('stockBody').innerHTML=f.length
-            ? f.map(r=>`<tr>
-                <td><strong style="color:var(--white)">${r[0]}</strong></td>
-                <td>${r[1]}</td>
-                <td class="id-cell">${r[2]}</td>
-                <td class="num-cell">${r[3].toLocaleString()}</td>
-                <td class="num-cell">${r[4].toLocaleString()}</td>
-                <td><span class="stock-badge ${SC[r[5]]}">${SL[r[5]]}</span></td>
-                <td class="mono-cell">HOY 08:32</td>
-              </tr>`).join('')
-            : `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📦</div><div class="empty-state-title">Sin resultados</div><div class="empty-state-sub">Ajusta los filtros</div></div></td></tr>`;
-        document.getElementById('rowCount').textContent=`${f.length} registros`;
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            if (text.includes(filter)) {
+                row.style.display = "";
+                count++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+        document.getElementById('rowCount').textContent = `${count} registros`;
     }
 
-    loadTable();
+    // El botón de actualizar ahora recarga la página para traer datos frescos de SQL
+    function loadTable() {
+        location.reload();
+    }
+
+    // Manejo de dropdown de departamentos (opcional si quieres mantener la estética)
+    function toggleDept(){ document.getElementById('deptDd')?.classList.toggle('open'); }
+    
+    window.addEventListener('scroll', () => {
+        document.getElementById('navbar')?.classList.toggle('scrolled', window.scrollY > 10);
+    });
 </script>
 }

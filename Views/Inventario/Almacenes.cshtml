@@ -1,3 +1,4 @@
+@model IEnumerable<RefrescosDelValle.Models.Entities.Almacen>
 @{
     ViewData["Title"] = "Almacenes — Módulo Almacén";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -83,59 +84,89 @@
 
 @section Scripts {
 <script>
-    window.addEventListener('scroll',()=>document.getElementById('navbar')?.classList.toggle('scrolled',window.scrollY>10));
+    window.addEventListener('scroll',()=>document.getElementById('navbar')
+        ?.classList.toggle('scrolled',window.scrollY>10));
 
-    const DEPTS=[
-        {n:'La Paz',e:'🏔️',a:[{id:'ALM-LP-01',n:'Almacén Central La Paz',t:'Principal',cap:60,uso:55.6},{id:'ALM-LP-02',n:'Bodega El Alto',t:'Distribución',cap:30,uso:28.1},{id:'ALM-LP-03',n:'Depósito Sur Obrajes',t:'Secundario',cap:15,uso:9.4},{id:'ALM-LP-04',n:'Almacén Norte Achacachi',t:'Satélite',cap:10,uso:7.7}]},
-        {n:'Cochabamba',e:'🌸',a:[{id:'ALM-CB-01',n:'Almacén Central Cbba',t:'Principal',cap:50,uso:46.2},{id:'ALM-CB-02',n:'Bodega Quillacollo',t:'Distribución',cap:25,uso:22.8},{id:'ALM-CB-03',n:'Depósito Sacaba',t:'Secundario',cap:12,uso:10.1}]},
-        {n:'Santa Cruz',e:'🌴',a:[{id:'ALM-SC-01',n:'Almacén Central SCZ',t:'Principal',cap:80,uso:77.3},{id:'ALM-SC-02',n:'Bodega Montero',t:'Distribución',cap:40,uso:38.9},{id:'ALM-SC-03',n:'Depósito Warnes',t:'Secundario',cap:20,uso:14.5},{id:'ALM-SC-04',n:'Almacén Plan 3000',t:'Satélite',cap:10,uso:9.8}]},
-        {n:'Oruro',e:'⛏️',a:[{id:'ALM-OR-01',n:'Almacén Central Oruro',t:'Principal',cap:20,uso:12.4},{id:'ALM-OR-02',n:'Bodega Sur Caracollo',t:'Secundario',cap:8,uso:5.1}]},
-        {n:'Potosí',e:'🏺',a:[{id:'ALM-PT-01',n:'Almacén Central Potosí',t:'Principal',cap:18,uso:11.6},{id:'ALM-PT-02',n:'Bodega Uyuni',t:'Satélite',cap:8,uso:4.3}]},
-        {n:'Chuquisaca',e:'⚖️',a:[{id:'ALM-CH-01',n:'Almacén Central Sucre',t:'Principal',cap:22,uso:18.9},{id:'ALM-CH-02',n:'Bodega Camargo',t:'Secundario',cap:8,uso:5.8}]},
-        {n:'Tarija',e:'🍇',a:[{id:'ALM-TJ-01',n:'Almacén Central Tarija',t:'Principal',cap:18,uso:10.2},{id:'ALM-TJ-02',n:'Bodega Bermejo',t:'Satélite',cap:6,uso:3.1}]},
-        {n:'Beni',e:'🐊',a:[{id:'ALM-BN-01',n:'Almacén Central Trinidad',t:'Principal',cap:15,uso:8.7},{id:'ALM-BN-02',n:'Bodega Riberalta',t:'Satélite',cap:6,uso:4.2}]},
-        {n:'Pando',e:'🌿',a:[{id:'ALM-PD-01',n:'Almacén Central Cobija',t:'Principal',cap:10,uso:5.4}]},
-    ];
+    // Datos desde el servidor (C# → JS)
+    const DEPTS_RAW = @Html.Raw(Json.Serialize(
+    Model
+        .GroupBy(a => a.Sucursal?.Ciudad?.DepartamentoGeo?.NombreDpto ?? "Sin depto")  // ✅ correcto
+        .Select(g => new {
+            n = g.Key,
+            a = g.Select(a => new {
+                id  = "ALM-" + a.AlmacenId,
+                n   = a.NombreAlmacen,
+                t   = a.TipoAlmacen?.Descripcion ?? "—",
+                dir = a.Direccion ?? "Sin dirección",
+                est = a.EstadoAlmacen?.Descripcion ?? "—"
+            })
+        })
+));
 
-    document.getElementById('deptGrid').innerHTML=DEPTS.map((d,i)=>`
+    // Emoji por departamento
+    const EMOJI = {
+        'La Paz':'🏔️','Cochabamba':'🌸','Santa Cruz':'🌴',
+        'Oruro':'⛏️','Potosí':'🏺','Chuquisaca':'⚖️',
+        'Tarija':'🍇','Beni':'🐊','Pando':'🌿'
+    };
+
+    const DEPTS = DEPTS_RAW.map(d => ({...d, e: EMOJI[d.n] ?? '🏭'}));
+
+    // KPIs dinámicos
+    const totalAlmacenes = DEPTS.reduce((s,d)=>s+d.a.length,0);
+    document.querySelector('.kpi-card:nth-child(1) .kpi-value').textContent = totalAlmacenes;
+    document.querySelector('.kpi-card:nth-child(1) .kpi-sub').textContent   = 'en todo el país';
+
+    // Render grilla de departamentos
+    document.getElementById('deptGrid').innerHTML = DEPTS.map((d,i) => `
       <div class="dept-card" onclick="showDetail(${i})">
         <span class="dept-card-map">${d.e}</span>
         <div class="dept-card-name">${d.n}</div>
         <div class="dept-card-count"><strong>${d.a.length}</strong> almacén${d.a.length>1?'es':''}</div>
-        <div class="dept-card-caret"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        <div class="dept-card-caret">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
       </div>`).join('');
 
-    function lvl(u,c){ const p=u/c*100; return p>=90?'full':p>=55?'mid':'low'; }
-
     function showDetail(i){
-        const d=DEPTS[i];
-        document.getElementById('viewDepts').style.display='none';
-        document.getElementById('viewDetail').style.display='block';
-        document.getElementById('heroTitle').innerHTML=`${d.e} <span>${d.n.toUpperCase()}</span>`;
-        document.getElementById('heroSub').textContent=`${d.a.length} almacén${d.a.length>1?'es':''} registrados`;
-        document.getElementById('detailTag').textContent=d.n.toUpperCase()+' · ALMACENES';
-        document.getElementById('detailTitle').textContent=`${d.a.length} almacén${d.a.length>1?'es':''} en ${d.n}`;
-        document.getElementById('detailSub').textContent='Capacidad y ocupación actual';
-        document.getElementById('bcCur').textContent=d.n;
-        document.getElementById('whList').innerHTML=d.a.map(a=>{
-            const p=(a.uso/a.cap*100).toFixed(0);
-            return `<div class="warehouse-card">
+        const d = DEPTS[i];
+        document.getElementById('viewDepts').style.display  = 'none';
+        document.getElementById('viewDetail').style.display = 'block';
+        document.getElementById('heroTitle').innerHTML  = `${d.e} <span>${d.n.toUpperCase()}</span>`;
+        document.getElementById('heroSub').textContent  = `${d.a.length} almacén${d.a.length>1?'es':''} registrados`;
+        document.getElementById('detailTag').textContent   = d.n.toUpperCase() + ' · ALMACENES';
+        document.getElementById('detailTitle').textContent = `${d.a.length} almacén${d.a.length>1?'es':''} en ${d.n}`;
+        document.getElementById('detailSub').textContent   = 'Tipo y estado actual';
+        document.getElementById('bcCur').textContent = d.n;
+        document.getElementById('whList').innerHTML = d.a.map(a => `
+            <div class="warehouse-card">
                 <div class="wh-icon">🏭</div>
-                <div class="wh-info"><div class="wh-name">${a.n}</div><div class="wh-type">${a.t} · ${a.id}</div></div>
-                <div class="wh-capacity-wrap">
-                    <div class="wh-capacity-label"><span>Capacidad</span><strong>${a.uso} / ${a.cap} t &nbsp;(${p}%)</strong></div>
-                    <div class="wh-bar-track"><div class="wh-bar-fill ${lvl(a.uso,a.cap)}" style="width:${p}%"></div></div>
+                <div class="wh-info">
+                    <div class="wh-name">${a.n}</div>
+                    <div class="wh-type">${a.t} · ${a.id}</div>
+                    <div class="wh-type" style="margin-top:.25rem;color:var(--gray-500)">
+                        📍 ${a.dir}
+                    </div>
                 </div>
-            </div>`;}).join('');
+                <div class="wh-capacity-wrap">
+                    <div class="wh-capacity-label">
+                        <span>Estado</span>
+                        <strong>${a.est}</strong>
+                    </div>
+                    <div class="wh-bar-track">
+                        <div class="wh-bar-fill ${a.est === 'Activo' ? 'low' : 'full'}" style="width:100%"></div>
+                    </div>
+                </div>
+            </div>`).join('');
         window.scrollTo(0,0);
     }
 
     function backToDepts(){
-        document.getElementById('viewDetail').style.display='none';
-        document.getElementById('viewDepts').style.display='block';
-        document.getElementById('heroTitle').innerHTML='ALMACENES <span>BOLIVIA</span>';
-        document.getElementById('heroSub').textContent='Selecciona un departamento para ver el detalle';
-        document.getElementById('bcCur').textContent='Almacenes';
+        document.getElementById('viewDetail').style.display = 'none';
+        document.getElementById('viewDepts').style.display  = 'block';
+        document.getElementById('heroTitle').innerHTML  = 'ALMACENES <span>BOLIVIA</span>';
+        document.getElementById('heroSub').textContent  = 'Selecciona un departamento para ver el detalle';
+        document.getElementById('bcCur').textContent = 'Almacenes';
         window.scrollTo(0,0);
     }
 </script>
