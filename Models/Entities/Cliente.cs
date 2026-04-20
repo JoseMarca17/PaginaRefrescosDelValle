@@ -1,29 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace RefrescosDelValle.Models.Entities;
-
-public partial class Cliente
+namespace PaginaRefrescosDelValle.Models.Entities
 {
-    public int ClienteId { get; set; }
+    public class Cliente
+    {
+        [Key]
+        public int ClienteID { get; set; }
 
-    public int PersonaId { get; set; }
+        [Required(ErrorMessage = "El nombre es obligatorio")]
+        public string Nombre { get; set; }
 
-    public int? TipoClienteId { get; set; }
+        [Required(ErrorMessage = "El apellido es obligatorio")]
+        public string Apellido { get; set; }
 
-    public decimal? LimiteCredito { get; set; }
+        public string Correo { get; set; }
 
-    public bool Activo { get; set; }
+        public string Telefono { get; set; }
 
-    public DateTime FechaRegistro { get; set; }
-
-    public string? Observaciones { get; set; }
-
-    public virtual ICollection<Factura> Facturas { get; set; } = new List<Factura>();
-
-    public virtual ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
-
-    public virtual Persona Persona { get; set; } = null!;
-
-    public virtual TiposCliente? TipoCliente { get; set; }
+        // Relación con TipoCliente
+        public int TipoClienteID { get; set; }
+        
+        [ForeignKey("TipoClienteID")]
+        public virtual TipoCliente TipoCliente { get; set; }
+    }
 }

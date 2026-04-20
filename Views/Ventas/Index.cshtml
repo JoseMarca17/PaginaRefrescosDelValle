@@ -1,3 +1,5 @@
+@model IEnumerable<PaginaRefrescosDelValle.Models.Entities.Venta>
+
 @{
     ViewData["Title"] = "Gestión de Ventas";
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
@@ -6,29 +8,72 @@
 <div class="dashboard-header">
     <div class="header-left">
         <a href="@Url.Action("Comercial", "Dashboard")" class="back-button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px;">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
             Volver al Panel
         </a>
         <div>
             <h1 class="dashboard-title">Ventas y Clientes</h1>
-            <p class="dashboard-subtitle">Gestión de facturación y listado de clientes</p>
+            <p class="dashboard-subtitle">Gestión de facturación y listado de pedidos realizados</p>
         </div>
     </div>
     <div class="dashboard-header-right">
-        <a href="@Url.Action("NuevoPedido", "Ventas")" class="btn btn-primary" style="background: #C8281E; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; color: white; text-decoration: none;">
+        <a href="@Url.Action("Create", "Ventas")" class="btn btn-primary" style="background: #C8281E; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; color: white; text-decoration: none; display: inline-block;">
             + Nuevo Pedido
         </a>
     </div>
 </div>
 
 <div class="container-fluid mt-4">
-    <div class="card shadow-sm border-0">
+    <div class="card shadow-sm border-0 bg-dark text-white">
         <div class="card-body">
-            <h5 class="card-title mb-4">Listado de Pedidos Recientes</h5>
-            <p class="text-muted">Aquí irá la tabla conectada a tu base de datos (Tabla: Pedidos).</p>
-            <!-- Aquí puedes meter un <table> normal o un DataTable en el futuro -->
+            <h5 class="card-title mb-4 text-info">Listado de Pedidos Recientes</h5>
+            
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr class="text-secondary" style="border-bottom: 2px solid #333;">
+                            <th>Folio</th>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Total</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="fw-bold">#@item.VentaID.ToString("D5")</td>
+                                    <td>@item.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@item.Cliente?.Nombre @item.Cliente?.Apellido</td>
+                                    <td class="text-success fw-bold">@item.Total.ToString("C2")</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success">Completado</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <a asp-action="Details" asp-route-id="@item.VentaID" class="btn btn-sm btn-outline-info">
+                                            Ver Detalle
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    No hay pedidos registrados en la base de datos.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

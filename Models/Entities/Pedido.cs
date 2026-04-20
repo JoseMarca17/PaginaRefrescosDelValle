@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using PaginaRefrescosDelValle.Models.Entities;
 namespace RefrescosDelValle.Models.Entities;
 
 public partial class Pedido

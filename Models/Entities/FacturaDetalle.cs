@@ -1,23 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace RefrescosDelValle.Models.Entities;
-
-public partial class FacturaDetalle
+namespace PaginaRefrescosDelValle.Models.Entities
 {
-    public int FacturaDetalleId { get; set; }
+    public partial class FacturaDetalle
+    {
+        [Key]
+        public int FacturaDetalleId { get; set; }
 
-    public int FacturaId { get; set; }
+        public int FacturaId { get; set; }
 
-    public int PedidoDetalleId { get; set; }
+        public int PedidoDetalleId { get; set; }
 
-    public decimal Cantidad { get; set; }
+        public decimal Cantidad { get; set; }
 
-    public decimal PrecioUnitario { get; set; }
+        [Column(TypeName = "decimal(18, 2)")]
+        public decimal PrecioUnitario { get; set; }
 
-    public decimal? Subtotal { get; set; }
+        public decimal? Subtotal { get; set; }
 
-    public virtual Factura Factura { get; set; } = null!;
+        // --- RELACIONES (Propiedades de Navegación) ---
 
-    public virtual PedidoDetalle PedidoDetalle { get; set; } = null!;
+        [ForeignKey("FacturaId")]
+        public virtual Facturas Facturas { get; set; } = null!;
+
+        [ForeignKey("PedidoDetalleId")]
+        public virtual PedidoDetalle PedidoDetalle { get; set; } = null!;
+    }
 }
