@@ -1,0 +1,143 @@
+@model RefrescosDelValle.Models.Entities.Proveedore
+
+@{
+    ViewData["Title"] = "Detalles del Proveedor";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dashboard-header">
+    <div class="header-left">
+        <a href="/Proveedores" class="back-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver a Proveedores
+        </a>
+        <div>
+            <h1 class="dashboard-title">Detalles del Proveedor</h1>
+            <p class="dashboard-subtitle">Información completa y estadísticas</p>
+        </div>
+    </div>
+    <div class="dashboard-header-right" style="display: flex; align-items: center; gap: 1rem;">
+        <a href="/Proveedores/Edit/@Model.ProveedorId" style="background: rgba(255, 193, 7, 0.1); color: #ffc107; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.8rem; border: 1px solid rgba(255, 193, 7, 0.3); transition: all 0.3s;">
+            ✏️ Editar Proveedor
+        </a>
+        <div class="date-badge">
+            <svg viewBox="0 0 24 24" width="16" height="16">
+                <rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>@DateTime.Now.ToString("dddd, dd MMMM yyyy")</span>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+    <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; backdrop-filter: blur(10px);">
+        <div style="color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase;">Órdenes de Compra</div>
+        <div style="font-size: 2rem; font-weight: bold; color: var(--text-primary);">@ViewBag.TotalOrdenes</div>
+    </div>
+    <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; backdrop-filter: blur(10px);">
+        <div style="color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase;">Recepciones</div>
+        <div style="font-size: 2rem; font-weight: bold; color: var(--text-primary);">@ViewBag.TotalRecepciones</div>
+    </div>
+    <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; backdrop-filter: blur(10px);">
+        <div style="color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase;">Monto Total Compras</div>
+        <div style="font-size: 1.5rem; font-weight: bold; color: #00ff88;">@ViewBag.TotalMontoCompras.ToString("C")</div>
+    </div>
+</div>
+
+<div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(10px);">
+    <h3 style="color: #C8281E; font-family: 'DM Mono', monospace; font-size: 1rem; margin-bottom: 1.5rem; border-left: 3px solid #C8281E; padding-left: 0.8rem;">
+        Información General
+    </h3>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+        <div>
+            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase;">ID Proveedor</label>
+            <p style="font-family: 'DM Mono', monospace;">@Model.ProveedorId</p>
+        </div>
+        <div>
+            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase;">Razón Social</label>
+            <p style="font-family: 'Space Grotesk', sans-serif; font-weight: 500;">@Model.RazonSocial</p>
+        </div>
+        <div>
+            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase;">NIT</label>
+            <p style="font-family: 'DM Mono', monospace;">@Model.Nit</p>
+        </div>
+        <div>
+            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase;">Estado</label>
+            <p>
+                @if (Model.Activo)
+                {
+                    <span style="background: rgba(0, 255, 136, 0.15); color: #00ff88; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem;">Activo</span>
+                }
+                else
+                {
+                    <span style="background: rgba(200, 40, 30, 0.15); color: #C8281E; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem;">Inactivo</span>
+                }
+            </p>
+        </div>
+        <div>
+            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase;">Fecha Registro</label>
+            <p style="font-family: 'DM Mono', monospace;">@Model.FechaRegistro.ToString("dd/MM/yyyy HH:mm")</p>
+        </div>
+        <div style="grid-column: span 2;">
+            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase;">Observaciones</label>
+            <p style="background: var(--input-bg); padding: 0.8rem; border-radius: 8px; font-family: 'Space Grotesk', sans-serif;">@(string.IsNullOrEmpty(Model.Observaciones) ? "Ninguna" : Model.Observaciones)</p>
+        </div>
+    </div>
+</div>
+
+@if (Model.OrdenesCompras != null && Model.OrdenesCompras.Any())
+{
+    <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; backdrop-filter: blur(10px);">
+        <div style="background: rgba(0, 255, 255, 0.05); padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+            <h3 style="color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.9rem; margin: 0;">Últimas Órdenes de Compra</h3>
+        </div>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border-color);">
+                        <th style="padding: 0.8rem; text-align: left; font-family: 'DM Mono', monospace; font-size: 0.7rem;">N° Orden</th>
+                        <th style="padding: 0.8rem; text-align: left; font-family: 'DM Mono', monospace; font-size: 0.7rem;">Fecha</th>
+                        <th style="padding: 0.8rem; text-align: right; font-family: 'DM Mono', monospace; font-size: 0.7rem;">Monto</th>
+                        <th style="padding: 0.8rem; text-align: center; font-family: 'DM Mono', monospace; font-size: 0.7rem;">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var orden in Model.OrdenesCompras.OrderByDescending(o => o.FechaEmision).Take(5))
+                    {
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.8rem; font-family: 'DM Mono', monospace;">@orden.NumeroOrden</td>
+                            <td style="padding: 0.8rem; font-family: 'DM Mono', monospace;">@orden.FechaEmision.ToString("dd/MM/yyyy")</td>
+                            <td style="padding: 0.8rem; text-align: right; font-family: 'DM Mono', monospace; color: #00ff88;">@orden.MontoTotal.ToString("C")</td>
+                            <td style="padding: 0.8rem; text-align: center;">
+                                @if (orden.RecepcionMercaderia == null || !orden.RecepcionMercaderia.Any())
+                                {
+                                    <span style="background: rgba(255, 193, 7, 0.15); color: #ffc107; padding: 0.2rem 0.5rem; border-radius: 20px; font-size: 0.65rem;">Pendiente</span>
+                                }
+                                else
+                                {
+                                    <span style="background: rgba(0, 255, 136, 0.15); color: #00ff88; padding: 0.2rem 0.5rem; border-radius: 20px; font-size: 0.65rem;">Completada</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<style>
+    a[href*="Edit"]:hover {
+        filter: brightness(1.2);
+        transform: translateY(-1px);
+    }
+    
+    .back-button:hover {
+        transform: translateX(-3px);
+    }
+</style>

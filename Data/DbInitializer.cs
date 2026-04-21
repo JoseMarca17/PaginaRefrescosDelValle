@@ -48,7 +48,7 @@ namespace RefrescosDelValle.Data
                     Console.WriteLine($"[SYS] Inyectando nuevo admin: {admin.Email}...");
 
                     // Número de documento único por admin para evitar conflictos de UNIQUE constraint
-                    var numDoc = $"ADMIN{contador:D5}";
+                    var numDoc = $"ADM-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
 
                     var persona = new Persona
                     {

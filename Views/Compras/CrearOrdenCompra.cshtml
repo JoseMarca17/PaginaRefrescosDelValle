@@ -1,0 +1,178 @@
+@model RefrescosDelValle.Models.Entities.OrdenesCompra
+
+@{
+    ViewData["Title"] = "Nueva Orden de Compra";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dashboard-header">
+    <div class="header-left">
+        <a href="/Compras/OrdenesCompra" class="back-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver a Órdenes
+        </a>
+        <div>
+            <h1 class="dashboard-title">Nueva Orden de Compra</h1>
+            <p class="dashboard-subtitle">Registrar una nueva orden de compra a proveedor</p>
+        </div>
+    </div>
+    <div class="dashboard-header-right" style="display: flex; align-items: center; gap: 1rem;">
+        <div class="date-badge">
+            <svg viewBox="0 0 24 24" width="16" height="16">
+                <rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>@DateTime.Now.ToString("dddd, dd MMMM yyyy")</span>
+        </div>
+    </div>
+</div>
+
+<form asp-action="CrearOrdenCompra" method="post">
+    @Html.AntiForgeryToken()
+    
+    <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(10px);">
+        <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom: 1.5rem; color: #C8281E; font-family: 'DM Mono', monospace; font-size: 0.85rem;"></div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+            <div>
+                <label asp-for="NumeroOrden" style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
+                    Número de Orden
+                </label>
+                <input asp-for="NumeroOrden" class="form-control-modern" value="@ViewBag.NumeroOrdenAuto" 
+                       style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;" />
+                <span asp-validation-for="NumeroOrden" style="color: #C8281E; font-size: 0.75rem; font-family: 'DM Mono', monospace;"></span>
+                <small style="color: var(--text-muted); font-size: 0.7rem; font-family: 'DM Mono', monospace;">Se ha generado automáticamente, puede modificarlo</small>
+            </div>
+
+            <div>
+                <label asp-for="ProveedorId" style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
+                    Proveedor
+                </label>
+                <select asp-for="ProveedorId" class="form-select-modern" asp-items="ViewBag.Proveedores"
+                        style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;">
+                    <option value="">Seleccione un proveedor</option>
+                </select>
+                <span asp-validation-for="ProveedorId" style="color: #C8281E; font-size: 0.75rem; font-family: 'DM Mono', monospace;"></span>
+            </div>
+
+            <div>
+                <label asp-for="ContratoId" style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
+                    Contrato (Opcional)
+                </label>
+                <select asp-for="ContratoId" class="form-select-modern" asp-items="ViewBag.Contratos"
+                        style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;">
+                    <option value="">Sin contrato</option>
+                </select>
+                <span asp-validation-for="ContratoId" style="color: #C8281E; font-size: 0.75rem; font-family: 'DM Mono', monospace;"></span>
+            </div>
+
+            <div>
+                <label asp-for="FechaEntregaEsp" style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
+                    Fecha Estimada de Entrega
+                </label>
+                <input asp-for="FechaEntregaEsp" class="form-control-modern" type="date" 
+                       style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;" />
+                <span asp-validation-for="FechaEntregaEsp" style="color: #C8281E; font-size: 0.75rem; font-family: 'DM Mono', monospace;"></span>
+            </div>
+
+            <div>
+                <label asp-for="MontoTotal" style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
+                    Monto Total (Bs)
+                </label>
+                <input asp-for="MontoTotal" class="form-control-modern" type="number" step="0.01" 
+                       style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;" />
+                <span asp-validation-for="MontoTotal" style="color: #C8281E; font-size: 0.75rem; font-family: 'DM Mono', monospace;"></span>
+            </div>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+            <label asp-for="Observaciones" style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
+                Observaciones
+            </label>
+            <textarea asp-for="Observaciones" rows="3" 
+                      style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; resize: vertical;"
+                      placeholder="Ej: Condiciones de pago, plazos de entrega, etc."></textarea>
+            <span asp-validation-for="Observaciones" style="color: #C8281E; font-size: 0.75rem; font-family: 'DM Mono', monospace;"></span>
+        </div>
+    </div>
+
+    <div style="background: rgba(0, 255, 255, 0.05); border: 1px solid rgba(0, 255, 255, 0.2); border-radius: 12px; padding: 1rem; margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="#00ffff" fill="none" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span style="color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.8rem;">
+                <strong>Nota:</strong> Una vez creada la orden, podrá registrar las recepciones de mercadería asociadas a esta orden.
+            </span>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 1rem;">
+        <button type="submit" style="background: #C8281E; color: white; padding: 0.8rem 2rem; border-radius: 8px; border: 1px solid #ff4d4d; font-family: 'DM Mono', monospace; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 0.5rem;">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Guardar Orden
+        </button>
+        <a href="/Compras/OrdenesCompra" style="background: transparent; color: var(--text-secondary); padding: 0.8rem 2rem; border-radius: 8px; border: 1px solid var(--border-color); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 0.5rem;">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+            Cancelar
+        </a>
+    </div>
+</form>
+
+<style>
+    button[type="submit"]:hover {
+        background: #a02018 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 0 20px rgba(200, 40, 30, 0.5);
+    }
+    
+    a[href="/Compras/OrdenesCompra"]:hover {
+        background: var(--input-bg) !important;
+        color: var(--text-primary) !important;
+        transform: translateY(-2px);
+    }
+    
+    .form-control-modern:focus, .form-select-modern:focus {
+        outline: none;
+        border-color: #C8281E;
+        box-shadow: 0 0 10px rgba(200, 40, 30, 0.3);
+    }
+    
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        background-color: var(--text-secondary);
+        border-radius: 4px;
+        padding: 4px;
+        cursor: pointer;
+    }
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Validación para que el monto total sea positivo
+        document.querySelector('input[name="MontoTotal"]').addEventListener('change', function() {
+            if (this.value < 0) {
+                this.value = 0;
+            }
+        });
+        
+        // Validación de fecha de entrega no sea anterior a hoy
+        const fechaEntrega = document.querySelector('input[name="FechaEntregaEsp"]');
+        const hoy = new Date().toISOString().split('T')[0];
+        fechaEntrega.setAttribute('min', hoy);
+    </script>
+}

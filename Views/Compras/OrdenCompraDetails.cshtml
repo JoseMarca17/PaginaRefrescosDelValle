@@ -1,0 +1,174 @@
+@model RefrescosDelValle.Models.Entities.OrdenesCompra
+
+@{
+    ViewData["Title"] = "Detalles de Orden de Compra";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dashboard-header">
+    <div class="header-left">
+        <a href="/Compras/OrdenesCompra" class="back-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver a Órdenes
+        </a>
+        <div>
+            <h1 class="dashboard-title">Detalles de Orden de Compra</h1>
+            <p class="dashboard-subtitle">Información completa de la orden</p>
+        </div>
+    </div>
+    <div class="dashboard-header-right" style="display: flex; align-items: center; gap: 1rem;">
+        <div class="date-badge">
+            <svg viewBox="0 0 24 24" width="16" height="16">
+                <rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>@DateTime.Now.ToString("dddd, dd MMMM yyyy")</span>
+        </div>
+    </div>
+</div>
+
+<div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(10px);">
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+        <div>
+            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">N° Orden</label>
+            <p style="color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 1.1rem;">@Model.NumeroOrden</p>
+        </div>
+        <div>
+            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Proveedor</label>
+            <p style="color: var(--text-primary); font-family: 'Space Grotesk', sans-serif;">@Model.Proveedor?.RazonSocial</p>
+        </div>
+        <div>
+            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">NIT Proveedor</label>
+            <p style="color: var(--text-secondary); font-family: 'DM Mono', monospace;">@(Model.Proveedor?.Nit ?? "N/A")</p>
+        </div>
+        <div>
+            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Contrato</label>
+            <p style="color: var(--text-secondary); font-family: 'DM Mono', monospace;">@(Model.Contrato?.NumeroContrato ?? "Sin contrato")</p>
+        </div>
+        <div>
+            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Fecha Emisión</label>
+            <p style="color: var(--text-secondary); font-family: 'DM Mono', monospace;">@Model.FechaEmision.ToString("dd/MM/yyyy HH:mm")</p>
+        </div>
+        <div>
+            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Fecha Entrega Estimada</label>
+            <p style="color: var(--text-secondary); font-family: 'DM Mono', monospace;">@(Model.FechaEntregaEsp?.ToString("dd/MM/yyyy") ?? "No especificada")</p>
+        </div>
+        <div>
+            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Monto Total</label>
+            <p style="color: #00ff88; font-family: 'DM Mono', monospace; font-weight: bold; font-size: 1.2rem;">@Model.MontoTotal.ToString("C")</p>
+        </div>
+        <div>
+            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Usuario Creador</label>
+            <p style="color: var(--text-secondary); font-family: 'DM Mono', monospace;">@Model.UsuarioCreador?.NombreUsuario</p>
+        </div>
+        <div style="grid-column: span 2;">
+            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Observaciones</label>
+            <p style="color: var(--text-secondary); font-family: 'Space Grotesk', sans-serif; background: var(--input-bg); padding: 0.8rem; border-radius: 8px;">@(string.IsNullOrEmpty(Model.Observaciones) ? "Ninguna" : Model.Observaciones)</p>
+        </div>
+    </div>
+</div>
+
+<div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; backdrop-filter: blur(10px);">
+    <div style="background: rgba(0, 255, 136, 0.1); padding: 1rem 1.5rem; border-bottom: 1px solid rgba(0, 255, 136, 0.3);">
+        <h3 style="color: #00ff88; font-family: 'DM Mono', monospace; font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            Recepciones Asociadas
+        </h3>
+    </div>
+    <div style="overflow-x: auto;">
+        @if (Model.RecepcionMercaderia != null && Model.RecepcionMercaderia.Any())
+        {
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: rgba(0, 255, 136, 0.05); border-bottom: 1px solid var(--border-color);">
+                        <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">ID</th>
+                        <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Producto</th>
+                        <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Lote</th>
+                        <th style="padding: 1rem; text-align: right; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Cantidad</th>
+                        <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Almacén</th>
+                        <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Fecha</th>
+                        <th style="padding: 1rem; text-align: center; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var recepcion in Model.RecepcionMercaderia)
+                    {
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 1rem; font-family: 'DM Mono', monospace;">@recepcion.RecepcionId</td>
+                            <td style="padding: 1rem; font-family: 'Space Grotesk', sans-serif;">@recepcion.Inventario?.Producto?.NombreProducto</td>
+                            <td style="padding: 1rem; font-family: 'DM Mono', monospace; font-size: 0.85rem;">@recepcion.Inventario?.Lote</td>
+                            <td style="padding: 1rem; text-align: right; font-family: 'DM Mono', monospace; color: #00ff88;">@recepcion.CantidadRecibida.ToString("N2")</td>
+                            <td style="padding: 1rem; font-family: 'Space Grotesk', sans-serif;">@recepcion.Almacen?.NombreAlmacen</td>
+                            <td style="padding: 1rem; font-family: 'DM Mono', monospace; font-size: 0.85rem;">@recepcion.FechaRecepcion.ToString("dd/MM/yyyy")</td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <a href="/Compras/RecepcionDetails/@recepcion.RecepcionId" style="color: #00ffff; text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.75rem;">
+                                    Ver Detalles
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr style="background: rgba(0, 255, 136, 0.05); border-top: 1px solid var(--border-color);">
+                        <th colspan="3" style="padding: 1rem; text-align: right; color: var(--text-primary); font-family: 'DM Mono', monospace;">Total Recibido:</th>
+                        <th style="padding: 1rem; text-align: right; color: #00ff88; font-family: 'DM Mono', monospace;">@Model.RecepcionMercaderia.Sum(r => r.CantidadRecibida).ToString("N2") unidades</th>
+                        <th colspan="3"></th>
+                    </tr>
+                </tfoot>
+            </table>
+        }
+        else
+        {
+            <div style="padding: 3rem; text-align: center;">
+                <svg viewBox="0 0 24 24" width="48" height="48" stroke="var(--text-muted)" fill="none" stroke-width="1.5" style="margin-bottom: 1rem;">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                </svg>
+                <p style="color: var(--text-muted); font-family: 'DM Mono', monospace;">No hay recepciones registradas para esta orden.</p>
+                <a href="/Compras/CrearRecepcion?ordenCompraId=@Model.OrdenCompraId" style="background: #C8281E; color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Registrar Recepción
+                </a>
+            </div>
+        }
+    </div>
+    <div style="padding: 1rem 1.5rem; border-top: 1px solid var(--border-color); display: flex; gap: 1rem;">
+        <a href="/Compras/OrdenesCompra" style="background: transparent; color: var(--text-secondary); padding: 0.6rem 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.8rem; transition: all 0.3s;">
+            ← Volver
+        </a>
+        @if (Model.RecepcionMercaderia == null || !Model.RecepcionMercaderia.Any())
+        {
+            <a href="/Compras/EditarOrdenCompra/@Model.OrdenCompraId" style="background: rgba(255, 193, 7, 0.1); color: #ffc107; padding: 0.6rem 1.5rem; border-radius: 8px; border: 1px solid rgba(255, 193, 7, 0.3); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.8rem; transition: all 0.3s;">
+                ✏️ Editar Orden
+            </a>
+        }
+        <a href="/Compras/CrearRecepcion?ordenCompraId=@Model.OrdenCompraId" style="background: rgba(0, 255, 136, 0.1); color: #00ff88; padding: 0.6rem 1.5rem; border-radius: 8px; border: 1px solid rgba(0, 255, 136, 0.3); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.8rem; transition: all 0.3s;">
+            + Nueva Recepción
+        </a>
+    </div>
+</div>
+
+<style>
+    a[href="/Compras/OrdenesCompra"]:hover {
+        background: var(--input-bg) !important;
+        transform: translateY(-1px);
+    }
+    
+    a[href*="Editar"]:hover, a[href*="Recepcion"]:hover {
+        filter: brightness(1.2);
+        transform: translateY(-1px);
+    }
+</style>

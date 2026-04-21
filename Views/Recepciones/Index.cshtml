@@ -1,0 +1,163 @@
+@model IEnumerable<RefrescosDelValle.Models.Entities.RecepcionMercaderium>
+
+@{
+    ViewData["Title"] = "Recepciones";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dashboard-header">
+    <div class="header-left">
+        <a href="/Dashboard" class="back-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver al Dashboard
+        </a>
+        <div>
+            <h1 class="dashboard-title">Recepciones de Mercadería</h1>
+            <p class="dashboard-subtitle">Registro de ingresos de productos al inventario</p>
+        </div>
+    </div>
+    <div class="dashboard-header-right" style="display: flex; align-items: center; gap: 1rem;">
+        <a href="/Recepciones/Create" style="background: #C8281E; color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-family: 'DM Mono', monospace; font-weight: bold; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; transition: all 0.3s; text-transform: uppercase; border: 1px solid #ff4d4d; box-shadow: 0 0 10px rgba(200, 40, 30, 0.3);">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Nueva Recepción
+        </a>
+        <div class="date-badge">
+            <svg viewBox="0 0 24 24" width="16" height="16">
+                <rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>@DateTime.Now.ToString("dddd, dd MMMM yyyy")</span>
+        </div>
+    </div>
+</div>
+
+<div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(10px);">
+    <form asp-action="Index" method="get" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
+        <div style="flex: 2; min-width: 200px;">
+            <label style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
+                Orden de Compra
+            </label>
+            <select name="ordenCompraId" class="form-select-modern" asp-items="ViewBag.OrdenesCompra"
+                    style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;">
+                <option value="">Todas las órdenes</option>
+            </select>
+        </div>
+        
+        <div style="flex: 1; min-width: 150px;">
+            <label style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
+                Desde
+            </label>
+            <input type="date" name="fechaDesde" value="@ViewBag.FechaDesde" 
+                   style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;" />
+        </div>
+        
+        <div style="flex: 1; min-width: 150px;">
+            <label style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
+                Hasta
+            </label>
+            <input type="date" name="fechaHasta" value="@ViewBag.FechaHasta" 
+                   style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;" />
+        </div>
+        
+        <div style="display: flex; gap: 0.5rem;">
+            <button type="submit" style="background: #C8281E; color: white; padding: 0.7rem 1.5rem; border-radius: 8px; border: 1px solid #ff4d4d; font-family: 'DM Mono', monospace; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">
+                Buscar
+            </button>
+            <a href="/Recepciones" style="background: transparent; color: var(--text-secondary); padding: 0.7rem 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.85rem; text-transform: uppercase; transition: all 0.3s;">
+                Limpiar
+            </a>
+        </div>
+    </form>
+</div>
+
+<div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; backdrop-filter: blur(10px);">
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: rgba(200, 40, 30, 0.1); border-bottom: 2px solid #C8281E;">
+                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">ID</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">N° Orden</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Producto</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Lote</th>
+                    <th style="padding: 1rem; text-align: right; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Cantidad</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Almacén</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Fecha</th>
+                    <th style="padding: 1rem; text-align: center; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.3s;" 
+                        onmouseover="this.style.background='var(--input-bg)'" 
+                        onmouseout="this.style.background='transparent'">
+                        <td style="padding: 1rem; font-family: 'DM Mono', monospace;">@item.RecepcionId</td>
+                        <td style="padding: 1rem; font-family: 'DM Mono', monospace;">@item.OrdenCompra?.NumeroOrden</td>
+                        <td style="padding: 1rem; font-family: 'Space Grotesk', sans-serif;">@item.Inventario?.Producto?.NombreProducto</td>
+                        <td style="padding: 1rem; font-family: 'DM Mono', monospace; font-size: 0.85rem;">@item.Inventario?.Lote</td>
+                        <td style="padding: 1rem; text-align: right; font-family: 'DM Mono', monospace; color: #00ff88;">@item.CantidadRecibida.ToString("N2")</td>
+                        <td style="padding: 1rem; font-family: 'Space Grotesk', sans-serif;">@item.Almacen?.NombreAlmacen</td>
+                        <td style="padding: 1rem; font-family: 'DM Mono', monospace; font-size: 0.85rem;">@item.FechaRecepcion.ToString("dd/MM/yyyy")</td>
+                        <td style="padding: 1rem;">
+                            <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                                <a href="/Recepciones/Details/@item.RecepcionId" style="background: rgba(0, 255, 255, 0.1); color: #00ffff; padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; border: 1px solid rgba(0, 255, 255, 0.3); transition: all 0.3s;">
+                                    Detalles
+                                </a>
+                                <button type="button" onclick="confirmDelete(@item.RecepcionId)" 
+                                        style="background: rgba(200, 40, 30, 0.1); color: #C8281E; padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(200, 40, 30, 0.3); font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">
+                                    Eliminar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="8" style="padding: 3rem; text-align: center; color: var(--text-muted); font-family: 'DM Mono', monospace;">
+                            No se encontraron recepciones registradas
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<form id="deleteForm" asp-action="Delete" method="post" style="display:none;">
+    <input type="hidden" id="deleteId" name="id" />
+</form>
+
+<style>
+    button[type="submit"]:hover, .back-button:hover {
+        transform: translateY(-2px);
+    }
+    
+    button[type="submit"]:hover {
+        background: #a02018 !important;
+        box-shadow: 0 0 20px rgba(200, 40, 30, 0.5);
+    }
+    
+    td a:hover, td button:hover {
+        filter: brightness(1.2);
+        transform: translateY(-1px);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function confirmDelete(id) {
+            if (confirm('¿Está seguro de eliminar esta recepción? Esta acción también eliminará el inventario asociado.')) {
+                document.getElementById('deleteId').value = id;
+                document.getElementById('deleteForm').submit();
+            }
+        }
+    </script>
+}
