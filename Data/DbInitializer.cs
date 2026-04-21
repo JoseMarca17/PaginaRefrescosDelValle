@@ -41,54 +41,99 @@ namespace RefrescosDelValle.Data
 
             foreach (var admin in adminsToCreate.Where(a => !string.IsNullOrEmpty(a.Email)))
             {
-                var existePersona = await context.Personas.AnyAsync(p => p.CorreoPrincipal == admin.Email);
-
-                if (!existePersona)
+                try
                 {
-                    Console.WriteLine($"[SYS] Inyectando nuevo admin: {admin.Email}...");
+                    var existePersona = await context.Personas.AnyAsync(p => p.CorreoPrincipal == admin.Email);
 
-                    // Número de documento único por admin para evitar conflictos de UNIQUE constraint
-                    var numDoc = $"ADMIN{contador:D5}";
-
-                    var persona = new Persona
+                    if (!existePersona)
                     {
-                        Nombres          = "Admin",
-                        ApellidoPat      = admin.Username,
-                        TipoDocumentoId  = tipoDocCI?.DominioValorId ?? 1,
-                        NumeroDocumento  = numDoc,
-                        SexoId           = sexoIndet?.DominioValorId ?? 1,
-                        CorreoPrincipal  = admin.Email,
-                        Estado           = "Activo",
-                        FechaRegistro    = DateTime.Now
-                    };
-                    context.Personas.Add(persona);
-                    await context.SaveChangesAsync(); // Necesario para obtener PersonaId
+                        Console.WriteLine($"[SYS] Inyectando nuevo admin: {admin.Email}...");
 
-                    var usuario = new Usuario
+                        // Número de documento único basado en Guid, sin riesgo de colisión
+                        var numDoc = $"ADM{Guid.NewGuid().ToString("N")[..8].ToUpper()}";
+
+                        var persona = new Persona
+                        {
+                            Nombres         = "Admin",
+                            ApellidoPat     = admin.Username,
+                            TipoDocumentoId = tipoDocCI?.DominioValorId ?? 1,
+                            NumeroDocumento = numDoc,
+                            SexoId          = sexoIndet?.DominioValorId ?? 1,
+                            CorreoPrincipal = admin.Email,
+                            Estado          = "Activo",
+                            FechaRegistro   = DateTime.Now
+                        };
+                        context.Personas.Add(persona);
+                        await context.SaveChangesAsync();
+
+                        var usuario = new Usuario
+                        {
+                            PersonaId     = persona.PersonaId,
+                            NombreUsuario = admin.Username,
+                            Contrasena    = BCrypt.Net.BCrypt.HashPassword(admin.Password),
+                            Activo        = true,
+                            FechaCreacion = DateTime.Now
+                        };
+                        context.Usuarios.Add(usuario);
+                        await context.SaveChangesAsync();
+
+                        // Verificar si ya tiene el rol asignado antes de agregar
+                        var tieneRol = await context.UsuariosRoles.AnyAsync(ur =>
+                            ur.UsuarioId == usuario.UsuarioId && ur.RolId == rolAdmin.RolId);
+
+                        if (!tieneRol)
+                        {
+                            context.UsuariosRoles.Add(new UsuariosRole
+                            {
+                                UsuarioId       = usuario.UsuarioId,
+                                RolId           = rolAdmin.RolId,
+                                FechaAsignacion = DateTime.Now
+                            });
+                            await context.SaveChangesAsync();
+                        }
+
+                        Console.WriteLine($"[OK] Admin '{admin.Username}' creado y vinculado correctamente.");
+                        contador++;
+                    }
+                    else
                     {
-                        PersonaId     = persona.PersonaId,
-                        NombreUsuario = admin.Username,
-                        Contrasena    = BCrypt.Net.BCrypt.HashPassword(admin.Password),
-                        Activo        = true,
-                        FechaCreacion = DateTime.Now
-                    };
-                    context.Usuarios.Add(usuario);
-                    await context.SaveChangesAsync(); // Necesario para obtener UsuarioId
+                        // Aunque ya exista la persona, verificar que tenga el rol SuperAdmin
+                        var persona = await context.Personas.FirstOrDefaultAsync(p => p.CorreoPrincipal == admin.Email);
+                        if (persona != null)
+                        {
+                            var usuario = await context.Usuarios.FirstOrDefaultAsync(u => u.PersonaId == persona.PersonaId);
+                            if (usuario != null)
+                            {
+                                var tieneRol = await context.UsuariosRoles.AnyAsync(ur =>
+                                    ur.UsuarioId == usuario.UsuarioId && ur.RolId == rolAdmin.RolId);
 
-                    context.UsuariosRoles.Add(new UsuariosRole
-                    {
-                        UsuarioId       = usuario.UsuarioId,
-                        RolId           = rolAdmin.RolId,
-                        FechaAsignacion = DateTime.Now
-                    });
-                    await context.SaveChangesAsync();
-
-                    Console.WriteLine($"[OK] Admin '{admin.Username}' creado y vinculado correctamente.");
-                    contador++;
+                                if (!tieneRol)
+                                {
+                                    context.UsuariosRoles.Add(new UsuariosRole
+                                    {
+                                        UsuarioId       = usuario.UsuarioId,
+                                        RolId           = rolAdmin.RolId,
+                                        FechaAsignacion = DateTime.Now
+                                    });
+                                    await context.SaveChangesAsync();
+                                    Console.WriteLine($"[FIX] Rol SuperAdmin asignado a admin existente '{admin.Email}'.");
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"[INFO] Admin '{admin.Email}' ya existe con rol. Saltando...");
+                                }
+                            }
+                        }
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    Console.WriteLine($"[INFO] Admin '{admin.Email}' ya existe. Saltando...");
+                    Console.WriteLine($"[ERROR] Falló al procesar '{admin.Email}': {ex.Message}");
+                    // Limpiar el contexto para no contaminar las siguientes iteraciones
+                    context.ChangeTracker.Clear();
+
+                    // Re-cargar el rol porque el ChangeTracker fue limpiado
+                    rolAdmin = await context.Roles.FirstOrDefaultAsync(r => r.NombreRol == "SuperAdmin");
                 }
             }
 
