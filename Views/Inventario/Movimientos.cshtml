@@ -1,3 +1,4 @@
+@model RefrescosDelValle.Models.ViewModels.MovimientosPageViewModel
 @{
     ViewData["Title"] = "Movimientos — Módulo Almacén";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -58,11 +59,11 @@
 <div class="page-body">
     <!-- KPIs -->
     <div class="kpi-row">
-        <div class="kpi-card"><div class="kpi-label">Total este mes</div><div class="kpi-value">148</div><div class="kpi-sub">movimientos</div></div>
-        <div class="kpi-card"><div class="kpi-label">Traslados</div><div class="kpi-value">131</div><div class="kpi-sub">normales</div></div>
-        <div class="kpi-card"><div class="kpi-label">Mermas</div><div class="kpi-value">17</div><div class="kpi-sub">registradas</div></div>
-        <div class="kpi-card"><div class="kpi-label">Unidades movidas</div><div class="kpi-value">84K</div><div class="kpi-sub">este período</div></div>
-    </div>
+    <div class="kpi-card"><div class="kpi-label">Total este mes</div><div class="kpi-value">@Model.TotalMovimientos</div><div class="kpi-sub">movimientos</div></div>
+    <div class="kpi-card"><div class="kpi-label">Traslados</div><div class="kpi-value">@Model.TotalTraslados</div><div class="kpi-sub">normales</div></div>
+    <div class="kpi-card"><div class="kpi-label">Mermas</div><div class="kpi-value">@Model.TotalMermas</div><div class="kpi-sub">registradas</div></div>
+    <div class="kpi-card"><div class="kpi-label">Unidades movidas</div><div class="kpi-value">@Model.TotalUnidadesMovidas.ToString("N0")</div><div class="kpi-sub">este período</div></div>
+</div>
 
     <!-- Filtros -->
     <div class="mov-filters">
@@ -112,6 +113,7 @@
                         <th>Origen</th>
                         <th>Destino</th>
                         <th>Tipo</th>
+                        <th>Transporte</th>
                         <th>Cantidad</th>
                         <th>Descripción</th>
                     </tr>
@@ -124,57 +126,54 @@
 
 @section Scripts {
 <script>
-    window.addEventListener('scroll',()=>document.getElementById('navbar')?.classList.toggle('scrolled',window.scrollY>10));
+    window.addEventListener('scroll',()=>document.getElementById('navbar')
+        ?.classList.toggle('scrolled',window.scrollY>10));
 
-    const DATA=[
-        {id:'MOV-2025-0312',env:'2025-03-01',rec:'2025-03-02',ori:'ALM-SC-01',dst:'ALM-LP-01',merma:false,qty:2400,desc:'Reabastecimiento mensual La Paz — Cola 500ml'},
-        {id:'MOV-2025-0313',env:'2025-03-01',rec:'2025-03-02',ori:'ALM-SC-01',dst:'ALM-CB-01',merma:false,qty:1800,desc:'Reabastecimiento mensual Cochabamba — Cola 500ml'},
-        {id:'MOV-2025-0314',env:'2025-03-03',rec:null,         ori:'ALM-LP-01',dst:null,        merma:true, qty:360, desc:'Merma por caducidad — lote Agua Mineral 600ml'},
-        {id:'MOV-2025-0315',env:'2025-03-05',rec:'2025-03-07',ori:'ALM-LP-01',dst:'ALM-OR-01',merma:false,qty:900, desc:'Traslado Oruro — Refresco Naranja 350ml'},
-        {id:'MOV-2025-0316',env:'2025-03-06',rec:'2025-03-08',ori:'ALM-SC-01',dst:'ALM-TJ-01',merma:false,qty:600, desc:'Distribución sur — Cola 1.5L'},
-        {id:'MOV-2025-0317',env:'2025-03-08',rec:null,         ori:'ALM-CB-01',dst:null,        merma:true, qty:180, desc:'Merma por rotura — Cola 500ml lote CB-031'},
-        {id:'MOV-2025-0318',env:'2025-03-10',rec:'2025-03-12',ori:'ALM-LP-02',dst:'ALM-LP-03',merma:false,qty:480, desc:'Redistribución intra-Dpto La Paz — surtido'},
-        {id:'MOV-2025-0319',env:'2025-03-12',rec:'2025-03-15',ori:'ALM-SC-01',dst:'ALM-BN-01',merma:false,qty:720, desc:'Envío Beni — Agua Mineral + Cola 500ml'},
-        {id:'MOV-2025-0320',env:'2025-03-14',rec:'2025-03-18',ori:'ALM-SC-01',dst:'ALM-PD-01',merma:false,qty:420, desc:'Envío Pando — Cola 500ml trimestral'},
-        {id:'MOV-2025-0321',env:'2025-03-15',rec:null,         ori:'ALM-OR-01',dst:null,        merma:true, qty:240, desc:'Merma por almacenamiento defectuoso — Naranja 350ml'},
-        {id:'MOV-2025-0322',env:'2025-03-17',rec:'2025-03-19',ori:'ALM-LP-01',dst:'ALM-CH-01',merma:false,qty:660, desc:'Traslado Chuquisaca — surtido trimestral'},
-        {id:'MOV-2025-0323',env:'2025-03-20',rec:'2025-03-21',ori:'ALM-CB-01',dst:'ALM-PT-01',merma:false,qty:540, desc:'Distribución Potosí — Cola + Agua'},
-        {id:'MOV-2025-0324',env:'2025-03-22',rec:null,         ori:'ALM-SC-02',dst:null,        merma:true, qty:120, desc:'Merma accidental — derrame Cola 1.5L'},
-        {id:'MOV-2025-0325',env:'2025-03-25',rec:'2025-03-26',ori:'ALM-SC-01',dst:'ALM-SC-02',merma:false,qty:1200,desc:'Reposición Montero — Cola + Naranja'},
-        {id:'MOV-2025-0326',env:'2025-03-28',rec:'2025-03-29',ori:'ALM-LP-01',dst:'ALM-LP-04',merma:false,qty:360, desc:'Envío satélite Achacachi — Agua Mineral 600ml'},
-    ];
+    const DATA = @Html.Raw(Json.Serialize(Model.Movimientos));
 
-    function fmt(d){ if(!d)return '<span style="color:var(--dark-500);font-size:.72rem">—</span>'; const[y,m,day]=d.split('-'); return `${day}/${m}/${y}`; }
+    function fmt(d){
+        if(!d) return '<span style="color:var(--dark-500);font-size:.72rem">—</span>';
+        const[y,m,day]=d.split('-');
+        return `${day}/${m}/${y}`;
+    }
 
     function renderTable(rows){
-        document.getElementById('movBody').innerHTML=rows.length
+        document.getElementById('movBody').innerHTML = rows.length
             ? rows.map(m=>`<tr>
                 <td class="id-cell">${m.id}</td>
-                <td class="mono-cell">${fmt(m.env)}</td>
-                <td class="mono-cell">${fmt(m.rec)}</td>
-                <td class="mono-cell">${m.ori||'—'}</td>
-                <td class="mono-cell">${m.dst||'—'}</td>
-                <td><span class="mov-type-badge ${m.merma?'merma':'normal'}">${m.merma?'⚠ Merma':'↔ Normal'}</span></td>
-                <td style="font-family:var(--font-display);font-size:1rem;color:var(--white)">${m.qty.toLocaleString()} <span style="font-family:var(--font-mono);font-size:.65rem;color:var(--gray-600)">u.</span></td>
-                <td style="font-size:.78rem;color:var(--gray-500);max-width:240px">${m.desc}</td>
+                <td class="mono-cell">${fmt(m.fechaEnvio)}</td>
+                <td class="mono-cell">${fmt(m.fechaRecepcion)}</td>
+                <td class="mono-cell">${m.origen}</td>
+                <td class="mono-cell">${m.destino}</td>
+                <td><span class="mov-type-badge ${m.esMerma?'merma':'normal'}">${m.esMerma?'⚠ Merma':'↔ Normal'}</span></td>
+                <td style="font-family:var(--font-display);font-size:1rem;color:var(--white)">
+                    ${Number(m.cantidad).toLocaleString()}
+                    <span style="font-family:var(--font-mono);font-size:.65rem;color:var(--gray-600)">u.</span>
+                </td>
+                <td style="font-size:.78rem;color:var(--gray-500);max-width:240px">${m.descripcion||'—'}</td>
               </tr>`).join('')
-            : `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">🔄</div><div class="empty-state-title">Sin resultados</div><div class="empty-state-sub">Ajusta los filtros</div></div></td></tr>`;
-        document.getElementById('movCount').textContent=`${rows.length} registros`;
+            : `<tr><td colspan="8"><div class="empty-state">
+                <div class="empty-state-icon">🔄</div>
+                <div class="empty-state-title">Sin resultados</div>
+                <div class="empty-state-sub">Ajusta los filtros</div>
+               </div></td></tr>`;
+        document.getElementById('movCount').textContent = `${rows.length} registros`;
     }
 
     function filterMov(){
-        const o=document.getElementById('fOrigen').value.trim().toLowerCase();
-        const d=document.getElementById('fDestino').value.trim().toLowerCase();
-        const t=document.getElementById('fTipo').value;
-        const ini=document.getElementById('fIni').value;
-        const fin=document.getElementById('fFin').value;
-        const f=DATA.filter(m=>{
-            if(o && !m.ori?.toLowerCase().includes(o)) return false;
-            if(d && !m.dst?.toLowerCase().includes(d)) return false;
-            if(t==='normal' && m.merma) return false;
-            if(t==='merma'  && !m.merma) return false;
-            if(ini && m.env < ini) return false;
-            if(fin && m.env > fin) return false;
+        const o   = document.getElementById('fOrigen').value.trim().toLowerCase();
+        const d   = document.getElementById('fDestino').value.trim().toLowerCase();
+        const t   = document.getElementById('fTipo').value;
+        const ini = document.getElementById('fIni').value;
+        const fin = document.getElementById('fFin').value;
+
+        const f = DATA.filter(m => {
+            if(o && !m.origen?.toLowerCase().includes(o))  return false;
+            if(d && !m.destino?.toLowerCase().includes(d)) return false;
+            if(t === 'normal' && m.esMerma)                return false;
+            if(t === 'merma'  && !m.esMerma)               return false;
+            if(ini && m.fechaEnvio < ini)                  return false;
+            if(fin && m.fechaEnvio > fin)                  return false;
             return true;
         });
         renderTable(f);
@@ -182,4 +181,5 @@
 
     renderTable(DATA);
 </script>
+}
 }
