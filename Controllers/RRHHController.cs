@@ -43,6 +43,7 @@ namespace RefrescosDelValle.Controllers
             var empleados = await query.Select(e => new EmpleadoViewModel
             {
                 EmpleadoID     = e.EmpleadoId, // <-- ID en mayúscula como en tu BD
+
                 NombreCompleto = e.Persona.Nombres + " " + e.Persona.ApellidoPat +
                                  (e.Persona.ApellidoMat != null ? " " + e.Persona.ApellidoMat : ""),
                 CI             = e.Persona.NumeroDocumento, 
@@ -55,9 +56,14 @@ namespace RefrescosDelValle.Controllers
             }).ToListAsync();
 
             ViewBag.Buscar             = buscar;
+
             ViewBag.TotalEmpleados     = await _context.Set<Empleado>().CountAsync();
             ViewBag.TotalActivos       = await _context.Set<Empleado>().CountAsync(e => e.Persona.Estado == "Activo");
             ViewBag.TotalDepartamentos = await _context.Set<DepartamentosEmpresa>().CountAsync(d => d.Activo);
+
+            ViewBag.TotalEmpleados     = await _context.Empleados.CountAsync();
+            ViewBag.TotalActivos       = await _context.Empleados.CountAsync(e => e.Persona.Estado == "Activo");
+            ViewBag.TotalDepartamentos = await _context.DepartamentosEmpresas.CountAsync(d => d.Activo);
 
             return View(empleados);
         }
@@ -147,6 +153,74 @@ namespace RefrescosDelValle.Controllers
             ViewBag.Planillas = await _context.Set<Planilla>().Where(p => p.EmpleadoId == id).ToListAsync();
 
             return View(empleado);
+        }
+
+        public async Task<IActionResult> EditarEmpleado(int id)
+        {
+            var empleado = await _context.Empleados
+                .Include(e => e.Persona)
+                .FirstOrDefaultAsync(e => e.EmpleadoId == id);
+
+            if (empleado == null) return NotFound();
+
+            var vm = new EditarEmpleadoViewModel
+            {
+                EmpleadoID      = empleado.EmpleadoId,
+                Nombres         = empleado.Persona.Nombres,
+                ApellidoPat     = empleado.Persona.ApellidoPat,
+                ApellidoMat     = empleado.Persona.ApellidoMat,
+                CI              = empleado.Persona.NumeroDocumento,
+                Correo          = empleado.Persona.CorreoPrincipal,
+                FechaNacimiento = empleado.Persona.FechaNacimiento,
+                CargoID         = empleado.CargoId,
+                DepartamentoID  = empleado.DepartamentoId,
+                SucursalID      = empleado.SucursalId,
+                Salario         = empleado.Salario,
+                FechaIngreso    = empleado.FechaIngreso
+            };
+
+            await CargarSelectLists();
+            return View(vm);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarEmpleado(int id, EditarEmpleadoViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                await CargarSelectLists();
+                return View(vm);
+            }
+
+            var empleado = await _context.Empleados
+                .Include(e => e.Persona)
+                .FirstOrDefaultAsync(e => e.EmpleadoId == id);
+
+            if (empleado == null) return NotFound();
+
+            if (await _context.Personas.AnyAsync(p => p.NumeroDocumento == vm.CI && p.PersonaId != empleado.PersonaId))
+            {
+                ModelState.AddModelError("CI", "Ya existe otra persona con ese CI.");
+                await CargarSelectLists();
+                return View(vm);
+            }
+
+            empleado.Persona.Nombres         = vm.Nombres;
+            empleado.Persona.ApellidoPat     = vm.ApellidoPat;
+            empleado.Persona.ApellidoMat     = vm.ApellidoMat;
+            empleado.Persona.NumeroDocumento = vm.CI;
+            empleado.Persona.CorreoPrincipal = vm.Correo;
+            empleado.Persona.FechaNacimiento = vm.FechaNacimiento;
+            empleado.CargoId                 = vm.CargoID;
+            empleado.DepartamentoId          = vm.DepartamentoID;
+            empleado.SucursalId              = vm.SucursalID;
+            empleado.Salario                 = vm.Salario;
+            empleado.FechaIngreso = vm.FechaIngreso ?? DateOnly.MinValue;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Exito"] = $"Empleado {vm.Nombres} {vm.ApellidoPat} actualizado correctamente.";
+            return RedirectToAction(nameof(Empleados));
         }
 
         [HttpPost, ValidateAntiForgeryToken]
@@ -386,7 +460,7 @@ namespace RefrescosDelValle.Controllers
                 })
                 .ToListAsync();
 
-            ViewBag.Empleados = new SelectList(empleados, "EmpleadoID", "Nombre");
+            ViewBag.Empleados = new SelectList(empleados, "EmpleadoId", "Nombre");
         }
     }
 }
