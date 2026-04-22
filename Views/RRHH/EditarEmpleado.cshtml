@@ -1,0 +1,129 @@
+@model RefrescosDelValle.Models.ViewModels.EditarEmpleadoViewModel
+@{
+    ViewData["Title"] = "Editar Empleado";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/modulos/rrhh.css" />
+}
+
+<div class="modulo-header">
+    <div class="modulo-header-info">
+        <a href="@Url.Action("Empleados", "RRHH")" class="btn-volver">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Volver a Empleados
+        </a>
+        <h1 class="modulo-title">Editar Empleado</h1>
+        <p class="modulo-subtitle">Modifica los datos del empleado</p>
+    </div>
+</div>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert-error">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <div>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div>@error.ErrorMessage</div>
+            }
+        </div>
+    </div>
+}
+
+<form method="post" asp-action="EditarEmpleado" asp-route-id="@Model.EmpleadoID">
+    @Html.AntiForgeryToken()
+
+    <div class="form-card">
+        <div class="form-section-title">Datos Personales</div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Nombres</label>
+                <input asp-for="Nombres" class="form-control-rrhh" placeholder="Nombres" />
+                <span asp-validation-for="Nombres" class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Apellido Paterno</label>
+                <input asp-for="ApellidoPat" class="form-control-rrhh" placeholder="Apellido paterno" />
+                <span asp-validation-for="ApellidoPat" class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Apellido Materno</label>
+                <input asp-for="ApellidoMat" class="form-control-rrhh" placeholder="Apellido materno (opcional)" />
+                <span asp-validation-for="ApellidoMat" class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">CI</label>
+                <input asp-for="CI" class="form-control-rrhh" placeholder="Número de CI" />
+                <span asp-validation-for="CI" class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Correo</label>
+                <input asp-for="Correo" type="email" class="form-control-rrhh" placeholder="correo@ejemplo.com" />
+                <span asp-validation-for="Correo" class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Fecha de Nacimiento</label>
+                <input asp-for="FechaNacimiento" type="date" class="form-control-rrhh" />
+                <span asp-validation-for="FechaNacimiento" class="form-error"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <div class="form-section-title">Datos Laborales</div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Cargo</label>
+                <select asp-for="CargoID" asp-items="ViewBag.Cargos" class="form-control-rrhh">
+                    <option value="">-- Seleccionar cargo --</option>
+                </select>
+                <span asp-validation-for="CargoID" class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Departamento</label>
+                <select asp-for="DepartamentoID" asp-items="ViewBag.Departamentos" class="form-control-rrhh">
+                    <option value="">-- Seleccionar departamento --</option>
+                </select>
+                <span asp-validation-for="DepartamentoID" class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Sucursal</label>
+                <select asp-for="SucursalID" asp-items="ViewBag.Sucursales" class="form-control-rrhh">
+                    <option value="">-- Seleccionar sucursal --</option>
+                </select>
+                <span asp-validation-for="SucursalID" class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Salario (Bs.)</label>
+                <input asp-for="Salario" type="number" step="0.01" class="form-control-rrhh" placeholder="0.00" />
+                <span asp-validation-for="Salario" class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Fecha de Ingreso</label>
+                <input asp-for="FechaIngreso" type="date" class="form-control-rrhh" />
+                <span asp-validation-for="FechaIngreso" class="form-error"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a href="@Url.Action("Empleados", "RRHH")" class="btn-cancelar">Cancelar</a>
+        <button type="submit" class="btn-primary-rrhh">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
+                <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Guardar Cambios
+        </button>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

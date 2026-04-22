@@ -13,12 +13,11 @@ namespace RefrescosDelValle.Models.ViewModels
         public string Estado { get; set; } = "";
         public decimal Salario { get; set; }
         public DateOnly FechaIngreso { get; set; }
-        public string? Correo { get; set; }   // mapea a CorreoPrincipal
+        public string? Correo { get; set; }
     }
 
     public class CrearEmpleadoViewModel
     {
-        // Datos Persona
         [Required(ErrorMessage = "El nombre es obligatorio")]
         [MaxLength(100)]
         public string Nombres { get; set; } = null!;
@@ -37,9 +36,8 @@ namespace RefrescosDelValle.Models.ViewModels
 
         [EmailAddress(ErrorMessage = "Correo inválido")]
         [MaxLength(150)]
-        public string? Correo { get; set; }   // se guarda en CorreoPrincipal
+        public string? Correo { get; set; }
 
-        // Datos Empleado
         [Required(ErrorMessage = "El cargo es obligatorio")]
         public int CargoID { get; set; }
 
@@ -58,6 +56,47 @@ namespace RefrescosDelValle.Models.ViewModels
         [Required(ErrorMessage = "El salario es obligatorio")]
         [Range(0, 99999999, ErrorMessage = "Salario inválido")]
         public decimal Salario { get; set; }
+    }
+
+    public class EditarEmpleadoViewModel
+    {
+        public int EmpleadoID { get; set; }
+
+        [Required(ErrorMessage = "El nombre es obligatorio")]
+        [MaxLength(100)]
+        public string Nombres { get; set; } = "";
+
+        [Required(ErrorMessage = "El apellido paterno es obligatorio")]
+        [MaxLength(50)]
+        public string ApellidoPat { get; set; } = "";
+
+        [MaxLength(50)]
+        public string? ApellidoMat { get; set; }
+
+        [Required(ErrorMessage = "El CI es obligatorio")]
+        [MaxLength(20)]
+        public string CI { get; set; } = "";
+
+        [EmailAddress(ErrorMessage = "Correo inválido")]
+        [MaxLength(150)]
+        public string? Correo { get; set; }
+
+        public DateOnly? FechaNacimiento { get; set; }
+
+        [Required(ErrorMessage = "El cargo es obligatorio")]
+        public int CargoID { get; set; }
+
+        [Required(ErrorMessage = "El departamento es obligatorio")]
+        public int DepartamentoID { get; set; }
+
+        [Required(ErrorMessage = "La sucursal es obligatoria")]
+        public int SucursalID { get; set; }
+
+        [Required(ErrorMessage = "El salario es obligatorio")]
+        [Range(0, 99999999, ErrorMessage = "Salario inválido")]
+        public decimal Salario { get; set; }
+
+        public DateOnly? FechaIngreso { get; set; }
     }
 
     // ─── Asistencia ───────────────────────────────────────────────

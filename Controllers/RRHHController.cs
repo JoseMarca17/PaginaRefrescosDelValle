@@ -2,14 +2,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using RefrescosDelValle.Data;
-using RefrescosDelValle.Models.Entities;
+using RefrescosDelValle.Models.Entities; 
 using RefrescosDelValle.Models.ViewModels;
 
 namespace RefrescosDelValle.Controllers
 {
     [Authorize(Roles = "SuperAdmin,AdminRRHH")]
-    public class RRHHController : BaseController
+    public class RRHHController : Controller 
     {
         private readonly AppDbContext _context;
 
@@ -36,29 +35,29 @@ namespace RefrescosDelValle.Controllers
                 query = query.Where(e =>
                     e.Persona.Nombres.ToLower().Contains(buscar) ||
                     e.Persona.ApellidoPat.ToLower().Contains(buscar) ||
-                    e.Persona.CI.Contains(buscar) ||
+                    e.Persona.NumeroDocumento.Contains(buscar) || 
                     e.Cargo.NombreCargo.ToLower().Contains(buscar) ||
                     e.Departamento.NombreDepartamento.ToLower().Contains(buscar));
             }
 
             var empleados = await query.Select(e => new EmpleadoViewModel
             {
-                EmpleadoID     = e.EmpleadoID,
+                EmpleadoID     = e.EmpleadoId,
                 NombreCompleto = e.Persona.Nombres + " " + e.Persona.ApellidoPat +
                                  (e.Persona.ApellidoMat != null ? " " + e.Persona.ApellidoMat : ""),
-                CI             = e.Persona.CI,
+                CI             = e.Persona.NumeroDocumento, 
                 Cargo          = e.Cargo.NombreCargo,
                 Departamento   = e.Departamento.NombreDepartamento,
-                Estado         = e.Estado,
+                Estado         = e.Persona.Estado,
                 Salario        = e.Salario,
                 FechaIngreso   = e.FechaIngreso,
-                Correo         = e.Persona.CorreoPrincipal   // corregido
+                Correo         = e.Persona.CorreoPrincipal
             }).ToListAsync();
 
             ViewBag.Buscar             = buscar;
             ViewBag.TotalEmpleados     = await _context.Empleados.CountAsync();
-            ViewBag.TotalActivos       = await _context.Empleados.CountAsync(e => e.Estado == "Activo");
-            ViewBag.TotalDepartamentos = await _context.DepartamentosEmpresa.CountAsync(d => d.Activo);
+            ViewBag.TotalActivos       = await _context.Empleados.CountAsync(e => e.Persona.Estado == "Activo");
+            ViewBag.TotalDepartamentos = await _context.DepartamentosEmpresas.CountAsync(d => d.Activo);
 
             return View(empleados);
         }
@@ -78,45 +77,60 @@ namespace RefrescosDelValle.Controllers
                 return View(vm);
             }
 
-            // Verificar CI único
-            if (await _context.Personas.AnyAsync(p => p.CI == vm.CI))
+            if (await _context.Personas.AnyAsync(p => p.NumeroDocumento == vm.CI))
             {
                 ModelState.AddModelError("CI", "Ya existe una persona registrada con ese CI.");
                 await CargarSelectLists();
                 return View(vm);
             }
 
-            // Crear Persona — solo con los campos que existen en el modelo
-            var persona = new Persona
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                Nombres          = vm.Nombres,
-                ApellidoPat      = vm.ApellidoPat,
-                ApellidoMat      = vm.ApellidoMat,
-                CI               = vm.CI,
-                CorreoPrincipal  = vm.Correo,   // corregido
-                Estado           = "Activo",
-                FechaRegistro    = DateTime.Now
-            };
-            _context.Personas.Add(persona);
-            await _context.SaveChangesAsync();
+                var tipoDocCI       = await _context.DominioValors.FirstOrDefaultAsync(d => d.DominioTipoId == 10 && d.Descripcion == "Carnet de Identidad");
+                var sexoIndet       = await _context.DominioValors.FirstOrDefaultAsync(d => d.DominioTipoId == 1  && d.Descripcion == "Indeterminado");
+                var estadoEmpActivo = await _context.DominioValors.FirstOrDefaultAsync(d => d.DominioTipoId == 20 && d.Descripcion == "Activo");
 
-            // Crear Empleado
-            var empleado = new Empleado
+                var persona = new Persona
+                {
+                    Nombres         = vm.Nombres,
+                    ApellidoPat     = vm.ApellidoPat,
+                    ApellidoMat     = vm.ApellidoMat,
+                    NumeroDocumento = vm.CI,
+                    TipoDocumentoId = tipoDocCI?.DominioValorId ?? 1,
+                    SexoId          = sexoIndet?.DominioValorId ?? 1,
+                    CorreoPrincipal = vm.Correo,
+                    Estado          = "Activo",
+                    FechaNacimiento = vm.FechaNacimiento 
+                };
+                _context.Personas.Add(persona);
+                await _context.SaveChangesAsync();
+
+                var empleado = new Empleado
+                {
+                    PersonaId        = persona.PersonaId,
+                    CargoId          = vm.CargoID,
+                    DepartamentoId   = vm.DepartamentoID,
+                    SucursalId       = vm.SucursalID,
+                    FechaIngreso     = vm.FechaIngreso,
+                    Salario          = vm.Salario,
+                    EstadoEmpleadoId = estadoEmpActivo?.DominioValorId ?? 1
+                };
+                _context.Empleados.Add(empleado);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                TempData["Exito"] = $"Empleado {persona.Nombres} {persona.ApellidoPat} registrado correctamente.";
+                return RedirectToAction(nameof(Empleados));
+            }
+            catch (Exception ex)
             {
-                PersonaID       = persona.PersonaID,
-                CargoID         = vm.CargoID,
-                DepartamentoID  = vm.DepartamentoID,
-                SucursalID      = vm.SucursalID,
-                FechaNacimiento = vm.FechaNacimiento,
-                FechaIngreso    = vm.FechaIngreso,
-                Salario         = vm.Salario,
-                Estado          = "Activo"
-            };
-            _context.Empleados.Add(empleado);
-            await _context.SaveChangesAsync();
-
-            TempData["Exito"] = $"Empleado {persona.Nombres} {persona.ApellidoPat} registrado correctamente.";
-            return RedirectToAction(nameof(Empleados));
+                await transaction.RollbackAsync();
+                ModelState.AddModelError("", "Error al registrar: " + ex.Message);
+                await CargarSelectLists();
+                return View(vm);
+            }
         }
 
         public async Task<IActionResult> DetalleEmpleado(int id)
@@ -125,24 +139,98 @@ namespace RefrescosDelValle.Controllers
                 .Include(e => e.Persona)
                 .Include(e => e.Cargo)
                 .Include(e => e.Departamento)
-                .Include(e => e.Asistencias)
-                .Include(e => e.Planillas)
-                .FirstOrDefaultAsync(e => e.EmpleadoID == id);
+                .FirstOrDefaultAsync(e => e.EmpleadoId == id);
 
             if (empleado == null) return NotFound();
+
+            ViewBag.Asistencias = await _context.Asistencia
+                .Where(a => a.EmpleadoId == id).Take(10).ToListAsync();
+            ViewBag.Planillas   = await _context.Planillas
+                .Where(p => p.EmpleadoId == id).ToListAsync();
+
             return View(empleado);
+        }
+
+        public async Task<IActionResult> EditarEmpleado(int id)
+        {
+            var empleado = await _context.Empleados
+                .Include(e => e.Persona)
+                .FirstOrDefaultAsync(e => e.EmpleadoId == id);
+
+            if (empleado == null) return NotFound();
+
+            var vm = new EditarEmpleadoViewModel
+            {
+                EmpleadoID      = empleado.EmpleadoId,
+                Nombres         = empleado.Persona.Nombres,
+                ApellidoPat     = empleado.Persona.ApellidoPat,
+                ApellidoMat     = empleado.Persona.ApellidoMat,
+                CI              = empleado.Persona.NumeroDocumento,
+                Correo          = empleado.Persona.CorreoPrincipal,
+                FechaNacimiento = empleado.Persona.FechaNacimiento,
+                CargoID         = empleado.CargoId,
+                DepartamentoID  = empleado.DepartamentoId,
+                SucursalID      = empleado.SucursalId,
+                Salario         = empleado.Salario,
+                FechaIngreso    = empleado.FechaIngreso
+            };
+
+            await CargarSelectLists();
+            return View(vm);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarEmpleado(int id, EditarEmpleadoViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                await CargarSelectLists();
+                return View(vm);
+            }
+
+            var empleado = await _context.Empleados
+                .Include(e => e.Persona)
+                .FirstOrDefaultAsync(e => e.EmpleadoId == id);
+
+            if (empleado == null) return NotFound();
+
+            if (await _context.Personas.AnyAsync(p => p.NumeroDocumento == vm.CI && p.PersonaId != empleado.PersonaId))
+            {
+                ModelState.AddModelError("CI", "Ya existe otra persona con ese CI.");
+                await CargarSelectLists();
+                return View(vm);
+            }
+
+            empleado.Persona.Nombres         = vm.Nombres;
+            empleado.Persona.ApellidoPat     = vm.ApellidoPat;
+            empleado.Persona.ApellidoMat     = vm.ApellidoMat;
+            empleado.Persona.NumeroDocumento = vm.CI;
+            empleado.Persona.CorreoPrincipal = vm.Correo;
+            empleado.Persona.FechaNacimiento = vm.FechaNacimiento;
+            empleado.CargoId                 = vm.CargoID;
+            empleado.DepartamentoId          = vm.DepartamentoID;
+            empleado.SucursalId              = vm.SucursalID;
+            empleado.Salario                 = vm.Salario;
+            empleado.FechaIngreso = vm.FechaIngreso ?? DateOnly.MinValue;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Exito"] = $"Empleado {vm.Nombres} {vm.ApellidoPat} actualizado correctamente.";
+            return RedirectToAction(nameof(Empleados));
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleEstadoEmpleado(int id)
         {
-            var empleado = await _context.Empleados.FindAsync(id);
+            var empleado = await _context.Empleados
+                .Include(e => e.Persona)
+                .FirstOrDefaultAsync(e => e.EmpleadoId == id);
             if (empleado == null) return NotFound();
 
-            empleado.Estado = empleado.Estado == "Activo" ? "Inactivo" : "Activo";
+            empleado.Persona.Estado = empleado.Persona.Estado == "Activo" ? "Baja" : "Activo";
             await _context.SaveChangesAsync();
 
-            TempData["Exito"] = $"Estado del empleado actualizado a {empleado.Estado}.";
+            TempData["Exito"] = $"Estado del empleado actualizado a {empleado.Persona.Estado}.";
             return RedirectToAction(nameof(Empleados));
         }
 
@@ -154,9 +242,8 @@ namespace RefrescosDelValle.Controllers
         {
             var fechaFiltro = fecha ?? DateOnly.FromDateTime(DateTime.Today);
 
-            var query = _context.Asistencias
+            var query = _context.Asistencia
                 .Include(a => a.Empleado).ThenInclude(e => e.Persona)
-                .Where(a => a.Fecha == fechaFiltro)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(buscar))
@@ -167,17 +254,25 @@ namespace RefrescosDelValle.Controllers
                     a.Empleado.Persona.ApellidoPat.ToLower().Contains(buscar));
             }
 
-            var lista = await query.Select(a => new AsistenciaViewModel
-            {
-                AsistenciaID   = a.AsistenciaID,
-                NombreEmpleado = a.Empleado.Persona.Nombres + " " + a.Empleado.Persona.ApellidoPat,
-                Fecha          = a.Fecha,
-                HoraEntrada    = a.HoraEntrada,
-                HoraSalida     = a.HoraSalida,
-                Estado         = a.Estado,
-                Justificado    = a.Justificado,
-                Observaciones  = a.Observaciones
-            }).ToListAsync();
+            var dominios = await _context.DominioValors
+                .Where(d => d.DominioTipoId == 21)
+                .ToDictionaryAsync(d => d.DominioValorId, d => d.Descripcion);
+
+            var listaResultados = await query.ToListAsync();
+
+            var lista = listaResultados
+                .Where(a => a.Fecha.ToString("yyyy-MM-dd") == fechaFiltro.ToString("yyyy-MM-dd"))
+                .Select(a => new AsistenciaViewModel
+                {
+                    AsistenciaID   = a.AsistenciaId,
+                    NombreEmpleado = a.Empleado.Persona.Nombres + " " + a.Empleado.Persona.ApellidoPat,
+                    Fecha          = a.Fecha,
+                    HoraEntrada    = a.HoraEntrada,
+                    HoraSalida     = a.HoraSalida,
+                    Estado         = dominios.ContainsKey(a.EstadoAsistenciaId) ? dominios[a.EstadoAsistenciaId] : "Desconocido",
+                    Justificado    = a.Justificado,
+                    Observaciones  = a.Observaciones
+                }).ToList();
 
             ViewBag.FechaFiltro = fechaFiltro;
             ViewBag.Buscar      = buscar;
@@ -203,24 +298,27 @@ namespace RefrescosDelValle.Controllers
                 return View(vm);
             }
 
-            if (await _context.Asistencias.AnyAsync(a => a.EmpleadoID == vm.EmpleadoID && a.Fecha == vm.Fecha))
+            if (await _context.Asistencia.AnyAsync(a => a.EmpleadoId == vm.EmpleadoID && a.Fecha == vm.Fecha))
             {
                 ModelState.AddModelError("", "Ya existe un registro de asistencia para este empleado en esa fecha.");
                 await CargarEmpleadosSelect();
                 return View(vm);
             }
 
-            var asistencia = new Asistencia
+            var estadoDom = await _context.DominioValors
+                .FirstOrDefaultAsync(d => d.DominioTipoId == 21 && d.Descripcion == vm.Estado);
+
+            var asistencia = new Asistencium
             {
-                EmpleadoID    = vm.EmpleadoID,
-                Fecha         = vm.Fecha,
-                HoraEntrada   = vm.HoraEntrada,
-                HoraSalida    = vm.HoraSalida,
-                Estado        = vm.Estado,
-                Observaciones = vm.Observaciones,
-                Justificado   = vm.Justificado
+                EmpleadoId         = vm.EmpleadoID,
+                Fecha              = vm.Fecha,
+                HoraEntrada        = vm.HoraEntrada,
+                HoraSalida         = vm.HoraSalida,
+                EstadoAsistenciaId = estadoDom?.DominioValorId ?? 1,
+                Observaciones      = vm.Observaciones,
+                Justificado        = vm.Justificado
             };
-            _context.Asistencias.Add(asistencia);
+            _context.Asistencia.Add(asistencia);
             await _context.SaveChangesAsync();
 
             TempData["Exito"] = "Asistencia registrada correctamente.";
@@ -242,7 +340,7 @@ namespace RefrescosDelValle.Controllers
                 .Where(p => p.Anio == anioFiltro && p.Mes == mesFiltro)
                 .Select(p => new PlanillaViewModel
                 {
-                    PlanillaID     = p.PlanillaID,
+                    PlanillaID     = p.PlanillaId,
                     NombreEmpleado = p.Empleado.Persona.Nombres + " " + p.Empleado.Persona.ApellidoPat,
                     Cargo          = p.Empleado.Cargo.NombreCargo,
                     Mes            = p.Mes,
@@ -250,7 +348,7 @@ namespace RefrescosDelValle.Controllers
                     HaberBasico    = p.HaberBasico,
                     Bonos          = p.Bonos,
                     Descuentos     = p.Descuentos,
-                    TotalLiquido   = p.TotalLiquido,
+                    TotalLiquido   = p.TotalLiquido ?? 0,
                     Pagado         = p.Pagado,
                     FechaPago      = p.FechaPago
                 }).ToListAsync();
@@ -280,7 +378,7 @@ namespace RefrescosDelValle.Controllers
                 return View(vm);
             }
 
-            if (await _context.Planillas.AnyAsync(p => p.EmpleadoID == vm.EmpleadoID && p.Mes == vm.Mes && p.Anio == vm.Anio))
+            if (await _context.Planillas.AnyAsync(p => p.EmpleadoId == vm.EmpleadoID && p.Mes == vm.Mes && p.Anio == vm.Anio))
             {
                 ModelState.AddModelError("", "Ya existe planilla para este empleado en ese mes/año.");
                 await CargarEmpleadosSelect();
@@ -289,7 +387,7 @@ namespace RefrescosDelValle.Controllers
 
             var planilla = new Planilla
             {
-                EmpleadoID  = vm.EmpleadoID,
+                EmpleadoId  = vm.EmpleadoID,
                 Mes         = vm.Mes,
                 Anio        = vm.Anio,
                 HaberBasico = vm.HaberBasico,
@@ -302,10 +400,10 @@ namespace RefrescosDelValle.Controllers
 
             var detalle = new PlanillaDetalle
             {
-                PlanillaID = planilla.PlanillaID,
-                AFP        = vm.AFP,
-                RC_IVA     = vm.RC_IVA,
-                CNS        = vm.CNS
+                PlanillaId = planilla.PlanillaId,
+                Afp        = vm.AFP,
+                RcIva      = vm.RC_IVA,
+                Cns        = vm.CNS
             };
             _context.PlanillaDetalles.Add(detalle);
             await _context.SaveChangesAsync();
@@ -335,31 +433,34 @@ namespace RefrescosDelValle.Controllers
         private async Task CargarSelectLists()
         {
             ViewBag.Cargos = new SelectList(
-                await _context.Cargos.Where(c => c.Activo).OrderBy(c => c.NombreCargo).ToListAsync(),
-                "CargoID", "NombreCargo");
+                await _context.Cargos
+                    .Where(c => c.Activo).OrderBy(c => c.NombreCargo).ToListAsync(),
+                "CargoId", "NombreCargo");
 
             ViewBag.Departamentos = new SelectList(
-                await _context.DepartamentosEmpresa.Where(d => d.Activo).OrderBy(d => d.NombreDepartamento).ToListAsync(),
-                "DepartamentoID", "NombreDepartamento");
+                await _context.DepartamentosEmpresas
+                    .Where(d => d.Activo).OrderBy(d => d.NombreDepartamento).ToListAsync(),
+                "DepartamentoId", "NombreDepartamento");
 
             ViewBag.Sucursales = new SelectList(
-                await _context.Sucursales.Where(s => s.Activo).OrderBy(s => s.NombreSucursal).ToListAsync(),
-                "SucursalID", "NombreSucursal");
+                await _context.Sucursales
+                    .Where(s => s.Activo).OrderBy(s => s.NombreSucursal).ToListAsync(),
+                "SucursalId", "NombreSucursal");
         }
 
         private async Task CargarEmpleadosSelect()
         {
             var empleados = await _context.Empleados
                 .Include(e => e.Persona)
-                .Where(e => e.Estado == "Activo")
+                .Where(e => e.Persona.Estado == "Activo")
                 .OrderBy(e => e.Persona.ApellidoPat)
                 .Select(e => new {
-                    e.EmpleadoID,
+                    e.EmpleadoId,
                     Nombre = e.Persona.Nombres + " " + e.Persona.ApellidoPat
                 })
                 .ToListAsync();
 
-            ViewBag.Empleados = new SelectList(empleados, "EmpleadoID", "Nombre");
+            ViewBag.Empleados = new SelectList(empleados, "EmpleadoId", "Nombre");
         }
     }
 }
