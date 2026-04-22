@@ -44,6 +44,111 @@ namespace RefrescosDelValle.Controllers
             return View(usuarios);
         }
 
+        // ══════════════════════════════════════════════════════════
+// EDITAR USUARIO
+// ══════════════════════════════════════════════════════════
+
+// GET: /Seguridad/EditarUsuario/5
+public async Task<IActionResult> EditarUsuario(int id)
+{
+    var usuario = await _db.Usuarios
+        .Include(u => u.Persona)
+        .Include(u => u.UsuariosRoles)
+        .FirstOrDefaultAsync(u => u.UsuarioId == id);
+
+    if (usuario == null) return NotFound();
+
+    var vm = new EditarUsuarioViewModel
+    {
+        UsuarioId      = usuario.UsuarioId,
+        Nombres        = usuario.Persona.Nombres,
+        ApellidoPat    = usuario.Persona.ApellidoPat,
+        ApellidoMat    = usuario.Persona.ApellidoMat,
+        CorreoPrincipal= usuario.Persona.CorreoPrincipal,
+        TelefonoPrincipal = usuario.Persona.TelefonoPrincipal,
+        NombreUsuario  = usuario.NombreUsuario,
+        Activo         = usuario.Activo,
+        RolesSeleccionados = usuario.UsuariosRoles.Select(ur => ur.RolId).ToList(),
+        Iniciales      = (usuario.Persona.Nombres.Substring(0,1) + usuario.Persona.ApellidoPat.Substring(0,1)).ToUpper()
+    };
+
+    ViewBag.RolesDisponibles = await _db.Roles
+        .Where(r => r.Activo)
+        .ToListAsync();
+
+    return View(vm);
+}
+
+// POST: /Seguridad/EditarUsuario/5
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> EditarUsuario(EditarUsuarioViewModel vm)
+{
+    if (!ModelState.IsValid)
+    {
+        ViewBag.RolesDisponibles = await _db.Roles.Where(r => r.Activo).ToListAsync();
+        return View(vm);
+    }
+
+    var usuario = await _db.Usuarios
+        .Include(u => u.Persona)
+        .Include(u => u.UsuariosRoles)
+        .FirstOrDefaultAsync(u => u.UsuarioId == vm.UsuarioId);
+
+    if (usuario == null) return NotFound();
+
+    // Actualizar Persona
+    usuario.Persona.Nombres         = vm.Nombres;
+    usuario.Persona.ApellidoPat     = vm.ApellidoPat;
+    usuario.Persona.ApellidoMat     = vm.ApellidoMat;
+    usuario.Persona.CorreoPrincipal = vm.CorreoPrincipal;
+    usuario.Persona.TelefonoPrincipal = vm.TelefonoPrincipal;
+
+    // Actualizar Usuario
+    usuario.NombreUsuario = vm.NombreUsuario;
+    usuario.Activo        = vm.Activo;
+
+    // Cambiar contraseña solo si viene algo
+    if (!string.IsNullOrWhiteSpace(vm.NuevaContrasena))
+        usuario.Contrasena = BCrypt.Net.BCrypt.HashPassword(vm.NuevaContrasena);
+
+    // Reemplazar roles
+    _db.UsuariosRoles.RemoveRange(usuario.UsuariosRoles);
+    foreach (var rolId in vm.RolesSeleccionados)
+    {
+        _db.UsuariosRoles.Add(new UsuariosRole
+        {
+            UsuarioId = usuario.UsuarioId,
+            RolId     = rolId
+        });
+    }
+
+    await _db.SaveChangesAsync();
+    TempData["SuccessMsg"] = $"Usuario {usuario.NombreUsuario} actualizado correctamente.";
+    return RedirectToAction(nameof(DirectorioUsuarios));
+}
+
+// ══════════════════════════════════════════════════════════
+// DESACTIVAR / REACTIVAR USUARIO
+// ══════════════════════════════════════════════════════════
+
+// POST: /Seguridad/ToggleUsuario/5
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> ToggleUsuario(int id)
+{
+    var usuario = await _db.Usuarios.FindAsync(id);
+    if (usuario == null) return NotFound();
+
+    usuario.Activo = !usuario.Activo;
+    await _db.SaveChangesAsync();
+
+    var estado = usuario.Activo ? "reactivado" : "desactivado";
+    TempData["SuccessMsg"] = $"Usuario {usuario.NombreUsuario} {estado} correctamente.";
+    return RedirectToAction(nameof(DirectorioUsuarios));
+}
+
+
         public async Task<IActionResult> Auditoria()
         {
             var logs = await _db.BitacoraAcciones
@@ -63,7 +168,67 @@ namespace RefrescosDelValle.Controllers
             return View(logs);
         }
 
-        public IActionResult Roles() => View();
+        public async Task<IActionResult> Roles()
+{
+    var roles = await _db.Roles
+        .Include(r => r.RolesPermisos)
+            .ThenInclude(rp => rp.Permiso)
+        .Include(r => r.RolesMenus)
+            .ThenInclude(rm => rm.Menu)
+        .OrderBy(r => r.RolId)
+        .ToListAsync();
+
+    return View(roles);
+}
+// GET: /Seguridad/RolCreate
+public async Task<IActionResult> RolCreate()
+{
+    ViewBag.Permisos = await _db.Permisos
+        .Where(p => p.Activo)
+        .OrderBy(p => p.Modulo)
+        .ThenBy(p => p.Accion)
+        .ToListAsync();
+
+    return View();
+}
+
+// POST: /Seguridad/RolCreate
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> RolCreate(Role rol, int[] permisosSeleccionados)
+{
+    if (ModelState.IsValid)
+    {
+        rol.FechaCreacion = DateTime.Now;
+        rol.Activo = true;
+        _db.Roles.Add(rol);
+        await _db.SaveChangesAsync();
+
+        if (permisosSeleccionados != null && permisosSeleccionados.Length > 0)
+        {
+            foreach (var permisoId in permisosSeleccionados)
+            {
+                _db.RolesPermisos.Add(new RolesPermiso
+                {
+                    RolId = rol.RolId,
+                    PermisoId = permisoId,
+                    FechaAsignacion = DateTime.Now
+                });
+            }
+            await _db.SaveChangesAsync();
+        }
+
+        TempData["Success"] = $"Rol '{rol.NombreRol}' creado exitosamente.";
+        return RedirectToAction("Roles");
+    }
+
+    ViewBag.Permisos = await _db.Permisos
+        .Where(p => p.Activo)
+        .OrderBy(p => p.Modulo)
+        .ToListAsync();
+
+    return View(rol);
+}
         public async Task<IActionResult> Sesiones()
 {
     // Obtenemos las sesiones que no han sido cerradas (Activa = true)
@@ -75,7 +240,106 @@ namespace RefrescosDelValle.Controllers
 
     return View(sesionesActivas);
 }
+// ══════════════════════════════════════════════════════════
+// AÑADIR ESTAS ACCIONES AL SeguridadController
+// (o crear un GeoController separado con la misma estructura)
+// ══════════════════════════════════════════════════════════
 
+// GET: /Seguridad/Sucursales
+public async Task<IActionResult> Sucursales()
+{
+    var sucursales = await _db.Sucursales
+        .Include(s => s.Ciudad)
+            .ThenInclude(c => c.DepartamentoGeo)
+        .OrderBy(s => s.Ciudad.DepartamentoGeo.NombreDpto)
+        .ThenBy(s => s.Ciudad.NombreCiudad)
+        .ThenBy(s => s.NombreSucursal)
+        .ToListAsync();
+
+    var departamentos = await _db.Departamentos
+        .Include(d => d.Ciudades)
+            .ThenInclude(c => c.Sucursales)
+        .Include(d => d.Ciudades)
+            .ThenInclude(c => c.Zonas)
+        .OrderBy(d => d.NombreDpto)
+        .ToListAsync();
+
+    var vm = new GeoResumenViewModel
+    {
+        TotalSucursales   = sucursales.Count,
+        TotalActivas      = sucursales.Count(s => s.Activo),
+        TotalCiudades     = sucursales.Select(s => s.CiudadId).Distinct().Count(),
+        TotalDepartamentos = departamentos.Count,
+        Sucursales = sucursales.Select(s => new SucursalItemViewModel
+        {
+            SucursalId       = s.SucursalId,
+            NombreSucursal   = s.NombreSucursal,
+            Direccion        = s.Direccion,
+            Telefono         = s.Telefono,
+            Activo           = s.Activo,
+            FechaCreacion    = s.FechaCreacion,
+            NombreCiudad     = s.Ciudad.NombreCiudad,
+            NombreDepartamento = s.Ciudad.DepartamentoGeo.NombreDpto,
+            TotalEmpleados   = s.UsuariosSucursales != null ? s.UsuariosSucursales.Count : 0
+        }).ToList(),
+        Departamentos = departamentos.Select(d => new DepartamentoResumenViewModel
+        {
+            DepartamentoGeoId = d.DepartamentoGeoId,
+            NombreDpto        = d.NombreDpto,
+            Ciudades = d.Ciudades.Select(c => new CiudadResumenViewModel
+            {
+                CiudadId        = c.CiudadId,
+                NombreCiudad    = c.NombreCiudad,
+                TotalSucursales = c.Sucursales.Count,
+                TotalZonas      = c.Zonas.Count
+            }).OrderBy(c => c.NombreCiudad).ToList()
+        }).ToList()
+    };
+
+    return View(vm);
+}
+
+// POST: /Seguridad/CrearSucursal
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> CrearSucursal(CrearSucursalViewModel model)
+{
+    if (!ModelState.IsValid)
+    {
+        TempData["ErrorMsg"] = "Datos inválidos. Verifica el formulario.";
+        return RedirectToAction(nameof(Sucursales));
+    }
+
+    _db.Sucursales.Add(new Sucursale
+    {
+        NombreSucursal = model.NombreSucursal,
+        CiudadId       = model.CiudadId,
+        Direccion      = model.Direccion,
+        Telefono       = model.Telefono,
+        Activo         = true,
+        FechaCreacion  = DateTime.Now
+    });
+
+    await _db.SaveChangesAsync();
+    TempData["SuccessMsg"] = $"Sucursal '{model.NombreSucursal}' creada correctamente.";
+    return RedirectToAction(nameof(Sucursales));
+}
+
+// POST: /Seguridad/ToggleSucursal/5
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> ToggleSucursal(int id)
+{
+    var sucursal = await _db.Sucursales.FindAsync(id);
+    if (sucursal == null) return NotFound();
+
+    sucursal.Activo = !sucursal.Activo;
+    await _db.SaveChangesAsync();
+
+    var estado = sucursal.Activo ? "reactivada" : "desactivada";
+    TempData["SuccessMsg"] = $"Sucursal '{sucursal.NombreSucursal}' {estado}.";
+    return RedirectToAction(nameof(Sucursales));
+}
         // ══════════════════════════════════════════════════════════
         // REGISTRO DE PERSONAL (OPERADORES)
         // ══════════════════════════════════════════════════════════

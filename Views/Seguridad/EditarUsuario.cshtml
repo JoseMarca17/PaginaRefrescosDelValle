@@ -1,0 +1,204 @@
+@model RefrescosDelValle.Models.ViewModels.EditarUsuarioViewModel
+@{
+    ViewData["Title"] = "Editar Usuario";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var rolesDisponibles = ViewBag.RolesDisponibles as List<RefrescosDelValle.Models.Entities.Role> ?? new();
+}
+
+@section Styles {
+    <style>
+        .form-container { max-width: 860px; margin: 0 auto; padding: 6rem 2rem; position: relative; z-index: 2; }
+
+        .breadcrumb { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem; font-size: 0.82rem; color: #6b7280; }
+        .breadcrumb a { color: #e55a4e; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb span { color: #3a2525; }
+
+        .page-header { margin-bottom: 2.5rem; border-left: 4px solid #d82c20; padding-left: 1.5rem; display: flex; align-items: center; gap: 1.5rem; }
+        .page-title  { font-family: 'Playfair Display', serif; font-size: 2rem; color: #ffffff; }
+
+        .avatar-big { width: 60px; height: 60px; background: #7a1a10; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; font-weight: bold; color: #fff; flex-shrink: 0; }
+
+        .form-card { background: #050202; border: 1px solid #3a2525; border-radius: 12px; padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); margin-bottom: 1.5rem; }
+        .card-section-title { font-family: monospace; text-transform: uppercase; font-size: 0.75rem;
+            color: #e55a4e; letter-spacing: 0.1em; margin-bottom: 1.2rem;
+            padding-bottom: 0.6rem; border-bottom: 1px solid #1a0f0f; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+        .form-grid .full { grid-column: 1 / -1; }
+
+        .form-group { margin-bottom: 0; }
+        .form-label { display: block; font-size: 0.82rem; color: #9ca3af; margin-bottom: 0.45rem; font-weight: 600; }
+        .form-label span { color: #e55a4e; }
+
+        .form-control {
+            width: 100%; background: #0d0606; border: 1px solid #3a2525; border-radius: 8px;
+            color: #ffffff; padding: 0.75rem 1rem; font-size: 0.9rem; outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box;
+        }
+        .form-control:focus { border-color: #d82c20; box-shadow: 0 0 0 3px rgba(216,44,32,0.15); }
+        .form-control::placeholder { color: #4b5563; }
+        .field-hint  { font-size: 0.75rem; color: #4b5563; margin-top: 0.3rem; }
+        .text-danger { color: #e74c3c; font-size: 0.78rem; margin-top: 0.3rem; display: block; }
+
+        /* Toggle */
+        .toggle-group { display: flex; align-items: center; gap: 0.8rem; margin-top: 0.45rem; }
+        .toggle-switch { position: relative; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: #3a2525; border-radius: 24px; transition: 0.3s; }
+        .toggle-slider:before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+        .toggle-switch input:checked + .toggle-slider { background: #d82c20; }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+        .toggle-label { color: #9ca3af; font-size: 0.85rem; }
+
+        /* Roles chips */
+        .roles-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.45rem; }
+        .rol-item input[type="checkbox"] { display: none; }
+        .rol-chip {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.82rem;
+            cursor: pointer; transition: all 0.2s; user-select: none;
+            border: 1px solid #3a2525; background: #0d0606; color: #6b7280;
+        }
+        .rol-chip:hover { border-color: #d82c20; color: #fff; }
+        .rol-item input:checked + .rol-chip { background: rgba(216,44,32,0.15); border-color: #d82c20; color: #fff; }
+        .chip-check { opacity: 0; transition: opacity 0.15s; color: #2ecc71; font-size: 0.65rem; }
+        .rol-item input:checked + .rol-chip .chip-check { opacity: 1; }
+
+        /* Separador de contraseña */
+        .pwd-hint { background: rgba(216,44,32,0.06); border: 1px solid rgba(216,44,32,0.15);
+            border-radius: 8px; padding: 0.6rem 1rem; font-size: 0.78rem; color: #9ca3af; margin-bottom: 1rem; }
+        .pwd-hint strong { color: #e55a4e; }
+
+        /* Acciones */
+        .form-actions { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 0.5rem; }
+        .btn-submit { background: #d82c20; color: white; padding: 0.75rem 2rem; border: none;
+            border-radius: 50px; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: background 0.2s; }
+        .btn-submit:hover { background: #b52218; }
+        .btn-cancel { background: transparent; color: #9ca3af; padding: 0.75rem 1.5rem;
+            border: 1px solid #3a2525; border-radius: 50px; font-size: 0.9rem;
+            text-decoration: none; transition: all 0.2s; display: inline-flex; align-items: center; }
+        .btn-cancel:hover { border-color: #6b7280; color: #fff; }
+    </style>
+}
+
+<div class="form-container">
+
+    <nav class="breadcrumb">
+        <a asp-controller="Seguridad" asp-action="DirectorioUsuarios">Directorio</a>
+        <span>›</span>
+        <span>Editar Usuario</span>
+    </nav>
+
+    <div class="page-header">
+        <div class="avatar-big">@Model.Iniciales</div>
+        <div>
+            <h1 class="page-title">Editar Usuario</h1>
+            <p style="color:#6b7280; margin:0;">Modifica los datos de acceso y permisos del operador.</p>
+        </div>
+    </div>
+
+    <form asp-controller="Seguridad" asp-action="EditarUsuario" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="UsuarioId" />
+        <input type="hidden" asp-for="Iniciales" />
+
+        {{-- ── Sección 1: Datos personales ── --}}
+        <div class="form-card">
+            <div class="card-section-title">👤 Datos Personales</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label" asp-for="Nombres">Nombres <span>*</span></label>
+                    <input asp-for="Nombres" class="form-control" placeholder="Nombres" />
+                    <span asp-validation-for="Nombres" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" asp-for="ApellidoPat">Apellido Paterno <span>*</span></label>
+                    <input asp-for="ApellidoPat" class="form-control" placeholder="Apellido paterno" />
+                    <span asp-validation-for="ApellidoPat" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" asp-for="ApellidoMat">Apellido Materno</label>
+                    <input asp-for="ApellidoMat" class="form-control" placeholder="Apellido materno (opcional)" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" asp-for="TelefonoPrincipal">Teléfono</label>
+                    <input asp-for="TelefonoPrincipal" class="form-control" placeholder="+591 7XXXXXXX" />
+                </div>
+                <div class="form-group full">
+                    <label class="form-label" asp-for="CorreoPrincipal">Correo Electrónico</label>
+                    <input asp-for="CorreoPrincipal" class="form-control" placeholder="correo@empresa.com" />
+                    <span asp-validation-for="CorreoPrincipal" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── Sección 2: Credenciales ── --}}
+        <div class="form-card">
+            <div class="card-section-title">🔑 Credenciales de Acceso</div>
+            <div class="pwd-hint">
+                <strong>Nota:</strong> Deja la contraseña en blanco si no deseas cambiarla.
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label" asp-for="NombreUsuario">Nombre de Usuario <span>*</span></label>
+                    <input asp-for="NombreUsuario" class="form-control" placeholder="usuario@empresa.com" />
+                    <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" asp-for="NuevaContrasena">Nueva Contraseña</label>
+                    <input asp-for="NuevaContrasena" type="password" class="form-control" placeholder="Dejar vacío para no cambiar" />
+                    <span asp-validation-for="NuevaContrasena" class="text-danger"></span>
+                </div>
+                <div class="form-group full">
+                    <label class="form-label">Estado de la Cuenta</label>
+                    <div class="toggle-group">
+                        <label class="toggle-switch">
+                            <input type="checkbox" asp-for="Activo" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label">Cuenta activa</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── Sección 3: Roles ── --}}
+        <div class="form-card">
+            <div class="card-section-title">🛡 Roles Asignados</div>
+            @if (!rolesDisponibles.Any())
+            {
+                <p style="color:#6b7280; font-size:0.85rem;">No hay roles activos registrados.</p>
+            }
+            else
+            {
+                <div class="roles-grid">
+                    @foreach (var rol in rolesDisponibles)
+                    {
+                        var seleccionado = Model.RolesSeleccionados.Contains(rol.RolId);
+                        <label class="rol-item">
+                            <input type="checkbox" name="RolesSeleccionados" value="@rol.RolId"
+                                   @(seleccionado ? "checked" : "") />
+                            <span class="rol-chip">
+                                <span class="chip-check">✓</span>
+                                @rol.NombreRol
+                            </span>
+                        </label>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="form-actions">
+            <a asp-controller="Seguridad" asp-action="DirectorioUsuarios" class="btn-cancel">← Cancelar</a>
+            <button type="submit" class="btn-submit">✔ Guardar Cambios</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

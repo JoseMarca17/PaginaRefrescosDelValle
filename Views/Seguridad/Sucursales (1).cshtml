@@ -1,0 +1,384 @@
+@model RefrescosDelValle.Models.ViewModels.GeoResumenViewModel
+@{
+    ViewData["Title"] = "Red de Nodos";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        /* ── BASE ── */
+        .geo-container { max-width: 1300px; margin: 0 auto; padding: 6rem 2rem 4rem; position: relative; z-index: 2; }
+
+        /* ── HEADER ── */
+        .geo-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3rem; }
+        .geo-header-left { border-left: 4px solid #d82c20; padding-left: 1.5rem; }
+        .geo-eyebrow { font-family: monospace; font-size: 0.7rem; color: #6b7280; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .geo-title { font-family: 'Playfair Display', serif; font-size: 2.8rem; color: #fff; line-height: 1; }
+        .geo-title span { -webkit-text-stroke: 1px #d82c20; color: transparent; }
+        .geo-subtitle { color: #6b7280; font-size: 0.88rem; margin-top: 0.5rem; }
+
+        /* ── ALERT ── */
+        .alert-success { background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.3); color: #2ecc71;
+            padding: 0.8rem 1.2rem; border-radius: 8px; margin-bottom: 2rem;
+            display: flex; align-items: center; gap: 0.6rem; }
+
+        /* ── STATS ROW ── */
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2.5rem; }
+        .stat-card { background: #050202; border: 1px solid #3a2525; border-radius: 10px; padding: 1.2rem 1.5rem;
+            display: flex; align-items: center; gap: 1rem; }
+        .stat-icon { font-size: 1.8rem; }
+        .stat-num  { font-family: 'Playfair Display', serif; font-size: 2rem; color: #fff; line-height: 1; }
+        .stat-lbl  { font-size: 0.72rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+        .stat-card.highlight { border-color: #d82c20; background: rgba(216,44,32,0.05); }
+        .stat-card.highlight .stat-num { color: #e55a4e; }
+
+        /* ── MAIN GRID ── */
+        .main-grid { display: grid; grid-template-columns: 1fr 380px; gap: 1.5rem; align-items: start; }
+
+        /* ── TABLA SUCURSALES ── */
+        .panel { background: #050202; border: 1px solid #3a2525; border-radius: 12px; overflow: hidden; }
+        .panel-header { background: #1a0f0f; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #3a2525; }
+        .panel-title { font-family: monospace; font-size: 0.75rem; color: #e55a4e; text-transform: uppercase; letter-spacing: 0.1em; }
+
+        .suc-table { width: 100%; border-collapse: collapse; }
+        .suc-table th { background: #0d0606; color: #6b7280; padding: 0.8rem 1.2rem; font-family: monospace;
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #1a0f0f; text-align: left; }
+        .suc-table td { padding: 1rem 1.2rem; border-bottom: 1px solid #0d0606; font-size: 0.85rem; color: #9ca3af; vertical-align: middle; }
+        .suc-table tr:last-child td { border-bottom: none; }
+        .suc-table tr:hover td { background: rgba(216,44,32,0.03); }
+
+        .suc-name { color: #fff; font-weight: 600; font-size: 0.9rem; }
+        .suc-addr { font-size: 0.75rem; color: #4b5563; margin-top: 2px; }
+
+        .geo-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.6rem;
+            background: rgba(216,44,32,0.08); border: 1px solid rgba(216,44,32,0.2);
+            border-radius: 20px; font-size: 0.72rem; color: #e55a4e; }
+
+        .status-pill { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; font-weight: 600; }
+        .dot { width: 7px; height: 7px; border-radius: 50%; }
+        .dot-on  { background: #2ecc71; box-shadow: 0 0 6px #2ecc7166; }
+        .dot-off { background: #4b5563; }
+
+        .action-btn { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.7rem;
+            border-radius: 6px; font-size: 0.72rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .btn-off { background: rgba(231,76,60,0.1); color: #e74c3c; border: 1px solid rgba(231,76,60,0.2); }
+        .btn-off:hover { background: rgba(231,76,60,0.2); }
+        .btn-on  { background: rgba(46,204,113,0.1); color: #2ecc71; border: 1px solid rgba(46,204,113,0.2); }
+        .btn-on:hover  { background: rgba(46,204,113,0.2); }
+
+        /* ── PANEL DERECHO ── */
+        .right-col { display: flex; flex-direction: column; gap: 1.5rem; }
+
+        /* Árbol geográfico */
+        .geo-tree { }
+        .tree-dpto { margin-bottom: 0.3rem; }
+        .tree-dpto-btn {
+            width: 100%; background: none; border: none; padding: 0.8rem 1.2rem;
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; transition: background 0.2s; color: #fff;
+        }
+        .tree-dpto-btn:hover { background: rgba(216,44,32,0.05); }
+        .tree-dpto-name { font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 0.6rem; }
+        .dpto-flag { font-size: 0.65rem; font-family: monospace; background: rgba(216,44,32,0.15);
+            color: #e55a4e; padding: 0.15rem 0.4rem; border-radius: 3px; }
+        .tree-caret { color: #6b7280; font-size: 0.7rem; transition: transform 0.2s; }
+        .tree-caret.open { transform: rotate(90deg); }
+
+        .tree-cities { display: none; padding: 0 0 0.5rem 0; border-bottom: 1px solid #0d0606; }
+        .tree-cities.open { display: block; }
+        .tree-city { display: flex; justify-content: space-between; align-items: center;
+            padding: 0.5rem 1.2rem 0.5rem 2.5rem; font-size: 0.82rem; color: #9ca3af; }
+        .tree-city-name { display: flex; align-items: center; gap: 0.5rem; }
+        .city-dot { width: 5px; height: 5px; border-radius: 50%; background: #3a2525; }
+        .city-badges { display: flex; gap: 0.4rem; }
+        .mini-badge { font-size: 0.65rem; font-family: monospace; padding: 0.1rem 0.4rem;
+            border-radius: 3px; }
+        .mb-suc { background: rgba(52,152,219,0.1); color: #3498db; border: 1px solid rgba(52,152,219,0.2); }
+        .mb-zona { background: rgba(155,89,182,0.1); color: #9b59b2; border: 1px solid rgba(155,89,182,0.2); }
+
+        /* Modal nueva sucursal */
+        .btn-new { background: #d82c20; color: #fff; padding: 0.55rem 1.2rem; border-radius: 50px;
+            font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer; transition: background 0.2s; }
+        .btn-new:hover { background: #b52218; }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+            z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal-box { background: #0a0303; border: 1px solid #3a2525; border-radius: 14px;
+            padding: 2rem; width: 100%; max-width: 480px; box-shadow: 0 30px 60px rgba(0,0,0,0.7); }
+        .modal-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #fff; margin-bottom: 1.5rem;
+            border-left: 3px solid #d82c20; padding-left: 1rem; }
+        .modal-form-group { margin-bottom: 1.1rem; }
+        .modal-label { display: block; font-size: 0.78rem; color: #9ca3af; margin-bottom: 0.4rem; font-weight: 600; }
+        .modal-input { width: 100%; background: #1a0f0f; border: 1px solid #3a2525; border-radius: 8px;
+            color: #fff; padding: 0.7rem 1rem; font-size: 0.88rem; outline: none; box-sizing: border-box;
+            transition: border-color 0.2s; }
+        .modal-input:focus { border-color: #d82c20; }
+        .modal-input option { background: #1a0f0f; }
+        .modal-actions { display: flex; gap: 0.8rem; justify-content: flex-end; margin-top: 1.5rem; }
+        .btn-cancel-modal { background: transparent; color: #9ca3af; padding: 0.6rem 1.2rem;
+            border: 1px solid #3a2525; border-radius: 50px; font-size: 0.85rem; cursor: pointer; }
+        .btn-cancel-modal:hover { border-color: #6b7280; color: #fff; }
+        .btn-submit-modal { background: #d82c20; color: #fff; padding: 0.6rem 1.5rem;
+            border: none; border-radius: 50px; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+        .btn-submit-modal:hover { background: #b52218; }
+
+        /* Empty */
+        .empty-row td { text-align: center; padding: 3rem; color: #4b5563; }
+
+        @@media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+}
+
+<div class="geo-container">
+
+    {{-- HEADER --}}
+    <div class="geo-header">
+        <div class="geo-header-left">
+            <div class="geo-eyebrow">▸ Red de Distribución</div>
+            <h1 class="geo-title">NODOS <span>ACTIVOS</span></h1>
+            <p class="geo-subtitle">Disposición geográfica de sucursales, ciudades y zonas.</p>
+        </div>
+        <button class="btn-new" onclick="document.getElementById('modalNueva').classList.add('open')">
+            + Nueva Sucursal
+        </button>
+    </div>
+
+    @if (TempData["SuccessMsg"] != null)
+    {
+        <div class="alert-success">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+            </svg>
+            @TempData["SuccessMsg"]
+        </div>
+    }
+
+    {{-- STATS --}}
+    <div class="stats-row">
+        <div class="stat-card highlight">
+            <div class="stat-icon">🏢</div>
+            <div>
+                <div class="stat-num">@Model.TotalSucursales</div>
+                <div class="stat-lbl">Sucursales totales</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🟢</div>
+            <div>
+                <div class="stat-num">@Model.TotalActivas</div>
+                <div class="stat-lbl">Nodos activos</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🏙️</div>
+            <div>
+                <div class="stat-num">@Model.TotalCiudades</div>
+                <div class="stat-lbl">Ciudades cubiertas</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🗺️</div>
+            <div>
+                <div class="stat-num">@Model.TotalDepartamentos</div>
+                <div class="stat-lbl">Departamentos</div>
+            </div>
+        </div>
+    </div>
+
+    {{-- MAIN GRID --}}
+    <div class="main-grid">
+
+        {{-- TABLA --}}
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title">📍 Listado de Sucursales</span>
+                <span style="font-size:0.75rem; color:#4b5563;">@Model.TotalSucursales registros</span>
+            </div>
+            <table class="suc-table">
+                <thead>
+                    <tr>
+                        <th>Sucursal</th>
+                        <th>Ubicación</th>
+                        <th>Contacto</th>
+                        <th>Estado</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Sucursales.Any())
+                    {
+                        <tr class="empty-row"><td colspan="5">Sin sucursales registradas.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var s in Model.Sucursales)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="suc-name">@s.NombreSucursal</div>
+                                    @if (!string.IsNullOrEmpty(s.Direccion))
+                                    {
+                                        <div class="suc-addr">@s.Direccion</div>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="geo-badge">🗺 @s.NombreDepartamento</span><br/>
+                                    <span style="font-size:0.78rem; color:#6b7280; margin-top:4px; display:inline-block;">@s.NombreCiudad</span>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(s.Telefono))
+                                    {
+                                        <span style="font-family:monospace; font-size:0.8rem;">@s.Telefono</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:#3a2525;">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="status-pill">
+                                        <span class="dot @(s.Activo ? "dot-on" : "dot-off")"></span>
+                                        @(s.Activo ? "Activa" : "Inactiva")
+                                    </span>
+                                </td>
+                                <td>
+                                    <form asp-controller="Seguridad" asp-action="ToggleSucursal"
+                                          asp-route-id="@s.SucursalId" method="post"
+                                          onsubmit="return confirm('¿@(s.Activo ? "Desactivar" : "Reactivar") @s.NombreSucursal?')">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="action-btn @(s.Activo ? "btn-off" : "btn-on")">
+                                            @(s.Activo ? "⏸ Desactivar" : "▶ Reactivar")
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        {{-- PANEL DERECHO --}}
+        <div class="right-col">
+
+            {{-- ÁRBOL GEOGRÁFICO --}}
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">🗂 Árbol Geográfico</span>
+                </div>
+                <div class="geo-tree">
+                    @foreach (var dpto in Model.Departamentos)
+                    {
+                        var dptoId = $"dpto-{dpto.DepartamentoGeoId}";
+                        <div class="tree-dpto">
+                            <button class="tree-dpto-btn" onclick="toggleDpto('@dptoId', this)">
+                                <span class="tree-dpto-name">
+                                    <span class="dpto-flag">BO</span>
+                                    @dpto.NombreDpto
+                                </span>
+                                <span class="tree-caret">▶</span>
+                            </button>
+                            <div class="tree-cities" id="@dptoId">
+                                @foreach (var ciudad in dpto.Ciudades)
+                                {
+                                    <div class="tree-city">
+                                        <span class="tree-city-name">
+                                            <span class="city-dot"></span>
+                                            @ciudad.NombreCiudad
+                                        </span>
+                                        <span class="city-badges">
+                                            @if (ciudad.TotalSucursales > 0)
+                                            {
+                                                <span class="mini-badge mb-suc">@ciudad.TotalSucursales suc</span>
+                                            }
+                                            @if (ciudad.TotalZonas > 0)
+                                            {
+                                                <span class="mini-badge mb-zona">@ciudad.TotalZonas zonas</span>
+                                            }
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{{-- MODAL NUEVA SUCURSAL --}}
+<div class="modal-overlay" id="modalNueva">
+    <div class="modal-box">
+        <div class="modal-title">Nueva Sucursal</div>
+        <form asp-controller="Seguridad" asp-action="CrearSucursal" method="post">
+            @Html.AntiForgeryToken()
+            <div class="modal-form-group">
+                <label class="modal-label">Nombre de la Sucursal *</label>
+                <input name="NombreSucursal" class="modal-input" placeholder="ej. Sucursal El Alto" required maxlength="100" />
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-label">Ciudad *</label>
+                <select name="CiudadId" class="modal-input" required>
+                    <option value="">— Seleccionar ciudad —</option>
+                    @foreach (var dpto in Model.Departamentos)
+                    {
+                        <optgroup label="@dpto.NombreDpto">
+                            @foreach (var ciudad in dpto.Ciudades)
+                            {
+                                <option value="@ciudad.CiudadId">@ciudad.NombreCiudad</option>
+                            }
+                        </optgroup>
+                    }
+                </select>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-label">Dirección</label>
+                <input name="Direccion" class="modal-input" placeholder="Av. Ejemplo #123" maxlength="200" />
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-label">Teléfono</label>
+                <input name="Telefono" class="modal-input" placeholder="2-2001234" maxlength="15" />
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel-modal"
+                        onclick="document.getElementById('modalNueva').classList.remove('open')">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn-submit-modal">✔ Crear Sucursal</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleDpto(id, btn) {
+            const panel = document.getElementById(id);
+            const caret = btn.querySelector('.tree-caret');
+            panel.classList.toggle('open');
+            caret.classList.toggle('open');
+        }
+
+        // Cerrar modal con Escape
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') document.getElementById('modalNueva').classList.remove('open');
+        });
+
+        // Cerrar modal al click fuera
+        document.getElementById('modalNueva').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('open');
+        });
+
+        // Auto-ocultar alert
+        setTimeout(() => {
+            const a = document.querySelector('.alert-success');
+            if (a) { a.style.transition = 'opacity 0.5s'; a.style.opacity = '0'; setTimeout(() => a.remove(), 500); }
+        }, 4000);
+    </script>
+}

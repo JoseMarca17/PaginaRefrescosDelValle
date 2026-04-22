@@ -1,0 +1,237 @@
+@model RefrescosDelValle.Models.Entities.Role
+@{
+    ViewData["Title"] = "Crear Nuevo Rol";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var todosPermisos = ViewBag.Permisos as List<RefrescosDelValle.Models.Entities.Permiso> ?? new();
+    var modulosAgrupados = todosPermisos.GroupBy(p => p.Modulo).OrderBy(g => g.Key);
+}
+
+@section Styles {
+    <style>
+        .form-container { max-width: 900px; margin: 0 auto; padding: 6rem 2rem; position: relative; z-index: 2; }
+
+        /* Breadcrumb */
+        .breadcrumb { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem; font-size: 0.82rem; color: #6b7280; }
+        .breadcrumb a { color: #e55a4e; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb span { color: #3a2525; }
+
+        /* Header */
+        .page-header { margin-bottom: 2.5rem; border-left: 4px solid #d82c20; padding-left: 1.5rem; }
+        .page-title  { font-family: 'Playfair Display', serif; font-size: 2rem; color: #ffffff; }
+
+        /* Card */
+        .form-card { background: #050202; border: 1px solid #3a2525; border-radius: 12px; padding: 2rem; box-shadow: 0 20px 40px rgba(0,0,0,0.5); margin-bottom: 1.5rem; }
+        .card-section-title { font-family: monospace; text-transform: uppercase; font-size: 0.75rem; color: #e55a4e;
+            letter-spacing: 0.1em; margin-bottom: 1.2rem; padding-bottom: 0.6rem; border-bottom: 1px solid #1a0f0f; }
+
+        /* Inputs */
+        .form-group { margin-bottom: 1.4rem; }
+        .form-label  { display: block; font-size: 0.82rem; color: #9ca3af; margin-bottom: 0.45rem; font-weight: 600; }
+        .form-label span { color: #e55a4e; }
+
+        .form-control {
+            width: 100%; background: #0d0606; border: 1px solid #3a2525; border-radius: 8px;
+            color: #ffffff; padding: 0.75rem 1rem; font-size: 0.9rem; outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box;
+        }
+        .form-control:focus { border-color: #d82c20; box-shadow: 0 0 0 3px rgba(216,44,32,0.15); }
+        .form-control::placeholder { color: #4b5563; }
+        textarea.form-control { resize: vertical; min-height: 90px; }
+
+        .field-hint { font-size: 0.75rem; color: #4b5563; margin-top: 0.3rem; }
+        .text-danger { color: #e74c3c; font-size: 0.78rem; margin-top: 0.3rem; display: block; }
+
+        /* Toggle activo */
+        .toggle-group { display: flex; align-items: center; gap: 0.8rem; }
+        .toggle-switch { position: relative; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; cursor: pointer; inset: 0; background: #3a2525;
+            border-radius: 24px; transition: 0.3s;
+        }
+        .toggle-slider:before {
+            content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px;
+            background: white; border-radius: 50%; transition: 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider { background: #d82c20; }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+        .toggle-label { color: #9ca3af; font-size: 0.85rem; }
+
+        /* Permisos grid */
+        .modulo-block { margin-bottom: 1.4rem; }
+        .modulo-title {
+            font-size: 0.78rem; font-family: monospace; text-transform: uppercase; letter-spacing: 0.08em;
+            color: #6b7280; margin-bottom: 0.7rem; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .modulo-title::after { content: ''; flex: 1; height: 1px; background: #1a0f0f; }
+
+        .permisos-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+        .permiso-item { position: relative; }
+        .permiso-item input[type="checkbox"] { display: none; }
+        .permiso-chip {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.35rem 0.85rem; border-radius: 20px; font-size: 0.78rem; font-family: monospace;
+            cursor: pointer; transition: all 0.2s; user-select: none;
+            border: 1px solid #3a2525; background: #0d0606; color: #6b7280;
+        }
+        .permiso-chip:hover { border-color: #d82c20; color: #ffffff; }
+        .permiso-item input:checked + .permiso-chip { background: rgba(216,44,32,0.15); border-color: #d82c20; color: #ffffff; }
+        .permiso-item input:checked + .permiso-chip .chip-check { opacity: 1; }
+        .chip-check { opacity: 0; transition: opacity 0.15s; color: #2ecc71; font-size: 0.65rem; }
+
+        /* Colores por acción */
+        .permiso-item input:checked + .chip-Ver      { background: rgba(52,152,219,0.12); border-color: #3498db; color: #3498db; }
+        .permiso-item input:checked + .chip-Editar   { background: rgba(241,196,15,0.12); border-color: #f1c40f; color: #f1c40f; }
+        .permiso-item input:checked + .chip-Eliminar { background: rgba(231,76,60,0.12);  border-color: #e74c3c; color: #e74c3c; }
+        .permiso-item input:checked + .chip-Crear    { background: rgba(46,204,113,0.12); border-color: #2ecc71; color: #2ecc71; }
+        .permiso-item input:checked + .chip-Exportar { background: rgba(155,89,182,0.12); border-color: #9b59b2; color: #9b59b2; }
+        .permiso-item input:checked + .chip-Aprobar  { background: rgba(230,126,34,0.12); border-color: #e67e22; color: #e67e22; }
+
+        .select-all-link { font-size: 0.72rem; color: #e55a4e; cursor: pointer; text-decoration: none; margin-left: 0.5rem; }
+        .select-all-link:hover { text-decoration: underline; }
+
+        /* Botones */
+        .form-actions { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 0.5rem; }
+        .btn-submit {
+            background: #d82c20; color: white; padding: 0.75rem 2rem; border: none;
+            border-radius: 50px; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: background 0.2s;
+        }
+        .btn-submit:hover { background: #b52218; }
+        .btn-cancel {
+            background: transparent; color: #9ca3af; padding: 0.75rem 1.5rem; border: 1px solid #3a2525;
+            border-radius: 50px; font-size: 0.9rem; text-decoration: none; transition: all 0.2s; display: inline-flex; align-items: center;
+        }
+        .btn-cancel:hover { border-color: #6b7280; color: #ffffff; }
+
+        /* Contador */
+        .permisos-counter { font-size: 0.78rem; color: #6b7280; margin-bottom: 1rem; }
+        .permisos-counter strong { color: #d82c20; }
+    </style>
+}
+
+<div class="form-container">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a asp-controller="Seguridad" asp-action="Roles">Roles</a>
+        <span>›</span>
+        <span>Crear Nuevo Rol</span>
+    </nav>
+
+    <div class="page-header">
+        <h1 class="page-title">Crear Nuevo Rol</h1>
+        <p style="color: #6b7280;">Define el nombre, descripción y permisos del nuevo rol.</p>
+    </div>
+
+    <form asp-controller="Seguridad" asp-action="RolCreate" method="post">
+        @Html.AntiForgeryToken()
+
+        <!-- ── Sección 1: Datos del rol ── -->
+        <div class="form-card">
+            <div class="card-section-title">📋 Información del Rol</div>
+
+            <div class="form-group">
+                <label class="form-label" asp-for="NombreRol">Nombre del Rol <span>*</span></label>
+                <input asp-for="NombreRol" class="form-control" placeholder="ej. OperadorVentas, AdminBodega..." maxlength="50" />
+                <span asp-validation-for="NombreRol" class="text-danger"></span>
+                <div class="field-hint">Máximo 50 caracteres. Usa un nombre descriptivo y sin espacios si es posible.</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" asp-for="Descripcion">Descripción</label>
+                <textarea asp-for="Descripcion" class="form-control" placeholder="Describe brevemente las responsabilidades de este rol..." maxlength="200"></textarea>
+                <span asp-validation-for="Descripcion" class="text-danger"></span>
+                <div class="field-hint">Opcional. Máximo 200 caracteres.</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Estado Inicial</label>
+                <div class="toggle-group">
+                    <label class="toggle-switch">
+                        <input type="checkbox" asp-for="Activo" checked />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">Rol activo al crearse</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Sección 2: Permisos ── -->
+        <div class="form-card">
+            <div class="card-section-title">🔐 Permisos por Módulo</div>
+
+            <div class="permisos-counter">
+                Permisos seleccionados: <strong id="contadorPermisos">0</strong> de @todosPermisos.Count
+                &nbsp;·&nbsp;
+                <a class="select-all-link" onclick="toggleTodos(true)">Seleccionar todos</a>
+                &nbsp;/&nbsp;
+                <a class="select-all-link" onclick="toggleTodos(false)">Limpiar</a>
+            </div>
+
+            @if (!todosPermisos.Any())
+            {
+                <p style="color:#6b7280; font-size:0.85rem;">No hay permisos registrados en el sistema aún.</p>
+            }
+            else
+            {
+                @foreach (var modulo in modulosAgrupados)
+                {
+                    <div class="modulo-block">
+                        <div class="modulo-title">
+                            @modulo.Key
+                            <a class="select-all-link" onclick="toggleModulo('@modulo.Key', true)">todo</a>
+                            <span style="color:#3a2525">/</span>
+                            <a class="select-all-link" onclick="toggleModulo('@modulo.Key', false)">ninguno</a>
+                        </div>
+                        <div class="permisos-grid" data-modulo="@modulo.Key">
+                            @foreach (var permiso in modulo.OrderBy(p => p.Accion))
+                            {
+                                <label class="permiso-item">
+                                    <input type="checkbox" name="permisosSeleccionados" value="@permiso.PermisoId"
+                                           onchange="actualizarContador()" />
+                                    <span class="permiso-chip chip-@permiso.Accion" title="@permiso.Descripcion">
+                                        <span class="chip-check">✓</span>
+                                        @permiso.Accion
+                                    </span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- ── Acciones ── -->
+        <div class="form-actions">
+            <a asp-action="Index" class="btn-cancel">← Cancelar</a>
+            <button type="submit" class="btn-submit">✔ Crear Rol</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function actualizarContador() {
+            const total = document.querySelectorAll('input[name="permisosSeleccionados"]:checked').length;
+            document.getElementById('contadorPermisos').textContent = total;
+        }
+
+        function toggleTodos(marcar) {
+            document.querySelectorAll('input[name="permisosSeleccionados"]')
+                .forEach(cb => cb.checked = marcar);
+            actualizarContador();
+        }
+
+        function toggleModulo(modulo, marcar) {
+            document.querySelectorAll(`[data-modulo="${modulo}"] input[name="permisosSeleccionados"]`)
+                .forEach(cb => cb.checked = marcar);
+            actualizarContador();
+        }
+
+        // Inicializar contador
+        actualizarContador();
+    </script>
+}

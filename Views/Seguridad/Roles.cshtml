@@ -1,3 +1,4 @@
+@model IEnumerable<RefrescosDelValle.Models.Entities.Role>
 @{
     ViewData["Title"] = "Matriz de Roles";
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
@@ -8,82 +9,157 @@
         .roles-container { max-width: 1200px; margin: 0 auto; padding: 6rem 2rem; position: relative; z-index: 2; }
         .page-header { margin-bottom: 3rem; border-left: 4px solid #d82c20; padding-left: 1.5rem; }
         .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #ffffff; }
-        
+
+        /* Alert */
+        .alert-success { background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.3); color: #2ecc71;
+            padding: 0.8rem 1.2rem; border-radius: 8px; margin-bottom: 1.5rem; display:flex; align-items:center; gap:0.6rem; }
+
         /* Matriz de Roles */
         .roles-matrix { background: #050202; border: 1px solid #3a2525; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
         .matrix-table { width: 100%; border-collapse: collapse; text-align: left; }
-        
         .matrix-table th { background: #1a0f0f; color: #e55a4e; padding: 1.2rem; font-family: monospace; text-transform: uppercase; font-size: 0.8rem; border-bottom: 1px solid #3a2525; }
-        .matrix-table td { padding: 1.2rem; color: #9ca3af; border-bottom: 1px solid #1a0f0f; font-size: 0.9rem; }
-        
-        .role-name { color: #ffffff; font-weight: bold; }
-        .perm-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.7rem; font-family: monospace; margin-right: 0.4rem; margin-bottom: 0.4rem; }
-        
-        /* Colores por tipo de permiso */
-        .p-view { background: rgba(52, 152, 219, 0.1); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.2); }
-        .p-edit { background: rgba(241, 196, 15, 0.1); color: #f1c40f; border: 1px solid rgba(241, 196, 15, 0.2); }
-        .p-delete { background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.2); }
-        .p-admin { background: rgba(155, 89, 182, 0.1); color: #9b59b2; border: 1px solid rgba(155, 89, 182, 0.2); }
+        .matrix-table td { padding: 1.2rem; color: #9ca3af; border-bottom: 1px solid #1a0f0f; font-size: 0.9rem; vertical-align: top; }
+        .matrix-table tr:last-child td { border-bottom: none; }
+        .matrix-table tr:hover td { background: rgba(216,44,32,0.04); }
 
-        .btn-new-role { background: #d82c20; color: white; padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none; font-weight: bold; float: right; font-size: 0.8rem; }
+        .role-name { color: #ffffff; font-weight: bold; }
+        .role-inactive { opacity: 0.45; }
+
+        .perm-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.7rem; font-family: monospace; margin-right: 0.4rem; margin-bottom: 0.4rem; }
+        .p-Ver       { background: rgba(52,152,219,0.1);  color: #3498db; border: 1px solid rgba(52,152,219,0.2); }
+        .p-Editar    { background: rgba(241,196,15,0.1);  color: #f1c40f; border: 1px solid rgba(241,196,15,0.2); }
+        .p-Eliminar  { background: rgba(231,76,60,0.1);   color: #e74c3c; border: 1px solid rgba(231,76,60,0.2); }
+        .p-Crear     { background: rgba(46,204,113,0.1);  color: #2ecc71; border: 1px solid rgba(46,204,113,0.2); }
+        .p-Exportar  { background: rgba(155,89,182,0.1);  color: #9b59b2; border: 1px solid rgba(155,89,182,0.2); }
+        .p-Aprobar   { background: rgba(230,126,34,0.1);  color: #e67e22; border: 1px solid rgba(230,126,34,0.2); }
+
+        .badge-count { font-size: 0.75rem; color: #6b7280; margin-left: 0.4rem; }
+
+        /* Estado */
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .status-active   { background: #2ecc71; box-shadow: 0 0 6px #2ecc7166; }
+        .status-inactive { background: #6b7280; }
+
+        /* Acciones */
+        .action-btn { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.8rem; border-radius: 6px;
+            font-size: 0.75rem; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s; }
+        .btn-edit   { background: rgba(241,196,15,0.1); color: #f1c40f; border: 1px solid rgba(241,196,15,0.25); }
+        .btn-edit:hover { background: rgba(241,196,15,0.2); color: #f1c40f; }
+        .btn-delete { background: rgba(231,76,60,0.1);  color: #e74c3c; border: 1px solid rgba(231,76,60,0.25); }
+        .btn-delete:hover { background: rgba(231,76,60,0.2); color: #e74c3c; }
+
+        .btn-new-role { background: #d82c20; color: white; padding: 0.6rem 1.5rem; border-radius: 50px;
+            text-decoration: none; font-weight: bold; float: right; font-size: 0.8rem; transition: background 0.2s; }
+        .btn-new-role:hover { background: #b52218; color: white; }
+
+        /* Empty state */
+        .empty-state { text-align: center; padding: 3rem; color: #6b7280; }
+        .empty-state svg { opacity: 0.3; margin-bottom: 1rem; }
     </style>
 }
 
 <div class="roles-container">
-    <a href="#" class="btn-new-role">+ Crear Nuevo Rol</a>
+
+    <a asp-controller="Seguridad" asp-action="RolCreate" class="btn-new-role">+ Crear Nuevo Rol</a>
+
     <div class="page-header">
         <h1 class="page-title">Matriz de Roles y Permisos</h1>
         <p style="color: #6b7280;">Configuración de niveles de acceso por módulo.</p>
     </div>
 
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-success">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+            </svg>
+            @TempData["Success"]
+        </div>
+    }
+
     <div class="roles-matrix">
         <table class="matrix-table">
             <thead>
                 <tr>
-                    <th>ID_ROL</th>
-                    <th>NOMBRE DEL ROL</th>
-                    <th>MÓDULOS ASIGNADOS</th>
-                    <th>ACCIONES PERMITIDAS</th>
+                    <th>#ID</th>
+                    <th>Nombre del Rol</th>
+                    <th>Estado</th>
+                    <th>Permisos Asignados</th>
+                    <th>Fecha Creación</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>0x01</td>
-                    <td class="role-name">SuperAdmin</td>
-                    <td>TODOS</td>
-                    <td>
-                        <span class="perm-badge p-admin">SYSTEM_OWNER</span>
-                        <span class="perm-badge p-admin">ALL_ACCESS</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td>0x02</td>
-                    <td class="role-name">AdminSeguridad</td>
-                    <td>Seguridad, Usuarios</td>
-                    <td>
-                        <span class="perm-badge p-view">VER</span>
-                        <span class="perm-badge p-edit">EDITAR</span>
-                        <span class="perm-badge p-delete">ELIMINAR</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td>0x03</td>
-                    <td class="role-name">OperadorVentas</td>
-                    <td>Ventas, Clientes</td>
-                    <td>
-                        <span class="perm-badge p-view">VER</span>
-                        <span class="perm-badge p-edit">CREAR_PEDIDO</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td>0x04</td>
-                    <td class="role-name">Auditor Externo</td>
-                    <td>Bitácora, Reportes</td>
-                    <td>
-                        <span class="perm-badge p-view">SOLO_LECTURA</span>
-                    </td>
-                </tr>
+                @if (Model == null || !Model.Any())
+                {
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <svg width="48" height="48" fill="#6b7280" viewBox="0 0 16 16">
+                                    <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
+                                </svg>
+                                <p>No hay roles registrados aún.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var rol in Model)
+                    {
+                        <tr class="@(!rol.Activo ? "role-inactive" : "")">
+                            <td><code style="color:#e55a4e">0x@rol.RolID.ToString("X2")</code></td>
+                            <td class="role-name">@rol.NombreRol
+                                @if (!string.IsNullOrEmpty(rol.Descripcion))
+                                {
+                                    <div style="font-size:0.78rem; color:#6b7280; font-weight:normal; margin-top:2px;">@rol.Descripcion</div>
+                                }
+                            </td>
+                            <td>
+                                <span class="status-dot @(rol.Activo ? "status-active" : "status-inactive")"></span>
+                                @(rol.Activo ? "Activo" : "Inactivo")
+                            </td>
+                            <td>
+                                @{
+                                    var grupos = rol.RolesPermisos
+                                        .Select(rp => rp.Permiso)
+                                        .Where(p => p != null)
+                                        .GroupBy(p => p!.Modulo);
+                                }
+                                @if (!rol.RolesPermisos.Any())
+                                {
+                                    <span style="color:#4b5563; font-size:0.8rem;">Sin permisos asignados</span>
+                                }
+                                else
+                                {
+                                    @foreach (var grupo in grupos)
+                                    {
+                                        <div style="margin-bottom:0.3rem;">
+                                            <span style="font-size:0.7rem; color:#6b7280; text-transform:uppercase; letter-spacing:0.05em;">@grupo.Key</span><br/>
+                                            @foreach (var permiso in grupo)
+                                            {
+                                                <span class="perm-badge p-@permiso!.Accion">@permiso.Accion</span>
+                                            }
+                                        </div>
+                                    }
+                                }
+                            </td>
+                            <td style="white-space:nowrap">@rol.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@rol.RolId" class="action-btn btn-edit">
+                                    ✏ Editar
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@rol.RolId" method="post" style="display:inline;"
+                                      onsubmit="return confirm('¿Desactivar el rol @rol.NombreRol?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="action-btn btn-delete">🗑 Desactivar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
             </tbody>
         </table>
     </div>
+
 </div>

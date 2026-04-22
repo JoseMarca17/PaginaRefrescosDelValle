@@ -25,6 +25,18 @@
         .uc-label { color: var(--gray-400); }
         .uc-val { color: var(--white); font-weight: 500; text-align: right; }
         .uc-val.red { color: var(--red-400); }
+
+        /* Botones de acción */
+        .uc-actions { display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--dark-600); }
+        .action-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;
+            padding: 0.4rem 0; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
+            text-decoration: none; border: none; cursor: pointer; transition: all 0.2s; }
+        .btn-edit { background: rgba(241,196,15,0.1); color: #f1c40f; border: 1px solid rgba(241,196,15,0.25); }
+        .btn-edit:hover { background: rgba(241,196,15,0.2); color: #f1c40f; }
+        .btn-toggle-off { background: rgba(231,76,60,0.1); color: #e74c3c; border: 1px solid rgba(231,76,60,0.25); }
+        .btn-toggle-off:hover { background: rgba(231,76,60,0.2); color: #e74c3c; }
+        .btn-toggle-on { background: rgba(46,204,113,0.1); color: #2ecc71; border: 1px solid rgba(46,204,113,0.25); }
+        .btn-toggle-on:hover { background: rgba(46,204,113,0.2); color: #2ecc71; }
     </style>
 }
 
@@ -60,6 +72,21 @@
                             @(user.Activo ? "Activo" : "Suspendido")
                         </span>
                     </div>
+                </div>
+
+                <div class="uc-actions">
+                    <a asp-controller="Seguridad" asp-action="EditarUsuario"
+                       asp-route-id="@user.UsuarioID" class="action-btn btn-edit">
+                        ✏ Editar
+                    </a>
+                    <form asp-controller="Seguridad" asp-action="ToggleUsuario"
+                          asp-route-id="@user.UsuarioID" method="post" style="flex:1; display:flex;"
+                          onsubmit="return confirm('@(user.Activo ? "¿Desactivar a " : "¿Reactivar a ")@user.NombreCompleto?')">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="action-btn @(user.Activo ? "btn-toggle-off" : "btn-toggle-on")" style="width:100%;">
+                            @(user.Activo ? "🔒 Desactivar" : "🔓 Reactivar")
+                        </button>
+                    </form>
                 </div>
             </div>
         }

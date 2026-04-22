@@ -15,6 +15,6 @@ namespace RefrescosDelValle.Models.Produccion
         public string Observaciones { get; set; }
 
         // Relación
-        public OrdenProduccion OrdenProduccion { get; set; }
+        // public OrdenProduccion OrdenProduccion { get; set; }
     }
 }
