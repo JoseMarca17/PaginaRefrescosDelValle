@@ -176,17 +176,17 @@
                     <div class="nav-section">
                         <span class="nav-section-title">Seguridad</span>
                         
-                        <a href="/Seguridad/RegistrarPersonal" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Seguridad" && ViewContext.RouteData.Values["action"]?.ToString() == "RegistrarPersonal" ? "active" : "")">
+                        <a href="/Seguridad/Sesiones" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Seguridad" && ViewContext.RouteData.Values["action"]?.ToString() == "RegistrarPersonal" ? "active" : "")">
                             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="8.5" cy="7" r="4"></circle>
                                 <line x1="20" y1="8" x2="20" y2="14"></line>
                                 <line x1="23" y1="11" x2="17" y2="11"></line>
                             </svg>
-                            <span>Aprovisionar Personal</span>
+                            <span>Sesiones Activas</span>
                         </a>
 
-                        <a href="/Seguridad/Usuarios" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Seguridad" && ViewContext.RouteData.Values["action"]?.ToString() == "Usuarios" ? "active" : "")">
+                        <a href="/Seguridad/DirectorioUsuarios" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Seguridad" && ViewContext.RouteData.Values["action"]?.ToString() == "Usuarios" ? "active" : "")">
                             <svg viewBox="0 0 24 24" width="20" height="20">
                                 <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" fill="none"/>
                                 <circle cx="12" cy="7" r="4" stroke="currentColor" fill="none"/>
@@ -208,7 +208,7 @@
                             </svg>
                             <span>Sucursales</span>
                         </a>
-                        <a href="/Seguridad/Bitacora" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Seguridad" && ViewContext.RouteData.Values["action"]?.ToString() == "Bitacora" ? "active" : "")">
+                        <a href="/Seguridad/Auditoria" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Seguridad" && ViewContext.RouteData.Values["action"]?.ToString() == "Bitacora" ? "active" : "")">
                             <svg viewBox="0 0 24 24" width="20" height="20">
                                 <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" fill="none"/>
                                 <polyline points="14 2 14 8 20 8" stroke="currentColor"/>

@@ -1,7 +1,7 @@
 @model RefrescosDelValle.Models.Entities.Role
 @{
     ViewData["Title"] = "Crear Nuevo Rol";
-    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";
     var todosPermisos = ViewBag.Permisos as List<RefrescosDelValle.Models.Entities.Permiso> ?? new();
     var modulosAgrupados = todosPermisos.GroupBy(p => p.Modulo).OrderBy(g => g.Key);
 }
