@@ -5,213 +5,586 @@
 }
 
 @section Styles {
-    <style>
-        /* ── BASE ── */
-        .geo-container { max-width: 1300px; margin: 0 auto; padding: 6rem 2rem 4rem; position: relative; z-index: 2; }
+<style>
+/* ── HERO ── */
+.suc-hero {
+    background: #0f0b09;
+    padding: 3.5rem 2.5rem 3rem;
+    position: relative;
+    overflow: hidden;
+    /* Compensar padding del layout si lo tiene */
+    margin: -1px 0 0;
+}
+.suc-hero-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,40,30,.04) 59px, rgba(200,40,30,.04) 60px),
+        repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,40,30,.04) 59px, rgba(200,40,30,.04) 60px);
+}
+.suc-hero-glow {
+    position: absolute; width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(200,40,30,.13) 0%, transparent 70%);
+    top: -150px; left: -100px; pointer-events: none;
+}
+.suc-hero-inner {
+    position: relative; z-index: 2;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 2rem; flex-wrap: wrap;
+}
+.suc-hero-left { flex: 1; min-width: 220px; }
 
-        /* ── HEADER ── */
-        .geo-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3rem; }
-        .geo-header-left { border-left: 4px solid #d82c20; padding-left: 1.5rem; }
-        .geo-eyebrow { font-family: monospace; font-size: 0.7rem; color: #6b7280; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 0.5rem; }
-        .geo-title { font-family: 'Playfair Display', serif; font-size: 2.8rem; color: #fff; line-height: 1; }
-        .geo-title span { -webkit-text-stroke: 1px #d82c20; color: transparent; }
-        .geo-subtitle { color: #6b7280; font-size: 0.88rem; margin-top: 0.5rem; }
+.suc-eyebrow {
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-family: monospace; font-size: .64rem;
+    color: rgba(200,40,30,.9); letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 1rem;
+}
+.suc-eyebrow-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #C8281E; display: inline-block;
+    animation: sucpulse 2.5s ease infinite;
+}
+@@keyframes sucpulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: .35; transform: scale(.55); }
+}
+.suc-hero-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2rem, 4.5vw, 3.6rem);
+    color: #fff; line-height: .92;
+    letter-spacing: 2px; font-weight: 800;
+    margin-bottom: .8rem;
+}
+.suc-hero-title .stroke {
+    -webkit-text-stroke: 2px #C8281E; color: transparent;
+}
+.suc-hero-sub {
+    font-size: .83rem; color: rgba(255,255,255,.38);
+    line-height: 1.65; margin-bottom: 1.75rem; max-width: 340px;
+}
+.suc-stats { display: flex; align-items: center; }
+.suc-stat-item { display: flex; flex-direction: column; padding: 0 1.3rem; }
+.suc-stat-item:first-child { padding-left: 0; }
+.suc-stat-val {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.75rem; color: #C8281E; line-height: 1; font-weight: 800;
+}
+.suc-stat-lbl {
+    font-size: .57rem; font-family: monospace;
+    color: rgba(255,255,255,.28); margin-top: .18rem;
+    text-transform: uppercase; letter-spacing: 1px;
+}
+.suc-stat-sep { width: 1px; height: 34px; background: rgba(255,255,255,.1); }
 
-        /* ── ALERT ── */
-        .alert-success { background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.3); color: #2ecc71;
-            padding: 0.8rem 1.2rem; border-radius: 8px; margin-bottom: 2rem;
-            display: flex; align-items: center; gap: 0.6rem; }
+/* Mapa */
+.suc-map-wrap { flex-shrink: 0; }
 
-        /* ── STATS ROW ── */
-        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2.5rem; }
-        .stat-card { background: #050202; border: 1px solid #3a2525; border-radius: 10px; padding: 1.2rem 1.5rem;
-            display: flex; align-items: center; gap: 1rem; }
-        .stat-icon { font-size: 1.8rem; }
-        .stat-num  { font-family: 'Playfair Display', serif; font-size: 2rem; color: #fff; line-height: 1; }
-        .stat-lbl  { font-size: 0.72rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
-        .stat-card.highlight { border-color: #d82c20; background: rgba(216,44,32,0.05); }
-        .stat-card.highlight .stat-num { color: #e55a4e; }
-
-        /* ── MAIN GRID ── */
-        .main-grid { display: grid; grid-template-columns: 1fr 380px; gap: 1.5rem; align-items: start; }
-
-        /* ── TABLA SUCURSALES ── */
-        .panel { background: #050202; border: 1px solid #3a2525; border-radius: 12px; overflow: hidden; }
-        .panel-header { background: #1a0f0f; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #3a2525; }
-        .panel-title { font-family: monospace; font-size: 0.75rem; color: #e55a4e; text-transform: uppercase; letter-spacing: 0.1em; }
-
-        .suc-table { width: 100%; border-collapse: collapse; }
-        .suc-table th { background: #0d0606; color: #6b7280; padding: 0.8rem 1.2rem; font-family: monospace;
-            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #1a0f0f; text-align: left; }
-        .suc-table td { padding: 1rem 1.2rem; border-bottom: 1px solid #0d0606; font-size: 0.85rem; color: #9ca3af; vertical-align: middle; }
-        .suc-table tr:last-child td { border-bottom: none; }
-        .suc-table tr:hover td { background: rgba(216,44,32,0.03); }
-
-        .suc-name { color: #fff; font-weight: 600; font-size: 0.9rem; }
-        .suc-addr { font-size: 0.75rem; color: #4b5563; margin-top: 2px; }
-
-        .geo-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.6rem;
-            background: rgba(216,44,32,0.08); border: 1px solid rgba(216,44,32,0.2);
-            border-radius: 20px; font-size: 0.72rem; color: #e55a4e; }
-
-        .status-pill { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; font-weight: 600; }
-        .dot { width: 7px; height: 7px; border-radius: 50%; }
-        .dot-on  { background: #2ecc71; box-shadow: 0 0 6px #2ecc7166; }
-        .dot-off { background: #4b5563; }
-
-        .action-btn { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.7rem;
-            border-radius: 6px; font-size: 0.72rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; text-decoration: none; }
-        .btn-off { background: rgba(231,76,60,0.1); color: #e74c3c; border: 1px solid rgba(231,76,60,0.2); }
-        .btn-off:hover { background: rgba(231,76,60,0.2); }
-        .btn-on  { background: rgba(46,204,113,0.1); color: #2ecc71; border: 1px solid rgba(46,204,113,0.2); }
-        .btn-on:hover  { background: rgba(46,204,113,0.2); }
-
-        /* ── PANEL DERECHO ── */
-        .right-col { display: flex; flex-direction: column; gap: 1.5rem; }
-
-        /* Árbol geográfico */
-        .geo-tree { }
-        .tree-dpto { margin-bottom: 0.3rem; }
-        .tree-dpto-btn {
-            width: 100%; background: none; border: none; padding: 0.8rem 1.2rem;
-            display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; transition: background 0.2s; color: #fff;
-        }
-        .tree-dpto-btn:hover { background: rgba(216,44,32,0.05); }
-        .tree-dpto-name { font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 0.6rem; }
-        .dpto-flag { font-size: 0.65rem; font-family: monospace; background: rgba(216,44,32,0.15);
-            color: #e55a4e; padding: 0.15rem 0.4rem; border-radius: 3px; }
-        .tree-caret { color: #6b7280; font-size: 0.7rem; transition: transform 0.2s; }
-        .tree-caret.open { transform: rotate(90deg); }
-
-        .tree-cities { display: none; padding: 0 0 0.5rem 0; border-bottom: 1px solid #0d0606; }
-        .tree-cities.open { display: block; }
-        .tree-city { display: flex; justify-content: space-between; align-items: center;
-            padding: 0.5rem 1.2rem 0.5rem 2.5rem; font-size: 0.82rem; color: #9ca3af; }
-        .tree-city-name { display: flex; align-items: center; gap: 0.5rem; }
-        .city-dot { width: 5px; height: 5px; border-radius: 50%; background: #3a2525; }
-        .city-badges { display: flex; gap: 0.4rem; }
-        .mini-badge { font-size: 0.65rem; font-family: monospace; padding: 0.1rem 0.4rem;
-            border-radius: 3px; }
-        .mb-suc { background: rgba(52,152,219,0.1); color: #3498db; border: 1px solid rgba(52,152,219,0.2); }
-        .mb-zona { background: rgba(155,89,182,0.1); color: #9b59b2; border: 1px solid rgba(155,89,182,0.2); }
-
-        /* Modal nueva sucursal */
-        .btn-new { background: #d82c20; color: #fff; padding: 0.55rem 1.2rem; border-radius: 50px;
-            font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer; transition: background 0.2s; }
-        .btn-new:hover { background: #b52218; }
-
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
-            z-index: 1000; align-items: center; justify-content: center; }
-        .modal-overlay.open { display: flex; }
-        .modal-box { background: #0a0303; border: 1px solid #3a2525; border-radius: 14px;
-            padding: 2rem; width: 100%; max-width: 480px; box-shadow: 0 30px 60px rgba(0,0,0,0.7); }
-        .modal-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #fff; margin-bottom: 1.5rem;
-            border-left: 3px solid #d82c20; padding-left: 1rem; }
-        .modal-form-group { margin-bottom: 1.1rem; }
-        .modal-label { display: block; font-size: 0.78rem; color: #9ca3af; margin-bottom: 0.4rem; font-weight: 600; }
-        .modal-input { width: 100%; background: #1a0f0f; border: 1px solid #3a2525; border-radius: 8px;
-            color: #fff; padding: 0.7rem 1rem; font-size: 0.88rem; outline: none; box-sizing: border-box;
-            transition: border-color 0.2s; }
-        .modal-input:focus { border-color: #d82c20; }
-        .modal-input option { background: #1a0f0f; }
-        .modal-actions { display: flex; gap: 0.8rem; justify-content: flex-end; margin-top: 1.5rem; }
-        .btn-cancel-modal { background: transparent; color: #9ca3af; padding: 0.6rem 1.2rem;
-            border: 1px solid #3a2525; border-radius: 50px; font-size: 0.85rem; cursor: pointer; }
-        .btn-cancel-modal:hover { border-color: #6b7280; color: #fff; }
-        .btn-submit-modal { background: #d82c20; color: #fff; padding: 0.6rem 1.5rem;
-            border: none; border-radius: 50px; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
-        .btn-submit-modal:hover { background: #b52218; }
-
-        /* Empty */
-        .empty-row td { text-align: center; padding: 3rem; color: #4b5563; }
-
-        @@media (max-width: 900px) {
-            .main-grid { grid-template-columns: 1fr; }
-            .stats-row { grid-template-columns: repeat(2, 1fr); }
-        }
-    </style>
+/* ── SECCIÓN BLANCA ── */
+.suc-white {
+    background: #f7f5f4;
+    padding: 2rem 2.5rem 3rem;
 }
 
-<div class="geo-container">
+/* Stats cards */
+.suc-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.suc-kpi {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.07);
+    border-radius: 12px;
+    padding: 1.2rem 1.3rem;
+    position: relative; overflow: hidden;
+}
+.suc-kpi::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.suc-kpi.red::before    { background: #C8281E; }
+.suc-kpi.green::before  { background: #1a7a3c; }
+.suc-kpi.blue::before   { background: #1a4fa8; }
+.suc-kpi.purple::before { background: #6d28d9; }
+.suc-kpi-top {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: .7rem;
+}
+.suc-kpi-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+}
+.suc-kpi-icon.red    { background: rgba(200,40,30,.08); }
+.suc-kpi-icon.green  { background: rgba(26,122,60,.1); }
+.suc-kpi-icon.blue   { background: rgba(26,79,168,.1); }
+.suc-kpi-icon.purple { background: rgba(109,40,217,.1); }
+.suc-kpi-badge {
+    font-family: monospace; font-size: .57rem;
+    padding: .17rem .48rem; border-radius: 999px;
+    background: rgba(0,0,0,.05); color: #9a8a84;
+}
+.suc-kpi-badge.g { background: rgba(26,122,60,.1); color: #155e30; }
+.suc-kpi-num {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 2rem; font-weight: 800;
+    color: #18120f; line-height: 1; margin-bottom: .25rem;
+}
+.suc-kpi-lbl { font-size: .74rem; color: #9a8a84; }
 
-    {{-- HEADER --}}
-    <div class="geo-header">
-        <div class="geo-header-left">
-            <div class="geo-eyebrow">▸ Red de Distribución</div>
-            <h1 class="geo-title">NODOS <span>ACTIVOS</span></h1>
-            <p class="geo-subtitle">Disposición geográfica de sucursales, ciudades y zonas.</p>
+/* Section label */
+.suc-section-label {
+    display: flex; align-items: center; gap: .75rem; margin-bottom: 1.25rem;
+}
+.suc-section-label-txt {
+    font-family: monospace; font-size: .6rem;
+    color: #9a8a84; letter-spacing: 2px;
+    text-transform: uppercase; white-space: nowrap;
+}
+.suc-section-label-line { flex: 1; height: 1px; background: rgba(0,0,0,.07); }
+
+/* Main grid */
+.suc-main-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 1.25rem;
+    align-items: start;
+}
+
+/* Table panel */
+.suc-panel {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.07);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.suc-panel-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .9rem 1.25rem;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+}
+.suc-panel-title { font-size: .84rem; font-weight: 700; color: #18120f; }
+.suc-panel-count { font-family: monospace; font-size: .68rem; color: #9a8a84; }
+
+.suc-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.suc-table th {
+    background: #faf9f8; color: #9a8a84;
+    padding: .65rem 1rem;
+    font-family: monospace; font-size: .62rem;
+    text-transform: uppercase; letter-spacing: .07em;
+    border-bottom: 1px solid rgba(0,0,0,.05);
+    text-align: left; font-weight: 500;
+}
+.suc-table td {
+    padding: .85rem 1rem;
+    border-bottom: 1px solid rgba(0,0,0,.04);
+    font-size: .8rem; color: #5a4a44;
+    vertical-align: middle;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.suc-table tr:last-child td { border-bottom: none; }
+.suc-table tr:hover td { background: #faf9f8; }
+
+.suc-name { color: #18120f; font-weight: 600; font-size: .85rem; display: block; overflow: hidden; text-overflow: ellipsis; }
+.suc-addr { font-size: .7rem; color: #9a8a84; margin-top: 1px; display: block; overflow: hidden; text-overflow: ellipsis; }
+
+.suc-geo-badge {
+    display: inline-flex; align-items: center; gap: .28rem;
+    padding: .17rem .52rem;
+    background: rgba(200,40,30,.06); border: 1px solid rgba(200,40,30,.14);
+    border-radius: 20px; font-size: .68rem; color: #a81f16;
+}
+.suc-city-lbl { display: block; font-size: .7rem; color: #9a8a84; margin-top: 3px; }
+
+.suc-pill-on  { display: inline-flex; align-items: center; gap: .35rem; font-size: .73rem; font-weight: 600; color: #1a7a3c; }
+.suc-pill-off { display: inline-flex; align-items: center; gap: .35rem; font-size: .73rem; font-weight: 600; color: #9a8a84; }
+.dot-on  { width: 7px; height: 7px; border-radius: 50%; background: #1a7a3c; box-shadow: 0 0 0 2px rgba(26,122,60,.15); flex-shrink: 0; }
+.dot-off { width: 7px; height: 7px; border-radius: 50%; background: #9a8a84; flex-shrink: 0; }
+
+.suc-action-btn {
+    display: inline-flex; align-items: center; gap: .28rem;
+    padding: .27rem .62rem; border-radius: 6px;
+    font-size: .68rem; font-weight: 600;
+    border: none; cursor: pointer; text-decoration: none;
+}
+.suc-btn-off { background: rgba(200,40,30,.07); color: #C8281E; border: 1px solid rgba(200,40,30,.18); }
+.suc-btn-on  { background: rgba(26,122,60,.07);  color: #1a7a3c;  border: 1px solid rgba(26,122,60,.18); }
+
+/* Right panel árbol */
+.suc-right-col { display: flex; flex-direction: column; gap: 1rem; }
+.suc-tree-card {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.07);
+    border-radius: 12px; overflow: hidden;
+}
+.suc-tree-head {
+    padding: .85rem 1.2rem;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+}
+.suc-tree-head-title {
+    font-family: monospace; font-size: .62rem;
+    color: #C8281E; text-transform: uppercase; letter-spacing: .1em;
+}
+.suc-tree-dpto-btn {
+    width: 100%; background: none; border: none;
+    padding: .75rem 1.1rem;
+    display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; color: #18120f;
+    font-size: .84rem; font-weight: 600;
+    border-bottom: 1px solid rgba(0,0,0,.04);
+    font-family: inherit;
+}
+.suc-tree-dpto-btn:hover { background: #faf9f8; }
+.suc-tree-caret { color: #9a8a84; font-size: .65rem; transition: transform .2s; }
+.suc-tree-caret.open { transform: rotate(90deg); }
+.suc-tree-dpto-flag {
+    font-size: .6rem; font-family: monospace;
+    background: rgba(200,40,30,.1); color: #a81f16;
+    padding: .12rem .38rem; border-radius: 3px; margin-right: .5rem;
+}
+.suc-tree-cities { display: none; padding: .3rem 0; }
+.suc-tree-cities.open { display: block; }
+.suc-tree-city {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: .42rem 1.1rem .42rem 2.2rem;
+    font-size: .78rem; color: #5a4a44;
+}
+.suc-city-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: rgba(0,0,0,.15); margin-right: .45rem; display: inline-block;
+}
+.suc-mini-bdg {
+    font-size: .62rem; font-family: monospace;
+    padding: .1rem .38rem; border-radius: 3px;
+}
+.suc-mb-suc  { background: rgba(26,79,168,.08);  color: #1a4fa8; border: 1px solid rgba(26,79,168,.15); }
+.suc-mb-zona { background: rgba(109,40,217,.08); color: #5b21b6; border: 1px solid rgba(109,40,217,.15); }
+
+/* Alert */
+.suc-alert {
+    background: rgba(26,122,60,.08); border: 1px solid rgba(26,122,60,.2);
+    color: #1a7a3c; padding: .75rem 1.1rem; border-radius: 8px;
+    margin-bottom: 1.5rem; display: flex; align-items: center;
+    gap: .6rem; font-size: .82rem;
+}
+
+/* Btn nueva sucursal */
+.suc-btn-new {
+    background: #C8281E; color: #fff;
+    padding: .42rem 1rem; border-radius: 999px;
+    font-size: .74rem; font-weight: 700;
+    border: none; cursor: pointer; flex-shrink: 0;
+}
+.suc-btn-new:hover { background: #a81f16; }
+
+/* Modal */
+.suc-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.65); z-index: 9999;
+    align-items: center; justify-content: center;
+}
+.suc-modal-overlay.open { display: flex; }
+.suc-modal-box {
+    background: #fff; border-radius: 14px;
+    padding: 2rem; width: 100%; max-width: 460px; margin: 1rem;
+    box-shadow: 0 20px 60px rgba(0,0,0,.15);
+}
+.suc-modal-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.4rem; font-weight: 800;
+    color: #18120f; margin-bottom: 1.4rem;
+    border-left: 3px solid #C8281E; padding-left: 1rem; border-radius: 0;
+}
+.suc-modal-label {
+    display: block; font-size: .76rem;
+    color: #5a4a44; margin-bottom: .38rem; font-weight: 600;
+}
+.suc-modal-input {
+    width: 100%; border: 1px solid rgba(0,0,0,.15);
+    border-radius: 8px; padding: .65rem .9rem;
+    font-size: .86rem; color: #18120f; outline: none;
+    box-sizing: border-box; transition: border-color .2s;
+    font-family: inherit; background: #fff;
+}
+.suc-modal-input:focus { border-color: #C8281E; }
+.suc-modal-group { margin-bottom: 1rem; }
+.suc-modal-actions {
+    display: flex; gap: .75rem;
+    justify-content: flex-end; margin-top: 1.4rem;
+}
+.suc-modal-cancel {
+    background: transparent; color: #9a8a84;
+    padding: .55rem 1.1rem;
+    border: 1px solid rgba(0,0,0,.12);
+    border-radius: 999px; font-size: .82rem; cursor: pointer;
+}
+.suc-modal-submit {
+    background: #C8281E; color: #fff;
+    padding: .55rem 1.4rem; border: none;
+    border-radius: 999px; font-size: .82rem;
+    font-weight: 700; cursor: pointer;
+}
+.suc-modal-submit:hover { background: #a81f16; }
+
+/* Responsive */
+@@media (max-width: 1050px) {
+    .suc-main-grid { grid-template-columns: 1fr; }
+    .suc-right-col { flex-direction: row; flex-wrap: wrap; }
+    .suc-tree-card { flex: 1; min-width: 240px; }
+}
+@@media (max-width: 700px) {
+    .suc-kpi-grid { grid-template-columns: 1fr 1fr; }
+    .suc-hero-inner { flex-direction: column; }
+    .suc-map-wrap { width: 100%; display: flex; justify-content: center; }
+    .suc-white { padding: 1.5rem 1rem 2rem; }
+    .suc-hero { padding: 2.5rem 1rem 2rem; }
+}
+</style>
+}
+
+<!-- ══════════════════════════════════════
+     HERO NEGRO
+══════════════════════════════════════ -->
+<div class="suc-hero">
+    <div class="suc-hero-grid"></div>
+    <div class="suc-hero-glow"></div>
+
+    <div class="suc-hero-inner">
+
+        <!-- TEXTO IZQUIERDA -->
+        <div class="suc-hero-left">
+            <div class="suc-eyebrow">
+                <span class="suc-eyebrow-dot"></span>
+                Red de distribución · Sistema
+            </div>
+            <h1 class="suc-hero-title">
+                SUCURSALES<br>
+                <span class="stroke">ACTIVAS</span>
+            </h1>
+            <p class="suc-hero-sub">
+                Disposición geográfica de nodos, ciudades y zonas de distribución a nivel nacional.
+            </p>
+            <div class="suc-stats">
+                <div class="suc-stat-item">
+                    <span class="suc-stat-val">@Model.TotalSucursales</span>
+                    <span class="suc-stat-lbl">Sucursales</span>
+                </div>
+                <div class="suc-stat-sep"></div>
+                <div class="suc-stat-item">
+                    <span class="suc-stat-val">@Model.TotalDepartamentos</span>
+                    <span class="suc-stat-lbl">Departamentos</span>
+                </div>
+                <div class="suc-stat-sep"></div>
+                <div class="suc-stat-item">
+                    <span class="suc-stat-val">@Model.TotalCiudades</span>
+                    <span class="suc-stat-lbl">Ciudades</span>
+                </div>
+                <div class="suc-stat-sep"></div>
+                <div class="suc-stat-item">
+                    <span class="suc-stat-val">@Model.TotalActivas</span>
+                    <span class="suc-stat-lbl">Nodos activos</span>
+                </div>
+            </div>
         </div>
-        <button class="btn-new" onclick="document.getElementById('modalNueva').classList.add('open')">
-            + Nueva Sucursal
-        </button>
-    </div>
 
+        <!-- MAPA BOLIVIA -->
+        <div class="suc-map-wrap">
+            <svg width="290" height="300" viewBox="0 0 290 300" style="display:block;">
+                <defs>
+                    <clipPath id="bolclip">
+                        <path d="M 58,8 L 95,6 L 140,5 L 178,6 L 210,8 L 240,18 L 258,30 L 265,50 L 268,75 L 265,105 L 260,135 L 255,160 L 248,185 L 240,205 L 228,222 L 215,235 L 200,245 L 185,252 L 170,255 L 155,258 L 140,260 L 128,258 L 115,252 L 103,242 L 94,228 L 88,215 L 80,200 L 72,188 L 58,178 L 46,170 L 36,158 L 28,145 L 22,130 L 18,115 L 14,98 L 12,80 L 14,62 L 18,46 L 26,32 L 38,20 Z"/>
+                    </clipPath>
+                </defs>
+
+                <!-- Fondo silueta -->
+                <rect x="0" y="0" width="290" height="300" fill="#1a0d0d" clip-path="url(#bolclip)"/>
+
+                <!-- Líneas internas departamentos -->
+                <g clip-path="url(#bolclip)" fill="none" stroke="#C8281E" stroke-width=".8" opacity=".7">
+                    <!-- Pando / La Paz -->
+                    <line x1="58" y1="8" x2="58" y2="55"/>
+                    <!-- La Paz / Beni norte -->
+                    <path d="M 58,55 L 90,70 L 130,80 L 178,70"/>
+                    <!-- Beni / Santa Cruz -->
+                    <path d="M 178,6 L 185,55 L 188,100 L 182,130 L 175,160"/>
+                    <!-- La Paz / Oruro / Cochabamba -->
+                    <path d="M 58,55 L 75,90 L 80,118 L 105,130"/>
+                    <!-- Cochabamba límites -->
+                    <path d="M 90,70 L 110,95 L 145,90 L 182,100"/>
+                    <path d="M 110,95 L 105,130 L 115,158 L 145,162 L 175,160"/>
+                    <!-- Oruro / Potosi -->
+                    <path d="M 80,118 L 72,138 L 62,168"/>
+                    <path d="M 105,130 L 115,158"/>
+                    <!-- Potosi / Chuquisaca -->
+                    <path d="M 62,168 L 85,175 L 115,168 L 140,170 L 155,175"/>
+                    <!-- Chuquisaca / Santa Cruz sur -->
+                    <path d="M 155,175 L 165,200 L 160,225"/>
+                    <!-- Tarija -->
+                    <path d="M 62,228 L 88,218 L 115,222 L 135,226 L 158,220 L 165,230"/>
+                </g>
+
+                <!-- Contorno exterior -->
+                <path d="M 58,8 L 95,6 L 140,5 L 178,6 L 210,8 L 240,18 L 258,30 L 265,50 L 268,75 L 265,105 L 260,135 L 255,160 L 248,185 L 240,205 L 228,222 L 215,235 L 200,245 L 185,252 L 170,255 L 155,258 L 140,260 L 128,258 L 115,252 L 103,242 L 94,228 L 88,215 L 80,200 L 72,188 L 58,178 L 46,170 L 36,158 L 28,145 L 22,130 L 18,115 L 14,98 L 12,80 L 14,62 L 18,46 L 26,32 L 38,20 Z"
+                      fill="none" stroke="#C8281E" stroke-width="2"/>
+
+                <!-- Labels -->
+                <text x="36" y="28"  font-family="monospace" font-size="6.5" fill="rgba(255,255,255,.42)" text-anchor="middle">PANDO</text>
+                <text x="34" y="105" font-family="monospace" font-size="7"   fill="rgba(255,255,255,.42)" text-anchor="middle">LA PAZ</text>
+                <text x="134" y="52" font-family="monospace" font-size="7"   fill="rgba(255,255,255,.42)" text-anchor="middle">EL BENI</text>
+                <text x="222" y="140" font-family="monospace" font-size="7"  fill="rgba(255,255,255,.42)" text-anchor="middle">SANTA CRUZ</text>
+                <text x="138" y="122" font-family="monospace" font-size="6.5" fill="rgba(255,255,255,.42)" text-anchor="middle">CBBA</text>
+                <text x="64" y="155" font-family="monospace" font-size="6"   fill="rgba(255,255,255,.38)" text-anchor="middle">ORURO</text>
+                <text x="70" y="200" font-family="monospace" font-size="6"   fill="rgba(255,255,255,.38)" text-anchor="middle">POTOSÍ</text>
+                <text x="133" y="197" font-family="monospace" font-size="6"  fill="rgba(255,255,255,.38)" text-anchor="middle">CHQS.</text>
+                <text x="125" y="242" font-family="monospace" font-size="6"  fill="rgba(255,255,255,.38)" text-anchor="middle">TARIJA</text>
+
+                <!-- Nodos (uno por departamento) -->
+                <circle cx="34"  cy="22"  r="4.5" fill="rgba(200,40,30,.22)" stroke="#C8281E" stroke-width="1"/>
+                <circle cx="34"  cy="22"  r="2.2" fill="#C8281E"/>
+
+                <circle cx="28"  cy="108" r="5"   fill="rgba(200,40,30,.22)" stroke="#C8281E" stroke-width="1.1"/>
+                <circle cx="28"  cy="108" r="2.6"  fill="#C8281E"/>
+
+                <circle cx="130" cy="40"  r="5"   fill="rgba(200,40,30,.22)" stroke="#C8281E" stroke-width="1.1"/>
+                <circle cx="130" cy="40"  r="2.6"  fill="#C8281E"/>
+
+                <circle cx="222" cy="128" r="5"   fill="rgba(200,40,30,.22)" stroke="#C8281E" stroke-width="1.1"/>
+                <circle cx="222" cy="128" r="2.6"  fill="#C8281E"/>
+
+                <circle cx="138" cy="112" r="5"   fill="rgba(200,40,30,.22)" stroke="#C8281E" stroke-width="1.1"/>
+                <circle cx="138" cy="112" r="2.6"  fill="#C8281E"/>
+
+                <circle cx="60"  cy="148" r="4.5" fill="rgba(200,40,30,.2)"  stroke="#C8281E" stroke-width="1"/>
+                <circle cx="60"  cy="148" r="2.2"  fill="#C8281E"/>
+
+                <circle cx="68"  cy="192" r="4.5" fill="rgba(200,40,30,.2)"  stroke="#C8281E" stroke-width="1"/>
+                <circle cx="68"  cy="192" r="2.2"  fill="#C8281E"/>
+
+                <circle cx="130" cy="188" r="4.5" fill="rgba(200,40,30,.2)"  stroke="#C8281E" stroke-width="1"/>
+                <circle cx="130" cy="188" r="2.2"  fill="#C8281E"/>
+
+                <circle cx="122" cy="238" r="4.5" fill="rgba(200,40,30,.2)"  stroke="#C8281E" stroke-width="1"/>
+                <circle cx="122" cy="238" r="2.2"  fill="#C8281E"/>
+
+                <!-- Leyenda -->
+                <circle cx="14" cy="282" r="4"   fill="rgba(200,40,30,.2)" stroke="#C8281E" stroke-width="1"/>
+                <circle cx="14" cy="282" r="2"   fill="#C8281E"/>
+                <text x="22" y="286" font-family="monospace" font-size="7.5" fill="rgba(255,255,255,.38)">nodo activo</text>
+                <text x="210" y="286" font-family="monospace" font-size="6.5" fill="rgba(200,40,30,.4)" text-anchor="middle" letter-spacing="1.5">BOLIVIA · 9 DPTOS</text>
+
+                <!-- Marco decorativo -->
+                <rect x="1" y="1" width="288" height="298" rx="10" fill="none" stroke="rgba(200,40,30,.12)" stroke-width="1"/>
+            </svg>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SECCIÓN BLANCA
+══════════════════════════════════════ -->
+<div class="suc-white">
+
+    <!-- ALERT -->
     @if (TempData["SuccessMsg"] != null)
     {
-        <div class="alert-success">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+        <div class="suc-alert" id="sucAlert">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M13.854 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L6.5 10.293l6.646-6.647a.5.5 0 01.708 0z"/>
             </svg>
             @TempData["SuccessMsg"]
         </div>
     }
 
-    {{-- STATS --}}
-    <div class="stats-row">
-        <div class="stat-card highlight">
-            <div class="stat-icon">🏢</div>
-            <div>
-                <div class="stat-num">@Model.TotalSucursales</div>
-                <div class="stat-lbl">Sucursales totales</div>
+    <!-- KPI CARDS -->
+    <div class="suc-kpi-grid">
+        <div class="suc-kpi red">
+            <div class="suc-kpi-top">
+                <div class="suc-kpi-icon red">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C8281E" stroke-width="2" stroke-linecap="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                </div>
+                <span class="suc-kpi-badge">Total</span>
             </div>
+            <div class="suc-kpi-num">@Model.TotalSucursales</div>
+            <div class="suc-kpi-lbl">Sucursales totales</div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon">🟢</div>
-            <div>
-                <div class="stat-num">@Model.TotalActivas</div>
-                <div class="stat-lbl">Nodos activos</div>
+        <div class="suc-kpi green">
+            <div class="suc-kpi-top">
+                <div class="suc-kpi-icon green">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a7a3c" stroke-width="2" stroke-linecap="round">
+                        <circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/>
+                    </svg>
+                </div>
+                <span class="suc-kpi-badge g">Activos</span>
             </div>
+            <div class="suc-kpi-num">@Model.TotalActivas</div>
+            <div class="suc-kpi-lbl">Nodos activos</div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon">🏙️</div>
-            <div>
-                <div class="stat-num">@Model.TotalCiudades</div>
-                <div class="stat-lbl">Ciudades cubiertas</div>
+        <div class="suc-kpi blue">
+            <div class="suc-kpi-top">
+                <div class="suc-kpi-icon blue">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a4fa8" stroke-width="2" stroke-linecap="round">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+                    </svg>
+                </div>
+                <span class="suc-kpi-badge">Cobertura</span>
             </div>
+            <div class="suc-kpi-num">@Model.TotalCiudades</div>
+            <div class="suc-kpi-lbl">Ciudades cubiertas</div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon">🗺️</div>
-            <div>
-                <div class="stat-num">@Model.TotalDepartamentos</div>
-                <div class="stat-lbl">Departamentos</div>
+        <div class="suc-kpi purple">
+            <div class="suc-kpi-top">
+                <div class="suc-kpi-icon purple">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" stroke-width="2" stroke-linecap="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/>
+                    </svg>
+                </div>
+                <span class="suc-kpi-badge">Bolivia</span>
             </div>
+            <div class="suc-kpi-num">@Model.TotalDepartamentos</div>
+            <div class="suc-kpi-lbl">Departamentos</div>
         </div>
     </div>
 
-    {{-- MAIN GRID --}}
-    <div class="main-grid">
+    <!-- SECTION LABEL + BOTÓN -->
+    <div class="suc-section-label">
+        <span class="suc-section-label-txt">Listado de sucursales</span>
+        <div class="suc-section-label-line"></div>
+        <button class="suc-btn-new" onclick="document.getElementById('modalNueva').classList.add('open')">
+            + Nueva Sucursal
+        </button>
+    </div>
 
-        {{-- TABLA --}}
-        <div class="panel">
-            <div class="panel-header">
-                <span class="panel-title">📍 Listado de Sucursales</span>
-                <span style="font-size:0.75rem; color:#4b5563;">@Model.TotalSucursales registros</span>
+    <!-- MAIN GRID: tabla + árbol -->
+    <div class="suc-main-grid">
+
+        <!-- TABLA DE SUCURSALES -->
+        <div class="suc-panel">
+            <div class="suc-panel-head">
+                <span class="suc-panel-title">Sucursales registradas</span>
+                <span class="suc-panel-count">@Model.TotalSucursales registros</span>
             </div>
             <table class="suc-table">
                 <thead>
                     <tr>
-                        <th>Sucursal</th>
-                        <th>Ubicación</th>
-                        <th>Contacto</th>
-                        <th>Estado</th>
-                        <th></th>
+                        <th style="width:30%">Sucursal</th>
+                        <th style="width:22%">Ubicación</th>
+                        <th style="width:18%">Teléfono</th>
+                        <th style="width:15%">Estado</th>
+                        <th style="width:15%"></th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (!Model.Sucursales.Any())
                     {
-                        <tr class="empty-row"><td colspan="5">Sin sucursales registradas.</td></tr>
+                        <tr>
+                            <td colspan="5" style="text-align:center; padding:2.5rem; color:#9a8a84;">
+                                Sin sucursales registradas.
+                            </td>
+                        </tr>
                     }
                     else
                     {
@@ -219,38 +592,39 @@
                         {
                             <tr>
                                 <td>
-                                    <div class="suc-name">@s.NombreSucursal</div>
+                                    <span class="suc-name">@s.NombreSucursal</span>
                                     @if (!string.IsNullOrEmpty(s.Direccion))
                                     {
-                                        <div class="suc-addr">@s.Direccion</div>
+                                        <span class="suc-addr">@s.Direccion</span>
                                     }
                                 </td>
                                 <td>
-                                    <span class="geo-badge">🗺 @s.NombreDepartamento</span><br/>
-                                    <span style="font-size:0.78rem; color:#6b7280; margin-top:4px; display:inline-block;">@s.NombreCiudad</span>
+                                    <span class="suc-geo-badge">@s.NombreDepartamento</span>
+                                    <span class="suc-city-lbl">@s.NombreCiudad</span>
+                                </td>
+                                <td style="font-family:monospace; font-size:.78rem;">
+                                    @(!string.IsNullOrEmpty(s.Telefono) ? s.Telefono : "—")
                                 </td>
                                 <td>
-                                    @if (!string.IsNullOrEmpty(s.Telefono))
+                                    @if (s.Activo)
                                     {
-                                        <span style="font-family:monospace; font-size:0.8rem;">@s.Telefono</span>
+                                        <span class="suc-pill-on">
+                                            <span class="dot-on"></span>Activa
+                                        </span>
                                     }
                                     else
                                     {
-                                        <span style="color:#3a2525;">—</span>
+                                        <span class="suc-pill-off">
+                                            <span class="dot-off"></span>Inactiva
+                                        </span>
                                     }
-                                </td>
-                                <td>
-                                    <span class="status-pill">
-                                        <span class="dot @(s.Activo ? "dot-on" : "dot-off")"></span>
-                                        @(s.Activo ? "Activa" : "Inactiva")
-                                    </span>
                                 </td>
                                 <td>
                                     <form asp-controller="Seguridad" asp-action="ToggleSucursal"
                                           asp-route-id="@s.SucursalId" method="post"
-                                          onsubmit="return confirm('¿@(s.Activo ? "Desactivar" : "Reactivar") @s.NombreSucursal?')">
+                                          onsubmit="return confirm('@(s.Activo ? "¿Desactivar" : "¿Reactivar") @s.NombreSucursal?')">
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="action-btn @(s.Activo ? "btn-off" : "btn-on")">
+                                        <button type="submit" class="suc-action-btn @(s.Activo ? "suc-btn-off" : "suc-btn-on")">
                                             @(s.Activo ? "⏸ Desactivar" : "▶ Reactivar")
                                         </button>
                                     </form>
@@ -262,69 +636,68 @@
             </table>
         </div>
 
-        {{-- PANEL DERECHO --}}
-        <div class="right-col">
-
-            {{-- ÁRBOL GEOGRÁFICO --}}
-            <div class="panel">
-                <div class="panel-header">
-                    <span class="panel-title">🗂 Árbol Geográfico</span>
+        <!-- ÁRBOL GEOGRÁFICO -->
+        <div class="suc-right-col">
+            <div class="suc-tree-card">
+                <div class="suc-tree-head">
+                    <span class="suc-tree-head-title">Árbol geográfico</span>
                 </div>
-                <div class="geo-tree">
-                    @foreach (var dpto in Model.Departamentos)
-                    {
-                        var dptoId = $"dpto-{dpto.DepartamentoGeoId}";
-                        <div class="tree-dpto">
-                            <button class="tree-dpto-btn" onclick="toggleDpto('@dptoId', this)">
-                                <span class="tree-dpto-name">
-                                    <span class="dpto-flag">BO</span>
-                                    @dpto.NombreDpto
-                                </span>
-                                <span class="tree-caret">▶</span>
-                            </button>
-                            <div class="tree-cities" id="@dptoId">
-                                @foreach (var ciudad in dpto.Ciudades)
-                                {
-                                    <div class="tree-city">
-                                        <span class="tree-city-name">
-                                            <span class="city-dot"></span>
-                                            @ciudad.NombreCiudad
-                                        </span>
-                                        <span class="city-badges">
-                                            @if (ciudad.TotalSucursales > 0)
-                                            {
-                                                <span class="mini-badge mb-suc">@ciudad.TotalSucursales suc</span>
-                                            }
-                                            @if (ciudad.TotalZonas > 0)
-                                            {
-                                                <span class="mini-badge mb-zona">@ciudad.TotalZonas zonas</span>
-                                            }
-                                        </span>
-                                    </div>
-                                }
-                            </div>
+                @foreach (var dpto in Model.Departamentos)
+                {
+                    var dptoId = $"dpto-{dpto.DepartamentoGeoId}";
+                    <div>
+                        <button class="suc-tree-dpto-btn" onclick="sucToggleDpto('@dptoId', this)">
+                            <span>
+                                <span class="suc-tree-dpto-flag">BO</span>
+                                @dpto.NombreDpto
+                            </span>
+                            <span class="suc-tree-caret">▶</span>
+                        </button>
+                        <div class="suc-tree-cities" id="@dptoId">
+                            @foreach (var ciudad in dpto.Ciudades)
+                            {
+                                <div class="suc-tree-city">
+                                    <span>
+                                        <span class="suc-city-dot"></span>@ciudad.NombreCiudad
+                                    </span>
+                                    <span style="display:flex; gap:.35rem;">
+                                        @if (ciudad.TotalSucursales > 0)
+                                        {
+                                            <span class="suc-mini-bdg suc-mb-suc">@ciudad.TotalSucursales suc</span>
+                                        }
+                                        @if (ciudad.TotalZonas > 0)
+                                        {
+                                            <span class="suc-mini-bdg suc-mb-zona">@ciudad.TotalZonas zonas</span>
+                                        }
+                                    </span>
+                                </div>
+                            }
                         </div>
-                    }
-                </div>
+                    </div>
+                }
             </div>
-
         </div>
+
     </div>
 </div>
 
-{{-- MODAL NUEVA SUCURSAL --}}
-<div class="modal-overlay" id="modalNueva">
-    <div class="modal-box">
-        <div class="modal-title">Nueva Sucursal</div>
+
+<!-- ══════════════════════════════════════
+     MODAL NUEVA SUCURSAL
+══════════════════════════════════════ -->
+<div class="suc-modal-overlay" id="modalNueva">
+    <div class="suc-modal-box">
+        <div class="suc-modal-title">Nueva Sucursal</div>
         <form asp-controller="Seguridad" asp-action="CrearSucursal" method="post">
             @Html.AntiForgeryToken()
-            <div class="modal-form-group">
-                <label class="modal-label">Nombre de la Sucursal *</label>
-                <input name="NombreSucursal" class="modal-input" placeholder="ej. Sucursal El Alto" required maxlength="100" />
+            <div class="suc-modal-group">
+                <label class="suc-modal-label">Nombre de la Sucursal *</label>
+                <input name="NombreSucursal" class="suc-modal-input"
+                       placeholder="ej. Sucursal El Alto" required maxlength="100"/>
             </div>
-            <div class="modal-form-group">
-                <label class="modal-label">Ciudad *</label>
-                <select name="CiudadId" class="modal-input" required>
+            <div class="suc-modal-group">
+                <label class="suc-modal-label">Ciudad *</label>
+                <select name="CiudadId" class="suc-modal-input" required>
                     <option value="">— Seleccionar ciudad —</option>
                     @foreach (var dpto in Model.Departamentos)
                     {
@@ -337,48 +710,57 @@
                     }
                 </select>
             </div>
-            <div class="modal-form-group">
-                <label class="modal-label">Dirección</label>
-                <input name="Direccion" class="modal-input" placeholder="Av. Ejemplo #123" maxlength="200" />
+            <div class="suc-modal-group">
+                <label class="suc-modal-label">Dirección</label>
+                <input name="Direccion" class="suc-modal-input"
+                       placeholder="Av. Ejemplo #123" maxlength="200"/>
             </div>
-            <div class="modal-form-group">
-                <label class="modal-label">Teléfono</label>
-                <input name="Telefono" class="modal-input" placeholder="2-2001234" maxlength="15" />
+            <div class="suc-modal-group">
+                <label class="suc-modal-label">Teléfono</label>
+                <input name="Telefono" class="suc-modal-input"
+                       placeholder="2-2001234" maxlength="15"/>
             </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-cancel-modal"
+            <div class="suc-modal-actions">
+                <button type="button" class="suc-modal-cancel"
                         onclick="document.getElementById('modalNueva').classList.remove('open')">
                     Cancelar
                 </button>
-                <button type="submit" class="btn-submit-modal">✔ Crear Sucursal</button>
+                <button type="submit" class="suc-modal-submit">✔ Crear Sucursal</button>
             </div>
         </form>
     </div>
 </div>
 
+
 @section Scripts {
-    <script>
-        function toggleDpto(id, btn) {
-            const panel = document.getElementById(id);
-            const caret = btn.querySelector('.tree-caret');
-            panel.classList.toggle('open');
-            caret.classList.toggle('open');
+<script>
+    function sucToggleDpto(id, btn) {
+        const panel = document.getElementById(id);
+        const caret = btn.querySelector('.suc-tree-caret');
+        panel.classList.toggle('open');
+        caret.classList.toggle('open');
+    }
+
+    // Cerrar modal con Escape
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            document.getElementById('modalNueva').classList.remove('open');
         }
+    });
 
-        // Cerrar modal con Escape
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') document.getElementById('modalNueva').classList.remove('open');
-        });
+    // Cerrar modal al click fuera
+    document.getElementById('modalNueva').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('open');
+    });
 
-        // Cerrar modal al click fuera
-        document.getElementById('modalNueva').addEventListener('click', function(e) {
-            if (e.target === this) this.classList.remove('open');
-        });
-
-        // Auto-ocultar alert
+    // Auto-ocultar alert
+    const alertEl = document.getElementById('sucAlert');
+    if (alertEl) {
         setTimeout(() => {
-            const a = document.querySelector('.alert-success');
-            if (a) { a.style.transition = 'opacity 0.5s'; a.style.opacity = '0'; setTimeout(() => a.remove(), 500); }
+            alertEl.style.transition = 'opacity .5s';
+            alertEl.style.opacity = '0';
+            setTimeout(() => alertEl.remove(), 500);
         }, 4000);
-    </script>
+    }
+</script>
 }
