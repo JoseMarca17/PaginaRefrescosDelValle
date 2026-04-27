@@ -6,89 +6,593 @@
 }
 
 @section Styles {
-    <style>
-        /* Mantenemos tus estilos originales */
-        .page-wrapper { max-width: 1200px; margin: 0 auto; padding: 6rem 2rem; position: relative; z-index: 2; }
-        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; border-bottom: 1px solid var(--dark-700); padding-bottom: 1.5rem; }
-        .page-title { font-family: var(--font-display); font-size: 2.2rem; color: var(--white); border-left: 4px solid var(--red-600); padding-left: 1rem; }
-        .btn-red { background: var(--red-600); color: var(--white); padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: 0.2s; }
-        .btn-red:hover { background: var(--red-500); box-shadow: 0 4px 15px rgba(200,40,30,0.3); }
-        .users-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
-        .user-card { background: var(--dark-800); border: 1px solid var(--dark-600); border-radius: var(--radius-lg); padding: 1.5rem; transition: 0.2s; }
-        .user-card:hover { border-color: var(--red-600); transform: translateY(-3px); }
-        .uc-head { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; }
-        .uc-avatar { width: 50px; height: 50px; background: var(--red-700); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 1.2rem; font-weight: bold; color: var(--white); }
-        .uc-name { color: var(--white); font-size: 1.1rem; margin-bottom: 0.2rem; }
-        .uc-email { color: var(--gray-500); font-size: 0.8rem; font-family: var(--font-mono); }
-        .uc-body { display: flex; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--dark-600); padding-top: 1rem; }
-        .uc-row { display: flex; justify-content: space-between; font-size: 0.85rem; }
-        .uc-label { color: var(--gray-400); }
-        .uc-val { color: var(--white); font-weight: 500; text-align: right; }
-        .uc-val.red { color: var(--red-400); }
+<style>
+/* ── HERO ── */
+.usr-hero {
+    background: #0f0b09;
+    padding: 3rem 2.5rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.usr-hero-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,40,30,.04) 59px, rgba(200,40,30,.04) 60px),
+        repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,40,30,.04) 59px, rgba(200,40,30,.04) 60px);
+}
+.usr-hero-glow {
+    position: absolute; width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(200,40,30,.12) 0%, transparent 70%);
+    top: -160px; left: -80px; pointer-events: none;
+}
+.usr-hero-inner {
+    position: relative; z-index: 2;
+    display: flex; align-items: flex-end;
+    justify-content: space-between; gap: 2rem; flex-wrap: wrap;
+}
+.usr-eyebrow {
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-family: monospace; font-size: .64rem;
+    color: rgba(200,40,30,.85); letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: .9rem;
+}
+.usr-eyebrow-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #C8281E; display: inline-block;
+    animation: usrpulse 2.5s ease infinite;
+}
+@@keyframes usrpulse {
+    0%,100%{opacity:1;transform:scale(1);}
+    50%{opacity:.35;transform:scale(.55);}
+}
+.usr-hero-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    color: #fff; line-height: .95;
+    letter-spacing: 2px; font-weight: 800;
+    margin-bottom: .6rem;
+}
+.usr-hero-title .stroke { -webkit-text-stroke: 2px #C8281E; color: transparent; }
+.usr-hero-sub {
+    font-size: .82rem; color: rgba(255,255,255,.35);
+    line-height: 1.6; max-width: 380px;
+}
+.usr-hero-right {
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.usr-stat-chip {
+    display: flex; flex-direction: column; align-items: center;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px; padding: .7rem 1.2rem;
+}
+.usr-stat-chip-val {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.6rem; color: #C8281E; line-height: 1; font-weight: 800;
+}
+.usr-stat-chip-lbl {
+    font-size: .57rem; font-family: monospace;
+    color: rgba(255,255,255,.28); margin-top: .15rem;
+    text-transform: uppercase; letter-spacing: 1px;
+}
+.usr-btn-new {
+    background: #C8281E; color: #fff;
+    padding: .55rem 1.3rem; border-radius: 999px;
+    font-size: .78rem; font-weight: 700;
+    border: none; cursor: pointer;
+    text-decoration: none; display: inline-flex;
+    align-items: center; gap: .4rem;
+    transition: background .2s, transform .15s;
+    box-shadow: 0 2px 10px rgba(200,40,30,.3);
+}
+.usr-btn-new:hover { background: #a81f16; transform: translateY(-1px); }
 
-        /* Botones de acción */
-        .uc-actions { display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--dark-600); }
-        .action-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;
-            padding: 0.4rem 0; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
-            text-decoration: none; border: none; cursor: pointer; transition: all 0.2s; }
-        .btn-edit { background: rgba(241,196,15,0.1); color: #f1c40f; border: 1px solid rgba(241,196,15,0.25); }
-        .btn-edit:hover { background: rgba(241,196,15,0.2); color: #f1c40f; }
-        .btn-toggle-off { background: rgba(231,76,60,0.1); color: #e74c3c; border: 1px solid rgba(231,76,60,0.25); }
-        .btn-toggle-off:hover { background: rgba(231,76,60,0.2); color: #e74c3c; }
-        .btn-toggle-on { background: rgba(46,204,113,0.1); color: #2ecc71; border: 1px solid rgba(46,204,113,0.25); }
-        .btn-toggle-on:hover { background: rgba(46,204,113,0.2); color: #2ecc71; }
-    </style>
+/* ── SECCIÓN BLANCA ── */
+.usr-white { background: #f7f5f4; padding: 2rem 2.5rem 3rem; }
+
+/* Buscador + filtros */
+.usr-toolbar {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.5rem; flex-wrap: wrap;
+}
+.usr-search-wrap {
+    position: relative; flex: 1; min-width: 220px;
+}
+.usr-search-wrap svg {
+    position: absolute; left: .9rem; top: 50%;
+    transform: translateY(-50%);
+    stroke: #9a8a84; pointer-events: none;
+}
+.usr-search {
+    width: 100%;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.1);
+    border-radius: 999px;
+    padding: .6rem 1rem .6rem 2.5rem;
+    font-size: .83rem; color: #18120f;
+    outline: none; transition: border-color .2s;
+    font-family: inherit;
+}
+.usr-search:focus { border-color: #C8281E; }
+.usr-search::placeholder { color: #bbb; }
+
+.usr-filter-btn {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: #fff; border: 1px solid rgba(0,0,0,.1);
+    border-radius: 999px; padding: .58rem 1.1rem;
+    font-size: .78rem; color: #5a4a44;
+    cursor: pointer; font-family: inherit;
+    transition: border-color .2s, color .2s;
+}
+.usr-filter-btn:hover,
+.usr-filter-btn.active { border-color: #C8281E; color: #C8281E; }
+.usr-filter-btn svg { stroke: currentColor; }
+
+/* Tabs de tipo */
+.usr-tabs {
+    display: flex; gap: .5rem; margin-bottom: 1.5rem;
+    background: #fff; border: 1px solid rgba(0,0,0,.07);
+    border-radius: 12px; padding: .4rem;
+    width: fit-content;
+}
+.usr-tab {
+    padding: .45rem 1.2rem; border-radius: 8px;
+    font-size: .78rem; font-weight: 600;
+    cursor: pointer; border: none; background: none;
+    color: #9a8a84; font-family: inherit;
+    transition: all .18s;
+}
+.usr-tab.active {
+    background: #C8281E; color: #fff;
+    box-shadow: 0 2px 8px rgba(200,40,30,.25);
+}
+.usr-tab-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 999px;
+    font-size: .58rem; font-weight: 700; margin-left: .35rem;
+    background: rgba(255,255,255,.2); color: inherit;
+}
+.usr-tab:not(.active) .usr-tab-count { background: rgba(0,0,0,.07); color: #9a8a84; }
+
+/* Section label */
+.usr-slbl {
+    display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem;
+}
+.usr-slbl-txt {
+    font-family: monospace; font-size: .6rem;
+    color: #9a8a84; letter-spacing: 2px;
+    text-transform: uppercase; white-space: nowrap;
+}
+.usr-slbl-line { flex: 1; height: 1px; background: rgba(0,0,0,.07); }
+
+/* Tabla */
+.usr-table-card {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.07);
+    border-radius: 12px; overflow: hidden;
+    margin-bottom: 2rem;
+}
+.usr-table-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .9rem 1.25rem;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+}
+.usr-table-head-title { font-size: .84rem; font-weight: 700; color: #18120f; }
+.usr-table-head-count { font-family: monospace; font-size: .68rem; color: #9a8a84; }
+
+table.usr-tbl { width: 100%; border-collapse: collapse; }
+table.usr-tbl th {
+    background: #faf9f8; color: #9a8a84;
+    padding: .65rem 1.1rem;
+    font-family: monospace; font-size: .6rem;
+    text-transform: uppercase; letter-spacing: .07em;
+    border-bottom: 1px solid rgba(0,0,0,.05);
+    text-align: left; font-weight: 500;
+}
+table.usr-tbl td {
+    padding: .9rem 1.1rem;
+    border-bottom: 1px solid rgba(0,0,0,.04);
+    font-size: .82rem; color: #5a4a44;
+    vertical-align: middle;
+}
+table.usr-tbl tr:last-child td { border-bottom: none; }
+table.usr-tbl tr:hover td { background: #faf9f8; }
+
+.usr-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #C8281E; display: inline-flex;
+    align-items: center; justify-content: center;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: .85rem; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+}
+.usr-avatar.inactive { background: #d1c7c3; }
+.usr-name-cell { display: flex; align-items: center; gap: .75rem; }
+.usr-full-name { color: #18120f; font-weight: 600; font-size: .85rem; }
+.usr-email { font-size: .7rem; color: #9a8a84; font-family: monospace; }
+
+.usr-role-badge {
+    display: inline-block;
+    padding: .18rem .6rem; border-radius: 999px;
+    font-size: .68rem; font-family: monospace;
+    background: rgba(200,40,30,.07);
+    border: 1px solid rgba(200,40,30,.15);
+    color: #a81f16; font-weight: 500;
+}
+.usr-sucursal {
+    font-size: .76rem; color: #5a4a44;
+    max-width: 130px; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap;
+    display: block;
 }
 
-<div class="page-wrapper">
-    <div class="header-flex">
-        <h1 class="page-title">Directorio de Identidades</h1>
-        <a asp-action="RegistrarPersonal" class="btn-red">+ Nuevo Registro</a>
-    </div>
+.usr-status-on {
+    display: inline-flex; align-items: center; gap: .35rem;
+    font-size: .73rem; font-weight: 600; color: #1a7a3c;
+}
+.usr-status-off {
+    display: inline-flex; align-items: center; gap: .35rem;
+    font-size: .73rem; font-weight: 600; color: #9a8a84;
+}
+.dot-on  { width:7px;height:7px;border-radius:50%;background:#1a7a3c;box-shadow:0 0 0 2px rgba(26,122,60,.15);flex-shrink:0; }
+.dot-off { width:7px;height:7px;border-radius:50%;background:#d1c7c3;flex-shrink:0; }
 
-    <div class="users-grid">
-        @foreach (var user in Model)
-        {
-            <div class="user-card">
-                <div class="uc-head">
-                    <div class="uc-avatar">@user.Iniciales</div>
-                    <div>
-                        <div class="uc-name">@user.NombreCompleto</div>
-                        <div class="uc-email">@user.Email</div>
-                    </div>
-                </div>
-                <div class="uc-body">
-                    <div class="uc-row">
-                        <span class="uc-label">Roles:</span> 
-                        <span class="uc-val red">@user.Roles</span>
-                    </div>
-                    <div class="uc-row">
-                        <span class="uc-label">Nodo Base:</span> 
-                        <span class="uc-val">@user.Sucursal</span>
-                    </div>
-                    <div class="uc-row">
-                        <span class="uc-label">Estado:</span> 
-                        <span class="uc-val" style="color: @(user.Activo ? "#27c93f" : "#ff4d4d");">
-                            @(user.Activo ? "Activo" : "Suspendido")
-                        </span>
-                    </div>
-                </div>
+.usr-action-cell { display: flex; align-items: center; gap: .4rem; }
+.usr-abtn {
+    display: inline-flex; align-items: center; gap: .28rem;
+    padding: .3rem .7rem; border-radius: 6px;
+    font-size: .68rem; font-weight: 600;
+    border: none; cursor: pointer; text-decoration: none;
+    font-family: inherit; transition: all .18s;
+}
+.usr-btn-edit   { background: rgba(241,196,15,.08); color: #b08d0a; border: 1px solid rgba(241,196,15,.25); }
+.usr-btn-edit:hover { background: rgba(241,196,15,.18); }
+.usr-btn-off    { background: rgba(200,40,30,.07);  color: #C8281E; border: 1px solid rgba(200,40,30,.18); }
+.usr-btn-off:hover { background: rgba(200,40,30,.14); }
+.usr-btn-on     { background: rgba(26,122,60,.07);  color: #1a7a3c; border: 1px solid rgba(26,122,60,.18); }
+.usr-btn-on:hover  { background: rgba(26,122,60,.14); }
 
-                <div class="uc-actions">
-                    <a asp-controller="Seguridad" asp-action="EditarUsuario"
-                       asp-route-id="@user.UsuarioID" class="action-btn btn-edit">
-                        ✏ Editar
-                    </a>
-                    <form asp-controller="Seguridad" asp-action="ToggleUsuario"
-                          asp-route-id="@user.UsuarioID" method="post" style="flex:1; display:flex;"
-                          onsubmit="return confirm('@(user.Activo ? "¿Desactivar a " : "¿Reactivar a ")@user.NombreCompleto?')">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="action-btn @(user.Activo ? "btn-toggle-off" : "btn-toggle-on")" style="width:100%;">
-                            @(user.Activo ? "🔒 Desactivar" : "🔓 Reactivar")
-                        </button>
-                    </form>
-                </div>
+/* Empty state */
+.usr-empty {
+    text-align: center; padding: 3rem 1rem;
+    color: #9a8a84; font-size: .82rem;
+}
+.usr-empty-icon { font-size: 2rem; margin-bottom: .75rem; opacity: .4; }
+
+/* Panel oculto */
+.usr-panel { display: none; }
+.usr-panel.active { display: block; }
+
+/* Responsive */
+@@media (max-width: 900px) {
+    .usr-white { padding: 1.5rem 1rem 2rem; }
+    .usr-hero  { padding: 2.5rem 1rem 2rem; }
+    table.usr-tbl th:nth-child(4),
+    table.usr-tbl td:nth-child(4) { display: none; }
+}
+@@media (max-width: 600px) {
+    table.usr-tbl th:nth-child(3),
+    table.usr-tbl td:nth-child(3) { display: none; }
+    .usr-hero-right { display: none; }
+}
+</style>
+}
+
+@{
+    var totalUsuarios  = Model.Count();
+    var totalActivos   = Model.Count(u => u.Activo);
+    var totalSuspendidos = Model.Count(u => !u.Activo);
+
+    // Separar internos (tienen rol) vs clientes (sin rol o rol "Cliente")
+    var internos  = Model.Where(u => !string.IsNullOrEmpty(u.Roles) && u.Roles != "Cliente").ToList();
+    var clientes  = Model.Where(u => string.IsNullOrEmpty(u.Roles) || u.Roles == "Cliente").ToList();
+}
+
+<!-- ══ HERO NEGRO ══ -->
+<div class="usr-hero">
+    <div class="usr-hero-grid"></div>
+    <div class="usr-hero-glow"></div>
+    <div class="usr-hero-inner">
+        <div>
+            <div class="usr-eyebrow">
+                <span class="usr-eyebrow-dot"></span>
+                Seguridad · Gestión de identidades
             </div>
-        }
+            <h1 class="usr-hero-title">
+                DIRECTORIO DE<br><span class="stroke">USUARIOS</span>
+            </h1>
+            <p class="usr-hero-sub">
+                Registro centralizado de operadores internos y clientes del sistema.
+                Administra accesos, roles y estado de cada identidad.
+            </p>
+        </div>
+        <div class="usr-hero-right">
+            <div class="usr-stat-chip">
+                <span class="usr-stat-chip-val">@totalUsuarios</span>
+                <span class="usr-stat-chip-lbl">Total</span>
+            </div>
+            <div class="usr-stat-chip">
+                <span class="usr-stat-chip-val">@totalActivos</span>
+                <span class="usr-stat-chip-lbl">Activos</span>
+            </div>
+            <div class="usr-stat-chip">
+                <span class="usr-stat-chip-val">@totalSuspendidos</span>
+                <span class="usr-stat-chip-lbl">Suspendidos</span>
+            </div>
+            <a asp-action="RegistrarPersonal" class="usr-btn-new">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Nuevo Registro
+            </a>
+        </div>
     </div>
 </div>
+
+<!-- ══ SECCIÓN BLANCA ══ -->
+<div class="usr-white">
+
+    <!-- BUSCADOR + FILTROS -->
+    <div class="usr-toolbar">
+        <div class="usr-search-wrap">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke-width="2" stroke-linecap="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" class="usr-search" id="usrSearch"
+                   placeholder="Buscar por nombre, email o CI…"
+                   oninput="filtrarUsuarios()"/>
+        </div>
+        <button class="usr-filter-btn active" id="filtroTodos" onclick="setFiltro('todos', this)">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke-width="2" stroke-linecap="round">
+                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+                <line x1="8" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
+                <line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg>
+            Todos
+        </button>
+        <button class="usr-filter-btn" id="filtroActivos" onclick="setFiltro('activo', this)">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke-width="2" stroke-linecap="round">
+                <circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/>
+            </svg>
+            Activos
+        </button>
+        <button class="usr-filter-btn" id="filtroSuspendidos" onclick="setFiltro('suspendido', this)">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke-width="2" stroke-linecap="round">
+                <circle cx="12" cy="12" r="10"/><line x1="8" y1="8" x2="16" y2="16"/><line x1="16" y1="8" x2="8" y2="16"/>
+            </svg>
+            Suspendidos
+        </button>
+    </div>
+
+    <!-- TABS -->
+    <div class="usr-tabs">
+        <button class="usr-tab active" onclick="switchTab('internos', this)">
+            Operadores internos
+            <span class="usr-tab-count">@internos.Count</span>
+        </button>
+        <button class="usr-tab" onclick="switchTab('clientes', this)">
+            Clientes
+            <span class="usr-tab-count">@clientes.Count</span>
+        </button>
+    </div>
+
+    <!-- ══ PANEL OPERADORES INTERNOS ══ -->
+    <div class="usr-panel active" id="panel-internos">
+        <div class="usr-slbl">
+            <span class="usr-slbl-txt">Operadores del sistema</span>
+            <div class="usr-slbl-line"></div>
+        </div>
+        <div class="usr-table-card">
+            <div class="usr-table-head">
+                <span class="usr-table-head-title">Personal registrado</span>
+                <span class="usr-table-head-count">@internos.Count registro(s)</span>
+            </div>
+            @if (!internos.Any())
+            {
+                <div class="usr-empty">
+                    <div class="usr-empty-icon">👤</div>
+                    Sin operadores internos registrados.
+                </div>
+            }
+            else
+            {
+                <table class="usr-tbl" id="tabla-internos">
+                    <thead>
+                        <tr>
+                            <th>Identidad</th>
+                            <th>Rol</th>
+                            <th>Nodo base</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var u in internos)
+                        {
+                            <tr class="usr-row"
+                                data-nombre="@u.NombreCompleto.ToLower()"
+                                data-email="@u.Email.ToLower()"
+                                data-estado="@(u.Activo ? "activo" : "suspendido")">
+                                <td>
+                                    <div class="usr-name-cell">
+                                        <div class="usr-avatar @(!u.Activo ? "inactive" : "")">@u.Iniciales</div>
+                                        <div>
+                                            <div class="usr-full-name">@u.NombreCompleto</div>
+                                            <div class="usr-email">@u.Email</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="usr-role-badge">@u.Roles</span>
+                                </td>
+                                <td>
+                                    <span class="usr-sucursal" title="@u.Sucursal">@u.Sucursal</span>
+                                </td>
+                                <td>
+                                    @if (u.Activo)
+                                    {
+                                        <span class="usr-status-on"><span class="dot-on"></span>Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="usr-status-off"><span class="dot-off"></span>Suspendido</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="usr-action-cell">
+                                        <a asp-controller="Seguridad" asp-action="EditarUsuario"
+                                           asp-route-id="@u.UsuarioID" class="usr-abtn usr-btn-edit">
+                                            ✏ Editar
+                                        </a>
+                                        <form asp-controller="Seguridad" asp-action="ToggleUsuario"
+                                              asp-route-id="@u.UsuarioID" method="post" style="display:inline;"
+                                              onsubmit="return confirm('@(u.Activo ? "¿Desactivar a " : "¿Reactivar a ")@u.NombreCompleto?')">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="usr-abtn @(u.Activo ? "usr-btn-off" : "usr-btn-on")">
+                                                @(u.Activo ? "🔒 Desactivar" : "🔓 Reactivar")
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+
+    <!-- ══ PANEL CLIENTES ══ -->
+    <div class="usr-panel" id="panel-clientes">
+        <div class="usr-slbl">
+            <span class="usr-slbl-txt">Clientes registrados</span>
+            <div class="usr-slbl-line"></div>
+        </div>
+        <div class="usr-table-card">
+            <div class="usr-table-head">
+                <span class="usr-table-head-title">Base de clientes</span>
+                <span class="usr-table-head-count">@clientes.Count registro(s)</span>
+            </div>
+            @if (!clientes.Any())
+            {
+                <div class="usr-empty">
+                    <div class="usr-empty-icon">🏢</div>
+                    Sin clientes registrados.
+                </div>
+            }
+            else
+            {
+                <table class="usr-tbl" id="tabla-clientes">
+                    <thead>
+                        <tr>
+                            <th>Identidad</th>
+                            <th>Rol</th>
+                            <th>Nodo base</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var u in clientes)
+                        {
+                            <tr class="usr-row"
+                                data-nombre="@u.NombreCompleto.ToLower()"
+                                data-email="@u.Email.ToLower()"
+                                data-estado="@(u.Activo ? "activo" : "suspendido")">
+                                <td>
+                                    <div class="usr-name-cell">
+                                        <div class="usr-avatar @(!u.Activo ? "inactive" : "")">@u.Iniciales</div>
+                                        <div>
+                                            <div class="usr-full-name">@u.NombreCompleto</div>
+                                            <div class="usr-email">@u.Email</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="usr-role-badge">@(!string.IsNullOrEmpty(u.Roles) ? u.Roles : "Cliente")</span>
+                                </td>
+                                <td>
+                                    <span class="usr-sucursal" title="@u.Sucursal">@u.Sucursal</span>
+                                </td>
+                                <td>
+                                    @if (u.Activo)
+                                    {
+                                        <span class="usr-status-on"><span class="dot-on"></span>Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="usr-status-off"><span class="dot-off"></span>Suspendido</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="usr-action-cell">
+                                        <a asp-controller="Seguridad" asp-action="EditarUsuario"
+                                           asp-route-id="@u.UsuarioID" class="usr-abtn usr-btn-edit">
+                                            ✏ Editar
+                                        </a>
+                                        <form asp-controller="Seguridad" asp-action="ToggleUsuario"
+                                              asp-route-id="@u.UsuarioID" method="post" style="display:inline;"
+                                              onsubmit="return confirm('@(u.Activo ? "¿Desactivar a " : "¿Reactivar a ")@u.NombreCompleto?')">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="usr-abtn @(u.Activo ? "usr-btn-off" : "usr-btn-on")">
+                                                @(u.Activo ? "🔒 Desactivar" : "🔓 Reactivar")
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+    let filtroActual = 'todos';
+    let tabActual    = 'internos';
+
+    // ── Cambiar tab ──
+    function switchTab(tab, btn) {
+        tabActual = tab;
+        document.querySelectorAll('.usr-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.usr-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('panel-' + tab).classList.add('active');
+        aplicarFiltro();
+    }
+
+    // ── Cambiar filtro estado ──
+    function setFiltro(estado, btn) {
+        filtroActual = estado;
+        document.querySelectorAll('.usr-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        aplicarFiltro();
+    }
+
+    // ── Buscar + filtrar ──
+    function filtrarUsuarios() { aplicarFiltro(); }
+
+    function aplicarFiltro() {
+        const q      = document.getElementById('usrSearch').value.toLowerCase().trim();
+        const tablaId = tabActual === 'internos' ? 'tabla-internos' : 'tabla-clientes';
+        const tabla  = document.getElementById(tablaId);
+        if (!tabla) return;
+
+        tabla.querySelectorAll('.usr-row').forEach(row => {
+            const nombre  = row.dataset.nombre  || '';
+            const email   = row.dataset.email   || '';
+            const estado  = row.dataset.estado  || '';
+
+            const matchQ      = !q || nombre.includes(q) || email.includes(q);
+            const matchEstado = filtroActual === 'todos' || estado === filtroActual;
+
+            row.style.display = (matchQ && matchEstado) ? '' : 'none';
+        });
+    }
+</script>
+}

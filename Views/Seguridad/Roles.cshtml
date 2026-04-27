@@ -5,137 +5,511 @@
 }
 
 @section Styles {
-    <style>
-        .roles-container { max-width: 1200px; margin: 0 auto; padding: 6rem 2rem; position: relative; z-index: 2; }
-        .page-header { margin-bottom: 3rem; border-left: 4px solid #d82c20; padding-left: 1.5rem; }
-        .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #ffffff; }
+<style>
+/* ── HERO ── */
+.rol-hero {
+    background: #0f0b09;
+    padding: 3rem 2.5rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.rol-hero-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,40,30,.04) 59px, rgba(200,40,30,.04) 60px),
+        repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,40,30,.04) 59px, rgba(200,40,30,.04) 60px);
+}
+.rol-hero-glow {
+    position: absolute; width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(200,40,30,.10) 0%, transparent 70%);
+    top: -200px; right: -100px; pointer-events: none;
+}
+.rol-hero-inner {
+    position: relative; z-index: 2;
+    display: flex; align-items: flex-end;
+    justify-content: space-between; gap: 2rem; flex-wrap: wrap;
+}
+.rol-eyebrow {
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-family: monospace; font-size: .64rem;
+    color: rgba(200,40,30,.85); letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: .9rem;
+}
+.rol-eyebrow-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #C8281E; display: inline-block;
+    animation: rolpulse 2.5s ease infinite;
+}
+@@keyframes rolpulse {
+    0%,100%{opacity:1;transform:scale(1);}
+    50%{opacity:.35;transform:scale(.55);}
+}
+.rol-hero-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    color: #fff; line-height: .95;
+    letter-spacing: 2px; font-weight: 800;
+    margin-bottom: .6rem;
+}
+.rol-hero-title .stroke { -webkit-text-stroke: 2px #C8281E; color: transparent; }
+.rol-hero-sub {
+    font-size: .82rem; color: rgba(255,255,255,.35);
+    line-height: 1.6; max-width: 420px;
+}
+.rol-hero-right {
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.rol-stat-chip {
+    display: flex; flex-direction: column; align-items: center;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px; padding: .7rem 1.4rem;
+    min-width: 72px;
+}
+.rol-stat-chip-val {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.6rem; color: #C8281E; line-height: 1; font-weight: 800;
+}
+.rol-stat-chip-lbl {
+    font-size: .57rem; font-family: monospace;
+    color: rgba(255,255,255,.28); margin-top: .15rem;
+    text-transform: uppercase; letter-spacing: 1px;
+}
+.rol-btn-new {
+    background: #C8281E; color: #fff;
+    padding: .55rem 1.3rem; border-radius: 999px;
+    font-size: .78rem; font-weight: 700;
+    border: none; cursor: pointer;
+    text-decoration: none; display: inline-flex;
+    align-items: center; gap: .4rem;
+    transition: background .2s, transform .15s;
+    box-shadow: 0 2px 10px rgba(200,40,30,.3);
+}
+.rol-btn-new:hover { background: #a81f16; transform: translateY(-1px); color: #fff; }
 
-        /* Alert */
-        .alert-success { background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.3); color: #2ecc71;
-            padding: 0.8rem 1.2rem; border-radius: 8px; margin-bottom: 1.5rem; display:flex; align-items:center; gap:0.6rem; }
+/* ── SECCIÓN BLANCA ── */
+.rol-white { background: #f7f5f4; padding: 2rem 2.5rem 3rem; }
 
-        /* Matriz de Roles */
-        .roles-matrix { background: #050202; border: 1px solid #3a2525; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-        .matrix-table { width: 100%; border-collapse: collapse; text-align: left; }
-        .matrix-table th { background: #1a0f0f; color: #e55a4e; padding: 1.2rem; font-family: monospace; text-transform: uppercase; font-size: 0.8rem; border-bottom: 1px solid #3a2525; }
-        .matrix-table td { padding: 1.2rem; color: #9ca3af; border-bottom: 1px solid #1a0f0f; font-size: 0.9rem; vertical-align: top; }
-        .matrix-table tr:last-child td { border-bottom: none; }
-        .matrix-table tr:hover td { background: rgba(216,44,32,0.04); }
-
-        .role-name { color: #ffffff; font-weight: bold; }
-        .role-inactive { opacity: 0.45; }
-
-        .perm-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.7rem; font-family: monospace; margin-right: 0.4rem; margin-bottom: 0.4rem; }
-        .p-Ver       { background: rgba(52,152,219,0.1);  color: #3498db; border: 1px solid rgba(52,152,219,0.2); }
-        .p-Editar    { background: rgba(241,196,15,0.1);  color: #f1c40f; border: 1px solid rgba(241,196,15,0.2); }
-        .p-Eliminar  { background: rgba(231,76,60,0.1);   color: #e74c3c; border: 1px solid rgba(231,76,60,0.2); }
-        .p-Crear     { background: rgba(46,204,113,0.1);  color: #2ecc71; border: 1px solid rgba(46,204,113,0.2); }
-        .p-Exportar  { background: rgba(155,89,182,0.1);  color: #9b59b2; border: 1px solid rgba(155,89,182,0.2); }
-        .p-Aprobar   { background: rgba(230,126,34,0.1);  color: #e67e22; border: 1px solid rgba(230,126,34,0.2); }
-
-        .badge-count { font-size: 0.75rem; color: #6b7280; margin-left: 0.4rem; }
-
-        /* Estado */
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-        .status-active   { background: #2ecc71; box-shadow: 0 0 6px #2ecc7166; }
-        .status-inactive { background: #6b7280; }
-
-        /* Acciones */
-        .action-btn { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.8rem; border-radius: 6px;
-            font-size: 0.75rem; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s; }
-        .btn-edit   { background: rgba(241,196,15,0.1); color: #f1c40f; border: 1px solid rgba(241,196,15,0.25); }
-        .btn-edit:hover { background: rgba(241,196,15,0.2); color: #f1c40f; }
-        .btn-delete { background: rgba(231,76,60,0.1);  color: #e74c3c; border: 1px solid rgba(231,76,60,0.25); }
-        .btn-delete:hover { background: rgba(231,76,60,0.2); color: #e74c3c; }
-
-        .btn-new-role { background: #d82c20; color: white; padding: 0.6rem 1.5rem; border-radius: 50px;
-            text-decoration: none; font-weight: bold; float: right; font-size: 0.8rem; transition: background 0.2s; }
-        .btn-new-role:hover { background: #b52218; color: white; }
-
-        /* Empty state */
-        .empty-state { text-align: center; padding: 3rem; color: #6b7280; }
-        .empty-state svg { opacity: 0.3; margin-bottom: 1rem; }
-    </style>
+/* Alert */
+.rol-alert-ok {
+    display: flex; align-items: center; gap: .6rem;
+    background: rgba(26,122,60,.07);
+    border: 1px solid rgba(26,122,60,.2);
+    color: #1a7a3c; border-radius: 10px;
+    padding: .75rem 1.1rem; font-size: .82rem;
+    margin-bottom: 1.5rem; font-weight: 600;
 }
 
-<div class="roles-container">
+/* Toolbar */
+.rol-toolbar {
+    display: flex; align-items: center; gap: .75rem;
+    margin-bottom: 1.5rem; flex-wrap: wrap;
+}
+.rol-search-wrap {
+    position: relative; flex: 1; min-width: 220px;
+}
+.rol-search-wrap svg {
+    position: absolute; left: .9rem; top: 50%;
+    transform: translateY(-50%);
+    stroke: #9a8a84; pointer-events: none;
+}
+.rol-search {
+    width: 100%; background: #fff;
+    border: 1px solid rgba(0,0,0,.1);
+    border-radius: 999px;
+    padding: .6rem 1rem .6rem 2.5rem;
+    font-size: .83rem; color: #18120f;
+    outline: none; transition: border-color .2s;
+    font-family: inherit;
+}
+.rol-search:focus { border-color: #C8281E; }
+.rol-search::placeholder { color: #bbb; }
 
-    <a asp-controller="Seguridad" asp-action="RolCreate" class="btn-new-role">+ Crear Nuevo Rol</a>
+.rol-filter-btn {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: #fff; border: 1px solid rgba(0,0,0,.1);
+    border-radius: 999px; padding: .55rem 1.05rem;
+    font-size: .76rem; color: #5a4a44;
+    cursor: pointer; font-family: inherit;
+    transition: border-color .2s, color .2s;
+    white-space: nowrap;
+}
+.rol-filter-btn:hover,
+.rol-filter-btn.active { border-color: #C8281E; color: #C8281E; }
 
-    <div class="page-header">
-        <h1 class="page-title">Matriz de Roles y Permisos</h1>
-        <p style="color: #6b7280;">Configuración de niveles de acceso por módulo.</p>
+/* Section label */
+.rol-slbl {
+    display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem;
+}
+.rol-slbl-txt {
+    font-family: monospace; font-size: .6rem;
+    color: #9a8a84; letter-spacing: 2px;
+    text-transform: uppercase; white-space: nowrap;
+}
+.rol-slbl-line { flex: 1; height: 1px; background: rgba(0,0,0,.07); }
+
+/* Tabla card */
+.rol-table-card {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.07);
+    border-radius: 14px; overflow: hidden;
+}
+.rol-table-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .9rem 1.25rem;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+    flex-wrap: wrap; gap: .5rem;
+}
+.rol-table-head-left { display: flex; align-items: center; gap: .75rem; }
+.rol-table-head-title { font-size: .84rem; font-weight: 700; color: #18120f; }
+.rol-table-head-count {
+    font-family: monospace; font-size: .65rem;
+    color: #fff; background: #C8281E;
+    padding: .15rem .55rem; border-radius: 999px;
+}
+.rol-table-head-right { display: flex; align-items: center; gap: .5rem; }
+.rol-export-btn {
+    display: inline-flex; align-items: center; gap: .35rem;
+    background: rgba(0,0,0,.04); border: 1px solid rgba(0,0,0,.1);
+    border-radius: 8px; padding: .35rem .8rem;
+    font-size: .72rem; color: #5a4a44; cursor: pointer;
+    font-family: inherit; transition: all .18s;
+}
+.rol-export-btn:hover { background: rgba(0,0,0,.08); }
+
+table.rol-tbl { width: 100%; border-collapse: collapse; }
+table.rol-tbl th {
+    background: #faf9f8; color: #9a8a84;
+    padding: .65rem 1.1rem;
+    font-family: monospace; font-size: .6rem;
+    text-transform: uppercase; letter-spacing: .07em;
+    border-bottom: 1px solid rgba(0,0,0,.05);
+    text-align: left; font-weight: 500;
+    white-space: nowrap;
+}
+table.rol-tbl th.sortable { cursor: pointer; user-select: none; }
+table.rol-tbl th.sortable:hover { color: #C8281E; }
+table.rol-tbl th.sort-asc::after  { content: ' ↑'; color: #C8281E; }
+table.rol-tbl th.sort-desc::after { content: ' ↓'; color: #C8281E; }
+
+table.rol-tbl td {
+    padding: .9rem 1.1rem;
+    border-bottom: 1px solid rgba(0,0,0,.04);
+    font-size: .82rem; color: #5a4a44;
+    vertical-align: middle;
+}
+table.rol-tbl tr:last-child td { border-bottom: none; }
+table.rol-tbl tr:hover td { background: #faf9f8; }
+table.rol-tbl tr.rol-inactive-row td { opacity: .5; }
+
+/* ID chip */
+.rol-id-chip {
+    font-family: monospace; font-size: .72rem;
+    background: rgba(200,40,30,.06);
+    border: 1px solid rgba(200,40,30,.14);
+    color: #a81f16; padding: .18rem .55rem;
+    border-radius: 5px; font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Nombre + descripción */
+.rol-name-main { color: #18120f; font-weight: 700; font-size: .86rem; }
+.rol-name-desc { font-size: .73rem; color: #9a8a84; margin-top: .15rem; font-weight: 400; }
+
+/* Permisos */
+.rol-perms-group { margin-bottom: .4rem; }
+.rol-perms-module {
+    font-size: .58rem; font-family: monospace;
+    color: #9a8a84; text-transform: uppercase;
+    letter-spacing: .08em; display: block;
+    margin-bottom: .2rem;
+}
+.perm-badge {
+    display: inline-block;
+    padding: .15rem .5rem; border-radius: 4px;
+    font-size: .65rem; font-family: monospace;
+    margin-right: .3rem; margin-bottom: .25rem;
+    font-weight: 600;
+}
+.p-Ver      { background: rgba(52,152,219,.08);  color: #2980b9; border: 1px solid rgba(52,152,219,.2); }
+.p-Editar   { background: rgba(241,196,15,.08);  color: #b08d0a; border: 1px solid rgba(241,196,15,.2); }
+.p-Eliminar { background: rgba(231,76,60,.08);   color: #c0392b; border: 1px solid rgba(231,76,60,.2); }
+.p-Crear    { background: rgba(26,122,60,.08);   color: #1a7a3c; border: 1px solid rgba(26,122,60,.2); }
+.p-Exportar { background: rgba(142,68,173,.08);  color: #8e44ad; border: 1px solid rgba(142,68,173,.2); }
+.p-Aprobar  { background: rgba(230,126,34,.08);  color: #ca6f1e; border: 1px solid rgba(230,126,34,.2); }
+.rol-no-perms { font-size: .76rem; color: #c9b9b3; font-style: italic; }
+
+/* Estado */
+.rol-status-on {
+    display: inline-flex; align-items: center; gap: .35rem;
+    font-size: .73rem; font-weight: 600; color: #1a7a3c;
+}
+.rol-status-off {
+    display: inline-flex; align-items: center; gap: .35rem;
+    font-size: .73rem; font-weight: 600; color: #9a8a84;
+}
+.dot-on  { width:7px;height:7px;border-radius:50%;background:#1a7a3c;box-shadow:0 0 0 2px rgba(26,122,60,.15);flex-shrink:0; }
+.dot-off { width:7px;height:7px;border-radius:50%;background:#d1c7c3;flex-shrink:0; }
+
+/* Fecha */
+.rol-date { font-family: monospace; font-size: .74rem; color: #9a8a84; white-space: nowrap; }
+
+/* Acciones */
+.rol-action-cell { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+.rol-abtn {
+    display: inline-flex; align-items: center; gap: .28rem;
+    padding: .3rem .7rem; border-radius: 6px;
+    font-size: .68rem; font-weight: 600;
+    border: none; cursor: pointer; text-decoration: none;
+    font-family: inherit; transition: all .18s; white-space: nowrap;
+}
+.rol-btn-edit   { background: rgba(241,196,15,.08); color: #b08d0a; border: 1px solid rgba(241,196,15,.25); }
+.rol-btn-edit:hover { background: rgba(241,196,15,.18); color: #b08d0a; }
+.rol-btn-del    { background: rgba(200,40,30,.07);  color: #C8281E; border: 1px solid rgba(200,40,30,.18); }
+.rol-btn-del:hover { background: rgba(200,40,30,.14); }
+
+/* Empty state */
+.rol-empty {
+    text-align: center; padding: 4rem 1rem;
+    color: #9a8a84; font-size: .82rem;
+}
+.rol-empty-icon { font-size: 2.5rem; margin-bottom: .75rem; opacity: .35; }
+.rol-empty-title { font-size: .92rem; font-weight: 700; color: #5a4a44; margin-bottom: .3rem; }
+
+/* Paginación */
+.rol-pagination {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .9rem 1.25rem;
+    border-top: 1px solid rgba(0,0,0,.05);
+    flex-wrap: wrap; gap: .5rem;
+}
+.rol-page-info { font-family: monospace; font-size: .68rem; color: #9a8a84; }
+.rol-page-btns { display: flex; gap: .3rem; }
+.rol-page-btn {
+    width: 30px; height: 30px; border-radius: 7px;
+    border: 1px solid rgba(0,0,0,.1); background: #fff;
+    font-size: .73rem; cursor: pointer; font-family: inherit;
+    color: #5a4a44; display: flex; align-items: center; justify-content: center;
+    transition: all .18s;
+}
+.rol-page-btn:hover { border-color: #C8281E; color: #C8281E; }
+.rol-page-btn.active { background: #C8281E; color: #fff; border-color: #C8281E; }
+.rol-page-btn:disabled { opacity: .3; cursor: not-allowed; }
+
+/* Responsive */
+@@media (max-width: 900px) {
+    .rol-white { padding: 1.5rem 1rem 2rem; }
+    .rol-hero  { padding: 2.5rem 1rem 2rem; }
+    table.rol-tbl th:nth-child(5),
+    table.rol-tbl td:nth-child(5) { display: none; }
+}
+@@media (max-width: 600px) {
+    table.rol-tbl th:nth-child(4),
+    table.rol-tbl td:nth-child(4) { display: none; }
+    .rol-hero-right { display: none; }
+}
+</style>
+}
+
+@{
+    var totalRoles    = Model?.Count() ?? 0;
+    var totalActivos  = Model?.Count(r => r.Activo) ?? 0;
+    var totalInactivos = Model?.Count(r => !r.Activo) ?? 0;
+    var totalPermisos = Model?.SelectMany(r => r.RolesPermisos).Count() ?? 0;
+}
+
+<!-- ══ HERO NEGRO ══ -->
+<div class="rol-hero">
+    <div class="rol-hero-grid"></div>
+    <div class="rol-hero-glow"></div>
+    <div class="rol-hero-inner">
+        <div>
+            <div class="rol-eyebrow">
+                <span class="rol-eyebrow-dot"></span>
+                Seguridad · Control de accesos
+            </div>
+            <h1 class="rol-hero-title">
+                MATRIZ DE<br><span class="stroke">ROLES &amp; PERMISOS</span>
+            </h1>
+            <p class="rol-hero-sub">
+                Configuración centralizada de niveles de acceso por módulo.
+                Define qué puede hacer cada perfil dentro del sistema.
+            </p>
+        </div>
+        <div class="rol-hero-right">
+            <div class="rol-stat-chip">
+                <span class="rol-stat-chip-val">@totalRoles</span>
+                <span class="rol-stat-chip-lbl">Total Roles</span>
+            </div>
+            <div class="rol-stat-chip">
+                <span class="rol-stat-chip-val">@totalActivos</span>
+                <span class="rol-stat-chip-lbl">Activos</span>
+            </div>
+            <div class="rol-stat-chip">
+                <span class="rol-stat-chip-val">@totalInactivos</span>
+                <span class="rol-stat-chip-lbl">Inactivos</span>
+            </div>
+            <div class="rol-stat-chip">
+                <span class="rol-stat-chip-val">@totalPermisos</span>
+                <span class="rol-stat-chip-lbl">Permisos</span>
+            </div>
+            <a asp-controller="Seguridad" asp-action="RolCreate" class="rol-btn-new">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Crear Rol
+            </a>
+        </div>
     </div>
+</div>
+
+<!-- ══ SECCIÓN BLANCA ══ -->
+<div class="rol-white">
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert-success">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+        <div class="rol-alert-ok">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/>
             </svg>
             @TempData["Success"]
         </div>
     }
 
-    <div class="roles-matrix">
-        <table class="matrix-table">
-            <thead>
-                <tr>
-                    <th>#ID</th>
-                    <th>Nombre del Rol</th>
-                    <th>Estado</th>
-                    <th>Permisos Asignados</th>
-                    <th>Fecha Creación</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model == null || !Model.Any())
-                {
+    <!-- TOOLBAR -->
+    <div class="rol-toolbar">
+        <div class="rol-search-wrap">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke-width="2" stroke-linecap="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" class="rol-search" id="rolSearch"
+                   placeholder="Buscar por nombre o descripción…"
+                   oninput="aplicarFiltro()"/>
+        </div>
+        <button class="rol-filter-btn active" onclick="setFiltro('todos', this)">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg>
+            Todos
+        </button>
+        <button class="rol-filter-btn" onclick="setFiltro('activo', this)">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/>
+            </svg>
+            Activos
+        </button>
+        <button class="rol-filter-btn" onclick="setFiltro('inactivo', this)">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="12" cy="12" r="10"/><line x1="8" y1="8" x2="16" y2="16"/><line x1="16" y1="8" x2="8" y2="16"/>
+            </svg>
+            Inactivos
+        </button>
+        <button class="rol-filter-btn" onclick="setFiltro('sin-permisos', this)">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            Sin permisos
+        </button>
+    </div>
+
+    <!-- SECTION LABEL -->
+    <div class="rol-slbl">
+        <span class="rol-slbl-txt">Configuración de acceso al sistema</span>
+        <div class="rol-slbl-line"></div>
+    </div>
+
+    <!-- TABLA CARD -->
+    <div class="rol-table-card">
+        <div class="rol-table-head">
+            <div class="rol-table-head-left">
+                <span class="rol-table-head-title">Roles del sistema</span>
+                <span class="rol-table-head-count" id="rolCount">@totalRoles registro(s)</span>
+            </div>
+            <div class="rol-table-head-right">
+                <button class="rol-export-btn" onclick="exportarCSV()">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Exportar CSV
+                </button>
+                <button class="rol-export-btn" onclick="toggleDensidad()">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                    Vista compacta
+                </button>
+            </div>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="rol-empty">
+                <div class="rol-empty-icon">🔐</div>
+                <div class="rol-empty-title">Sin roles registrados</div>
+                Crea el primer rol para comenzar a gestionar accesos.
+            </div>
+        }
+        else
+        {
+            <table class="rol-tbl" id="rolTabla">
+                <thead>
                     <tr>
-                        <td colspan="6">
-                            <div class="empty-state">
-                                <svg width="48" height="48" fill="#6b7280" viewBox="0 0 16 16">
-                                    <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
-                                </svg>
-                                <p>No hay roles registrados aún.</p>
-                            </div>
-                        </td>
+                        <th class="sortable" onclick="sortTable(0)">ID</th>
+                        <th class="sortable" onclick="sortTable(1)">Nombre del Rol</th>
+                        <th>Estado</th>
+                        <th>Permisos Asignados</th>
+                        <th class="sortable" onclick="sortTable(4)">Fecha Creación</th>
+                        <th>Acciones</th>
                     </tr>
-                }
-                else
-                {
+                </thead>
+                <tbody id="rolTbody">
                     @foreach (var rol in Model)
                     {
-                        <tr class="@(!rol.Activo ? "role-inactive" : "")">
-                            <td><code style="color:#e55a4e">0x@rol.RolID.ToString("X2")</code></td>
-                            <td class="role-name">@rol.NombreRol
+                        var grupos = rol.RolesPermisos
+                            .Select(rp => rp.Permiso)
+                            .Where(p => p != null)
+                            .GroupBy(p => p!.Modulo)
+                            .ToList();
+                        var cntPermisos = rol.RolesPermisos.Count;
+
+                        <tr class="rol-row @(!rol.Activo ? "rol-inactive-row" : "")"
+                            data-nombre="@rol.NombreRol.ToLower()"
+                            data-desc="@(rol.Descripcion?.ToLower() ?? "")"
+                            data-estado="@(rol.Activo ? "activo" : "inactivo")"
+                            data-permisos="@cntPermisos">
+                            <td>
+                                <span class="rol-id-chip">0x@rol.RolID.ToString("X2")</span>
+                            </td>
+                            <td>
+                                <div class="rol-name-main">@rol.NombreRol</div>
                                 @if (!string.IsNullOrEmpty(rol.Descripcion))
                                 {
-                                    <div style="font-size:0.78rem; color:#6b7280; font-weight:normal; margin-top:2px;">@rol.Descripcion</div>
+                                    <div class="rol-name-desc">@rol.Descripcion</div>
                                 }
                             </td>
                             <td>
-                                <span class="status-dot @(rol.Activo ? "status-active" : "status-inactive")"></span>
-                                @(rol.Activo ? "Activo" : "Inactivo")
-                            </td>
-                            <td>
-                                @{
-                                    var grupos = rol.RolesPermisos
-                                        .Select(rp => rp.Permiso)
-                                        .Where(p => p != null)
-                                        .GroupBy(p => p!.Modulo);
-                                }
-                                @if (!rol.RolesPermisos.Any())
+                                @if (rol.Activo)
                                 {
-                                    <span style="color:#4b5563; font-size:0.8rem;">Sin permisos asignados</span>
+                                    <span class="rol-status-on"><span class="dot-on"></span>Activo</span>
                                 }
                                 else
                                 {
-                                    @foreach (var grupo in grupos)
+                                    <span class="rol-status-off"><span class="dot-off"></span>Inactivo</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!grupos.Any())
+                                {
+                                    <span class="rol-no-perms">Sin permisos asignados</span>
+                                }
+                                else
+                                {
+                                    foreach (var grupo in grupos)
                                     {
-                                        <div style="margin-bottom:0.3rem;">
-                                            <span style="font-size:0.7rem; color:#6b7280; text-transform:uppercase; letter-spacing:0.05em;">@grupo.Key</span><br/>
+                                        <div class="rol-perms-group">
+                                            <span class="rol-perms-module">@grupo.Key</span>
                                             @foreach (var permiso in grupo)
                                             {
                                                 <span class="perm-badge p-@permiso!.Accion">@permiso.Accion</span>
@@ -144,22 +518,186 @@
                                     }
                                 }
                             </td>
-                            <td style="white-space:nowrap">@rol.FechaCreacion.ToString("dd/MM/yyyy")</td>
                             <td>
-                                <a asp-action="Edit" asp-route-id="@rol.RolId" class="action-btn btn-edit">
-                                    ✏ Editar
-                                </a>
-                                <form asp-action="Delete" asp-route-id="@rol.RolId" method="post" style="display:inline;"
-                                      onsubmit="return confirm('¿Desactivar el rol @rol.NombreRol?')">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="action-btn btn-delete">🗑 Desactivar</button>
-                                </form>
+                                <span class="rol-date">@rol.FechaCreacion.ToString("dd/MM/yyyy")</span>
+                            </td>
+                            <td>
+                                <div class="rol-action-cell">
+                                    <a asp-action="Edit" asp-route-id="@rol.RolId" class="rol-abtn rol-btn-edit">
+                                        ✏ Editar
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@rol.RolId" method="post"
+                                          style="display:inline;"
+                                          onsubmit="return confirm('¿Desactivar el rol @rol.NombreRol?')">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="rol-abtn rol-btn-del">🗑 Desactivar</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }
-                }
-            </tbody>
-        </table>
-    </div>
+                </tbody>
+            </table>
 
+            <!-- PAGINACIÓN -->
+            <div class="rol-pagination">
+                <span class="rol-page-info" id="pageInfo">Mostrando 1–10 de @totalRoles</span>
+                <div class="rol-page-btns" id="pageBtns"></div>
+            </div>
+        }
+    </div>
 </div>
+
+@section Scripts {
+<script>
+    const ROWS_PER_PAGE = 10;
+    let filtroActual  = 'todos';
+    let paginaActual  = 1;
+    let sortCol       = -1;
+    let sortDir       = 'asc';
+    let densidadCompacta = false;
+
+    // ── Filtro estado ──
+    function setFiltro(estado, btn) {
+        filtroActual = estado;
+        document.querySelectorAll('.rol-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        paginaActual = 1;
+        aplicarFiltro();
+    }
+
+    // ── Filtro principal ──
+    function aplicarFiltro() {
+        const q = document.getElementById('rolSearch').value.toLowerCase().trim();
+        const rows = Array.from(document.querySelectorAll('#rolTbody .rol-row'));
+
+        rows.forEach(row => {
+            const nombre  = row.dataset.nombre  || '';
+            const desc    = row.dataset.desc    || '';
+            const estado  = row.dataset.estado  || '';
+            const perms   = parseInt(row.dataset.permisos) || 0;
+
+            const matchQ = !q || nombre.includes(q) || desc.includes(q);
+            const matchE =
+                filtroActual === 'todos'        ? true :
+                filtroActual === 'activo'       ? estado === 'activo' :
+                filtroActual === 'inactivo'     ? estado === 'inactivo' :
+                filtroActual === 'sin-permisos' ? perms === 0 : true;
+
+            row.dataset.visible = (matchQ && matchE) ? '1' : '0';
+        });
+
+        renderPagina();
+    }
+
+    // ── Paginación ──
+    function renderPagina() {
+        const rows = Array.from(document.querySelectorAll('#rolTbody .rol-row'));
+        const visibles = rows.filter(r => r.dataset.visible === '1');
+        const total = visibles.length;
+        const totalPags = Math.max(1, Math.ceil(total / ROWS_PER_PAGE));
+
+        if (paginaActual > totalPags) paginaActual = totalPags;
+
+        const inicio = (paginaActual - 1) * ROWS_PER_PAGE;
+        const fin    = inicio + ROWS_PER_PAGE;
+
+        rows.forEach(r => r.style.display = 'none');
+        visibles.forEach((r, i) => {
+            r.style.display = (i >= inicio && i < fin) ? '' : 'none';
+        });
+
+        document.getElementById('rolCount').textContent = total + ' registro(s)';
+        document.getElementById('pageInfo').textContent =
+            'Mostrando ' + (total === 0 ? 0 : inicio + 1) + '–' + Math.min(fin, total) + ' de ' + total;
+
+        // Botones de página
+        const cont = document.getElementById('pageBtns');
+        cont.innerHTML = '';
+        const addBtn = (label, page, disabled, active) => {
+            const b = document.createElement('button');
+            b.className = 'rol-page-btn' + (active ? ' active' : '');
+            b.textContent = label;
+            b.disabled = disabled;
+            b.onclick = () => { paginaActual = page; renderPagina(); };
+            cont.appendChild(b);
+        };
+        addBtn('‹', paginaActual - 1, paginaActual === 1, false);
+        for (let p = 1; p <= totalPags; p++) {
+            if (totalPags <= 7 || Math.abs(p - paginaActual) <= 2 || p === 1 || p === totalPags) {
+                addBtn(p, p, false, p === paginaActual);
+            } else if (Math.abs(p - paginaActual) === 3) {
+                const dots = document.createElement('button');
+                dots.className = 'rol-page-btn'; dots.textContent = '…'; dots.disabled = true;
+                cont.appendChild(dots);
+            }
+        }
+        addBtn('›', paginaActual + 1, paginaActual === totalPags, false);
+    }
+
+    // ── Ordenamiento por columna ──
+    function sortTable(col) {
+        const tbody = document.getElementById('rolTbody');
+        const rows  = Array.from(tbody.querySelectorAll('.rol-row'));
+        const ths   = document.querySelectorAll('table.rol-tbl th');
+
+        if (sortCol === col) {
+            sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortCol = col; sortDir = 'asc';
+        }
+
+        ths.forEach((th, i) => {
+            th.classList.remove('sort-asc', 'sort-desc');
+            if (i === col) th.classList.add('sort-' + sortDir);
+        });
+
+        rows.sort((a, b) => {
+            const va = a.cells[col]?.innerText.trim() ?? '';
+            const vb = b.cells[col]?.innerText.trim() ?? '';
+            return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+        aplicarFiltro();
+    }
+
+    // ── Vista compacta ──
+    function toggleDensidad() {
+        densidadCompacta = !densidadCompacta;
+        const tbl = document.getElementById('rolTabla');
+        tbl.style.setProperty('--row-pad', densidadCompacta ? '.45rem' : '.9rem');
+        document.querySelectorAll('table.rol-tbl td').forEach(td => {
+            td.style.paddingTop    = densidadCompacta ? '.45rem' : '';
+            td.style.paddingBottom = densidadCompacta ? '.45rem' : '';
+        });
+    }
+
+    // ── Exportar CSV ──
+    function exportarCSV() {
+        const rows = Array.from(document.querySelectorAll('#rolTbody .rol-row'))
+            .filter(r => r.dataset.visible !== '0');
+        let csv = 'ID,Nombre,Estado,Permisos,Fecha Creacion\n';
+        rows.forEach(r => {
+            const cols = r.cells;
+            const id     = cols[0]?.innerText.trim().replace(/,/g, '') ?? '';
+            const nombre = cols[1]?.innerText.trim().split('\n')[0].replace(/,/g, '') ?? '';
+            const estado = cols[2]?.innerText.trim().replace(/,/g, '') ?? '';
+            const perms  = cols[3]?.innerText.trim().replace(/[\n,]+/g, ' ') ?? '';
+            const fecha  = cols[4]?.innerText.trim() ?? '';
+            csv += `"${id}","${nombre}","${estado}","${perms}","${fecha}"\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a'); a.href = url;
+        a.download = 'roles_' + new Date().toISOString().slice(0,10) + '.csv';
+        a.click(); URL.revokeObjectURL(url);
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('#rolTbody .rol-row').forEach(r => r.dataset.visible = '1');
+        renderPagina();
+    });
+</script>
+}

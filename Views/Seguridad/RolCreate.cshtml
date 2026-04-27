@@ -2,236 +2,600 @@
 @{
     ViewData["Title"] = "Crear Nuevo Rol";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var todosPermisos = ViewBag.Permisos as List<RefrescosDelValle.Models.Entities.Permiso> ?? new();
-    var modulosAgrupados = todosPermisos.GroupBy(p => p.Modulo).OrderBy(g => g.Key);
+    var todosPermisos    = ViewBag.Permisos as List<RefrescosDelValle.Models.Entities.Permiso> ?? new();
+    var modulosAgrupados = todosPermisos.GroupBy(p => p.Modulo).OrderBy(g => g.Key).ToList();
 }
 
 @section Styles {
-    <style>
-        .form-container { max-width: 900px; margin: 0 auto; padding: 6rem 2rem; position: relative; z-index: 2; }
+<style>
+/* ── HERO ── */
+.cr-hero {
+    background: #0f0b09;
+    padding: 2.8rem 2.5rem 2.2rem;
+    position: relative; overflow: hidden;
+}
+.cr-hero-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,40,30,.04) 59px, rgba(200,40,30,.04) 60px),
+        repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,40,30,.04) 59px, rgba(200,40,30,.04) 60px);
+}
+.cr-hero-glow {
+    position: absolute; width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(200,40,30,.10) 0%, transparent 70%);
+    top: -180px; left: -80px; pointer-events: none;
+}
+.cr-hero-inner {
+    position: relative; z-index: 2;
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 2rem; flex-wrap: wrap;
+}
+.cr-eyebrow {
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-family: monospace; font-size: .62rem;
+    color: rgba(200,40,30,.85); letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: .5rem;
+}
+.cr-eyebrow-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #C8281E; animation: crpulse 2.5s ease infinite;
+}
+@@keyframes crpulse {
+    0%,100%{opacity:1;transform:scale(1);}
+    50%{opacity:.3;transform:scale(.5);}
+}
+.cr-hero-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    color: #fff; line-height: 1; font-weight: 800;
+    letter-spacing: 1px; margin-bottom: .3rem;
+}
+.cr-hero-title .stroke { -webkit-text-stroke: 2px #C8281E; color: transparent; }
+.cr-hero-sub { font-size: .78rem; color: rgba(255,255,255,.32); line-height: 1.5; }
+.cr-breadcrumb {
+    display: flex; align-items: center; gap: .45rem;
+    font-family: monospace; font-size: .65rem;
+    color: rgba(255,255,255,.25);
+}
+.cr-breadcrumb a { color: rgba(200,40,30,.8); text-decoration: none; }
+.cr-breadcrumb a:hover { color: #C8281E; }
 
-        /* Breadcrumb */
-        .breadcrumb { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem; font-size: 0.82rem; color: #6b7280; }
-        .breadcrumb a { color: #e55a4e; text-decoration: none; }
-        .breadcrumb a:hover { text-decoration: underline; }
-        .breadcrumb span { color: #3a2525; }
+/* Stat mini en hero */
+.cr-hero-stat {
+    display: flex; flex-direction: column; align-items: center;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 10px; padding: .6rem 1.1rem;
+}
+.cr-hero-stat-val {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.4rem; color: #C8281E; font-weight: 800; line-height: 1;
+}
+.cr-hero-stat-lbl {
+    font-size: .54rem; font-family: monospace;
+    color: rgba(255,255,255,.25); margin-top: .12rem;
+    text-transform: uppercase; letter-spacing: 1px;
+}
+.cr-hero-right { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
 
-        /* Header */
-        .page-header { margin-bottom: 2.5rem; border-left: 4px solid #d82c20; padding-left: 1.5rem; }
-        .page-title  { font-family: 'Playfair Display', serif; font-size: 2rem; color: #ffffff; }
+/* ── SECCIÓN BLANCA ── */
+.cr-white { background: #f7f5f4; padding: 2rem 2.5rem 3rem; }
 
-        /* Card */
-        .form-card { background: #050202; border: 1px solid #3a2525; border-radius: 12px; padding: 2rem; box-shadow: 0 20px 40px rgba(0,0,0,0.5); margin-bottom: 1.5rem; }
-        .card-section-title { font-family: monospace; text-transform: uppercase; font-size: 0.75rem; color: #e55a4e;
-            letter-spacing: 0.1em; margin-bottom: 1.2rem; padding-bottom: 0.6rem; border-bottom: 1px solid #1a0f0f; }
+/* Barra de progreso */
+.cr-progress-bar {
+    height: 3px; background: rgba(0,0,0,.06);
+    border-radius: 999px; overflow: hidden; margin-bottom: .4rem;
+}
+.cr-progress-fill {
+    height: 100%; background: linear-gradient(90deg, #C8281E, #f1934c);
+    border-radius: 999px; transition: width .3s ease; width: 0%;
+}
+.cr-progress-lbl { font-size: .65rem; font-family: monospace; color: #9a8a84; text-align: right; margin-bottom: 1.5rem; }
 
-        /* Inputs */
-        .form-group { margin-bottom: 1.4rem; }
-        .form-label  { display: block; font-size: 0.82rem; color: #9ca3af; margin-bottom: 0.45rem; font-weight: 600; }
-        .form-label span { color: #e55a4e; }
+/* Cards */
+.cr-card {
+    background: #fff; border: 1px solid rgba(0,0,0,.07);
+    border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem;
+}
+.cr-card-header {
+    display: flex; align-items: center; gap: .75rem;
+    padding: .85rem 1.25rem;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+    background: #faf9f8;
+}
+.cr-card-header-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(200,40,30,.08); border: 1px solid rgba(200,40,30,.14);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .85rem; flex-shrink: 0;
+}
+.cr-card-header-title {
+    font-family: monospace; font-size: .68rem;
+    text-transform: uppercase; letter-spacing: .1em;
+    color: #18120f; font-weight: 700;
+}
+.cr-card-header-sub { font-size: .7rem; color: #9a8a84; margin-top: .1rem; }
+.cr-card-body { padding: 1.5rem 1.25rem; }
 
-        .form-control {
-            width: 100%; background: #0d0606; border: 1px solid #3a2525; border-radius: 8px;
-            color: #ffffff; padding: 0.75rem 1rem; font-size: 0.9rem; outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box;
-        }
-        .form-control:focus { border-color: #d82c20; box-shadow: 0 0 0 3px rgba(216,44,32,0.15); }
-        .form-control::placeholder { color: #4b5563; }
-        textarea.form-control { resize: vertical; min-height: 90px; }
+/* Campos */
+.cr-field { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1.2rem; }
+.cr-field:last-child { margin-bottom: 0; }
+.cr-label {
+    font-size: .74rem; font-weight: 700; color: #5a4a44;
+    text-transform: uppercase; letter-spacing: .05em;
+    font-family: monospace; display: flex; align-items: center; gap: .3rem;
+}
+.cr-label .req { color: #C8281E; }
+.cr-input {
+    width: 100%; background: #faf9f8;
+    border: 1px solid rgba(0,0,0,.1); border-radius: 9px;
+    color: #18120f; padding: .65rem .9rem;
+    font-size: .85rem; outline: none;
+    transition: border-color .2s, box-shadow .2s, background .2s;
+    box-sizing: border-box; font-family: inherit;
+}
+.cr-input:focus {
+    border-color: #C8281E;
+    box-shadow: 0 0 0 3px rgba(200,40,30,.1);
+    background: #fff;
+}
+.cr-input::placeholder { color: #c9b9b3; }
+textarea.cr-input { resize: vertical; min-height: 80px; }
+.cr-hint { font-size: .7rem; color: #9a8a84; }
+.cr-char-count { font-size: .68rem; font-family: monospace; color: #9a8a84; text-align: right; }
+.text-danger { color: #e74c3c; font-size: .72rem; display: block; }
 
-        .field-hint { font-size: 0.75rem; color: #4b5563; margin-top: 0.3rem; }
-        .text-danger { color: #e74c3c; font-size: 0.78rem; margin-top: 0.3rem; display: block; }
+/* Toggle */
+.cr-toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #faf9f8; border: 1px solid rgba(0,0,0,.08);
+    border-radius: 10px; padding: .8rem 1rem;
+}
+.cr-toggle-label { font-size: .83rem; font-weight: 700; color: #18120f; }
+.cr-toggle-desc  { font-size: .72rem; color: #9a8a84; margin-top: .1rem; }
+.cr-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.cr-switch input { opacity: 0; width: 0; height: 0; }
+.cr-switch-slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background: #d1c7c3; border-radius: 24px; transition: .3s;
+}
+.cr-switch-slider:before {
+    content: ""; position: absolute;
+    height: 18px; width: 18px; left: 3px; bottom: 3px;
+    background: #fff; border-radius: 50%; transition: .3s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.cr-switch input:checked + .cr-switch-slider { background: #1a7a3c; }
+.cr-switch input:checked + .cr-switch-slider:before { transform: translateX(20px); }
 
-        /* Toggle activo */
-        .toggle-group { display: flex; align-items: center; gap: 0.8rem; }
-        .toggle-switch { position: relative; width: 44px; height: 24px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider {
-            position: absolute; cursor: pointer; inset: 0; background: #3a2525;
-            border-radius: 24px; transition: 0.3s;
-        }
-        .toggle-slider:before {
-            content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px;
-            background: white; border-radius: 50%; transition: 0.3s;
-        }
-        .toggle-switch input:checked + .toggle-slider { background: #d82c20; }
-        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
-        .toggle-label { color: #9ca3af; font-size: 0.85rem; }
+/* ── PERMISOS ── */
+.cr-perms-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: .5rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: .9rem;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+}
+.cr-perms-counter {
+    font-size: .78rem; color: #5a4a44;
+    display: flex; align-items: center; gap: .4rem;
+}
+.cr-perms-counter-badge {
+    background: #C8281E; color: #fff;
+    font-family: monospace; font-size: .65rem; font-weight: 700;
+    padding: .12rem .5rem; border-radius: 999px;
+    min-width: 22px; text-align: center;
+}
+.cr-perms-actions { display: flex; align-items: center; gap: .5rem; }
+.cr-perms-link {
+    font-size: .72rem; color: #C8281E; cursor: pointer;
+    background: rgba(200,40,30,.06); border: 1px solid rgba(200,40,30,.15);
+    border-radius: 999px; padding: .22rem .7rem;
+    font-family: inherit; transition: all .15s;
+}
+.cr-perms-link:hover { background: rgba(200,40,30,.12); }
 
-        /* Permisos grid */
-        .modulo-block { margin-bottom: 1.4rem; }
-        .modulo-title {
-            font-size: 0.78rem; font-family: monospace; text-transform: uppercase; letter-spacing: 0.08em;
-            color: #6b7280; margin-bottom: 0.7rem; display: flex; align-items: center; gap: 0.5rem;
-        }
-        .modulo-title::after { content: ''; flex: 1; height: 1px; background: #1a0f0f; }
+/* Búsqueda de permisos */
+.cr-perms-search-wrap {
+    position: relative; margin-bottom: 1.25rem;
+}
+.cr-perms-search-wrap svg {
+    position: absolute; left: .8rem; top: 50%;
+    transform: translateY(-50%); pointer-events: none; stroke: #9a8a84;
+}
+.cr-perms-search {
+    width: 100%; background: #faf9f8;
+    border: 1px solid rgba(0,0,0,.1); border-radius: 9px;
+    padding: .55rem 1rem .55rem 2.3rem;
+    font-size: .8rem; outline: none; font-family: inherit;
+    color: #18120f; transition: border-color .2s;
+    box-sizing: border-box;
+}
+.cr-perms-search:focus { border-color: #C8281E; background: #fff; }
+.cr-perms-search::placeholder { color: #c9b9b3; }
 
-        .permisos-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+/* Módulo block */
+.cr-modulo-block { margin-bottom: 1.2rem; }
+.cr-modulo-title {
+    display: flex; align-items: center; gap: .6rem;
+    margin-bottom: .6rem;
+}
+.cr-modulo-name {
+    font-size: .62rem; font-family: monospace;
+    text-transform: uppercase; letter-spacing: .08em;
+    color: #9a8a84; white-space: nowrap;
+}
+.cr-modulo-line { flex: 1; height: 1px; background: rgba(0,0,0,.07); }
+.cr-modulo-actions { display: flex; gap: .3rem; }
+.cr-mod-link {
+    font-size: .62rem; color: #C8281E; cursor: pointer;
+    padding: .1rem .45rem; border-radius: 4px;
+    background: rgba(200,40,30,.05);
+    border: 1px solid rgba(200,40,30,.12);
+    font-family: inherit; transition: background .15s;
+}
+.cr-mod-link:hover { background: rgba(200,40,30,.12); }
+.cr-perms-grid { display: flex; flex-wrap: wrap; gap: .45rem; }
 
-        .permiso-item { position: relative; }
-        .permiso-item input[type="checkbox"] { display: none; }
-        .permiso-chip {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            padding: 0.35rem 0.85rem; border-radius: 20px; font-size: 0.78rem; font-family: monospace;
-            cursor: pointer; transition: all 0.2s; user-select: none;
-            border: 1px solid #3a2525; background: #0d0606; color: #6b7280;
-        }
-        .permiso-chip:hover { border-color: #d82c20; color: #ffffff; }
-        .permiso-item input:checked + .permiso-chip { background: rgba(216,44,32,0.15); border-color: #d82c20; color: #ffffff; }
-        .permiso-item input:checked + .permiso-chip .chip-check { opacity: 1; }
-        .chip-check { opacity: 0; transition: opacity 0.15s; color: #2ecc71; font-size: 0.65rem; }
+/* Chips de permiso */
+.cr-perm-item input[type="checkbox"] { display: none; }
+.cr-perm-chip {
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .32rem .8rem; border-radius: 999px;
+    font-size: .72rem; font-family: monospace; font-weight: 600;
+    cursor: pointer; transition: all .18s; user-select: none;
+    border: 1px solid rgba(0,0,0,.1); background: #faf9f8; color: #9a8a84;
+}
+.cr-perm-chip:hover { border-color: #C8281E; color: #C8281E; background: rgba(200,40,30,.04); }
+.cr-chip-check { opacity: 0; transition: opacity .15s; font-size: .62rem; font-weight: 700; }
+.cr-perm-item input:checked + .cr-perm-chip .cr-chip-check { opacity: 1; }
 
-        /* Colores por acción */
-        .permiso-item input:checked + .chip-Ver      { background: rgba(52,152,219,0.12); border-color: #3498db; color: #3498db; }
-        .permiso-item input:checked + .chip-Editar   { background: rgba(241,196,15,0.12); border-color: #f1c40f; color: #f1c40f; }
-        .permiso-item input:checked + .chip-Eliminar { background: rgba(231,76,60,0.12);  border-color: #e74c3c; color: #e74c3c; }
-        .permiso-item input:checked + .chip-Crear    { background: rgba(46,204,113,0.12); border-color: #2ecc71; color: #2ecc71; }
-        .permiso-item input:checked + .chip-Exportar { background: rgba(155,89,182,0.12); border-color: #9b59b2; color: #9b59b2; }
-        .permiso-item input:checked + .chip-Aprobar  { background: rgba(230,126,34,0.12); border-color: #e67e22; color: #e67e22; }
+/* Colores por acción */
+.cr-perm-item input:checked + .chip-Ver      { background: rgba(52,152,219,.07); border-color: #3498db; color: #2980b9; }
+.cr-perm-item input:checked + .chip-Editar   { background: rgba(241,196,15,.07); border-color: #f1c40f; color: #b08d0a; }
+.cr-perm-item input:checked + .chip-Eliminar { background: rgba(231,76,60,.07);  border-color: #e74c3c; color: #c0392b; }
+.cr-perm-item input:checked + .chip-Crear    { background: rgba(26,122,60,.07);  border-color: #1a7a3c; color: #1a7a3c; }
+.cr-perm-item input:checked + .chip-Exportar { background: rgba(142,68,173,.07); border-color: #8e44ad; color: #7d3c98; }
+.cr-perm-item input:checked + .chip-Aprobar  { background: rgba(230,126,34,.07); border-color: #e67e22; color: #ca6f1e; }
+.cr-perm-item input:checked + .cr-perm-chip  { /* fallback default */ border-color: #C8281E; color: #C8281E; background: rgba(200,40,30,.07); }
 
-        .select-all-link { font-size: 0.72rem; color: #e55a4e; cursor: pointer; text-decoration: none; margin-left: 0.5rem; }
-        .select-all-link:hover { text-decoration: underline; }
+/* Preview del rol */
+.cr-preview-card {
+    background: #faf9f8; border: 1px solid rgba(0,0,0,.08);
+    border-radius: 10px; padding: 1rem;
+    margin-top: 1.25rem;
+}
+.cr-preview-title {
+    font-family: monospace; font-size: .62rem;
+    text-transform: uppercase; letter-spacing: .08em;
+    color: #9a8a84; margin-bottom: .6rem;
+}
+.cr-preview-name { font-size: .9rem; font-weight: 700; color: #18120f; margin-bottom: .3rem; }
+.cr-preview-perms { display: flex; flex-wrap: wrap; gap: .35rem; }
+.cr-preview-empty { font-size: .76rem; color: #c9b9b3; font-style: italic; }
 
-        /* Botones */
-        .form-actions { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 0.5rem; }
-        .btn-submit {
-            background: #d82c20; color: white; padding: 0.75rem 2rem; border: none;
-            border-radius: 50px; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: background 0.2s;
-        }
-        .btn-submit:hover { background: #b52218; }
-        .btn-cancel {
-            background: transparent; color: #9ca3af; padding: 0.75rem 1.5rem; border: 1px solid #3a2525;
-            border-radius: 50px; font-size: 0.9rem; text-decoration: none; transition: all 0.2s; display: inline-flex; align-items: center;
-        }
-        .btn-cancel:hover { border-color: #6b7280; color: #ffffff; }
+/* Acciones */
+.cr-actions-bar {
+    background: #fff; border: 1px solid rgba(0,0,0,.07);
+    border-radius: 14px; padding: 1rem 1.25rem;
+    display: flex; align-items: center;
+    justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+}
+.cr-actions-info { font-size: .74rem; color: #9a8a84; font-family: monospace; }
+.cr-actions-info strong { color: #C8281E; }
+.cr-actions-btns { display: flex; gap: .75rem; align-items: center; }
+.cr-btn-cancel {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: #faf9f8; color: #5a4a44;
+    border: 1px solid rgba(0,0,0,.1); border-radius: 999px;
+    padding: .55rem 1.3rem; font-size: .78rem; font-weight: 700;
+    text-decoration: none; transition: all .18s; font-family: inherit;
+}
+.cr-btn-cancel:hover { border-color: #9a8a84; color: #18120f; }
+.cr-btn-submit {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: #C8281E; color: #fff;
+    border: none; border-radius: 999px;
+    padding: .55rem 1.5rem; font-size: .78rem; font-weight: 700;
+    cursor: pointer; transition: all .18s; font-family: inherit;
+    box-shadow: 0 2px 10px rgba(200,40,30,.3);
+}
+.cr-btn-submit:hover { background: #a81f16; transform: translateY(-1px); }
 
-        /* Contador */
-        .permisos-counter { font-size: 0.78rem; color: #6b7280; margin-bottom: 1rem; }
-        .permisos-counter strong { color: #d82c20; }
-    </style>
+/* Responsive */
+@@media (max-width: 700px) {
+    .cr-white { padding: 1.5rem 1rem 2rem; }
+    .cr-hero  { padding: 2rem 1rem 1.8rem; }
+    .cr-hero-right { display: none; }
+}
+</style>
 }
 
-<div class="form-container">
-
-    <!-- Breadcrumb -->
-    <nav class="breadcrumb">
-        <a asp-controller="Seguridad" asp-action="Roles">Roles</a>
-        <span>›</span>
-        <span>Crear Nuevo Rol</span>
-    </nav>
-
-    <div class="page-header">
-        <h1 class="page-title">Crear Nuevo Rol</h1>
-        <p style="color: #6b7280;">Define el nombre, descripción y permisos del nuevo rol.</p>
+<!-- ══ HERO ══ -->
+<div class="cr-hero">
+    <div class="cr-hero-grid"></div>
+    <div class="cr-hero-glow"></div>
+    <div class="cr-hero-inner">
+        <div>
+            <div class="cr-eyebrow">
+                <span class="cr-eyebrow-dot"></span>
+                Seguridad · Control de accesos
+            </div>
+            <h1 class="cr-hero-title">CREAR <span class="stroke">NUEVO ROL</span></h1>
+            <p class="cr-hero-sub">Define nombre, descripción y permisos por módulo.</p>
+        </div>
+        <div class="cr-hero-right">
+            <div class="cr-hero-stat">
+                <span class="cr-hero-stat-val">@todosPermisos.Count</span>
+                <span class="cr-hero-stat-lbl">Permisos disponibles</span>
+            </div>
+            <div class="cr-hero-stat">
+                <span class="cr-hero-stat-val">@modulosAgrupados.Count</span>
+                <span class="cr-hero-stat-lbl">Módulos</span>
+            </div>
+            <nav class="cr-breadcrumb" style="margin-left:.5rem;">
+                <a asp-controller="Seguridad" asp-action="Roles">Roles</a>
+                <span style="color:rgba(255,255,255,.15)">›</span>
+                <span>Nuevo</span>
+            </nav>
+        </div>
     </div>
+</div>
 
-    <form asp-controller="Seguridad" asp-action="RolCreate" method="post">
+<!-- ══ SECCIÓN BLANCA ══ -->
+<div class="cr-white">
+
+    <!-- Progreso -->
+    <div class="cr-progress-bar">
+        <div class="cr-progress-fill" id="crProgressFill"></div>
+    </div>
+    <div class="cr-progress-lbl">Completitud: <span id="crProgressPct">0</span>%</div>
+
+    <form asp-controller="Seguridad" asp-action="RolCreate" method="post" id="crForm">
         @Html.AntiForgeryToken()
 
-        <!-- ── Sección 1: Datos del rol ── -->
-        <div class="form-card">
-            <div class="card-section-title">📋 Información del Rol</div>
-
-            <div class="form-group">
-                <label class="form-label" asp-for="NombreRol">Nombre del Rol <span>*</span></label>
-                <input asp-for="NombreRol" class="form-control" placeholder="ej. OperadorVentas, AdminBodega..." maxlength="50" />
-                <span asp-validation-for="NombreRol" class="text-danger"></span>
-                <div class="field-hint">Máximo 50 caracteres. Usa un nombre descriptivo y sin espacios si es posible.</div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" asp-for="Descripcion">Descripción</label>
-                <textarea asp-for="Descripcion" class="form-control" placeholder="Describe brevemente las responsabilidades de este rol..." maxlength="200"></textarea>
-                <span asp-validation-for="Descripcion" class="text-danger"></span>
-                <div class="field-hint">Opcional. Máximo 200 caracteres.</div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Estado Inicial</label>
-                <div class="toggle-group">
-                    <label class="toggle-switch">
-                        <input type="checkbox" asp-for="Activo" checked />
-                        <span class="toggle-slider"></span>
-                    </label>
-                    <span class="toggle-label">Rol activo al crearse</span>
+        <!-- ── CARD 1: Info del rol ── -->
+        <div class="cr-card">
+            <div class="cr-card-header">
+                <div class="cr-card-header-icon">📋</div>
+                <div>
+                    <div class="cr-card-header-title">Información del Rol</div>
+                    <div class="cr-card-header-sub">Nombre, descripción y estado inicial</div>
                 </div>
             </div>
+            <div class="cr-card-body">
+
+                <div class="cr-field">
+                    <label class="cr-label" asp-for="NombreRol">Nombre del Rol <span class="req">*</span></label>
+                    <input asp-for="NombreRol" class="cr-input" id="crNombreInput"
+                           placeholder="Ej. OperadorVentas, AdminBodega…" maxlength="50"
+                           oninput="calcProgress(); actualizarPreview()" />
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span asp-validation-for="NombreRol" class="text-danger"></span>
+                        <span class="cr-char-count"><span id="crNombreLen">0</span>/50</span>
+                    </div>
+                </div>
+
+                <div class="cr-field">
+                    <label class="cr-label" asp-for="Descripcion">Descripción</label>
+                    <textarea asp-for="Descripcion" class="cr-input" id="crDescInput"
+                              placeholder="Describe brevemente las responsabilidades de este rol…"
+                              maxlength="200" oninput="calcProgress(); actualizarPreview()"></textarea>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span asp-validation-for="Descripcion" class="text-danger"></span>
+                        <span class="cr-char-count"><span id="crDescLen">0</span>/200</span>
+                    </div>
+                </div>
+
+                <div class="cr-field">
+                    <label class="cr-label">Estado Inicial</label>
+                    <div class="cr-toggle-row">
+                        <div>
+                            <div class="cr-toggle-label" id="crToggleLbl">Rol activo al crearse</div>
+                            <div class="cr-toggle-desc">El rol estará disponible para asignarse a usuarios</div>
+                        </div>
+                        <label class="cr-switch">
+                            <input type="checkbox" asp-for="Activo" checked onchange="actualizarToggleLbl()" />
+                            <span class="cr-switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
-        <!-- ── Sección 2: Permisos ── -->
-        <div class="form-card">
-            <div class="card-section-title">🔐 Permisos por Módulo</div>
-
-            <div class="permisos-counter">
-                Permisos seleccionados: <strong id="contadorPermisos">0</strong> de @todosPermisos.Count
-                &nbsp;·&nbsp;
-                <a class="select-all-link" onclick="toggleTodos(true)">Seleccionar todos</a>
-                &nbsp;/&nbsp;
-                <a class="select-all-link" onclick="toggleTodos(false)">Limpiar</a>
+        <!-- ── CARD 2: Permisos ── -->
+        <div class="cr-card">
+            <div class="cr-card-header">
+                <div class="cr-card-header-icon">🔐</div>
+                <div>
+                    <div class="cr-card-header-title">Permisos por Módulo</div>
+                    <div class="cr-card-header-sub">Selecciona qué acciones puede realizar este rol</div>
+                </div>
             </div>
+            <div class="cr-card-body">
 
-            @if (!todosPermisos.Any())
-            {
-                <p style="color:#6b7280; font-size:0.85rem;">No hay permisos registrados en el sistema aún.</p>
-            }
-            else
-            {
-                @foreach (var modulo in modulosAgrupados)
+                <div class="cr-perms-toolbar">
+                    <div class="cr-perms-counter">
+                        <span>Seleccionados:</span>
+                        <span class="cr-perms-counter-badge" id="crCount">0</span>
+                        <span style="color:#9a8a84;">de @todosPermisos.Count</span>
+                    </div>
+                    <div class="cr-perms-actions">
+                        <button type="button" class="cr-perms-link" onclick="toggleTodos(true)">✓ Todos</button>
+                        <button type="button" class="cr-perms-link" onclick="toggleTodos(false)">✕ Limpiar</button>
+                    </div>
+                </div>
+
+                <!-- Búsqueda de permisos -->
+                <div class="cr-perms-search-wrap">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" class="cr-perms-search" id="crPermsSearch"
+                           placeholder="Buscar permiso por nombre o módulo…"
+                           oninput="filtrarPermisos()" />
+                </div>
+
+                @if (!todosPermisos.Any())
                 {
-                    <div class="modulo-block">
-                        <div class="modulo-title">
-                            @modulo.Key
-                            <a class="select-all-link" onclick="toggleModulo('@modulo.Key', true)">todo</a>
-                            <span style="color:#3a2525">/</span>
-                            <a class="select-all-link" onclick="toggleModulo('@modulo.Key', false)">ninguno</a>
-                        </div>
-                        <div class="permisos-grid" data-modulo="@modulo.Key">
-                            @foreach (var permiso in modulo.OrderBy(p => p.Accion))
-                            {
-                                <label class="permiso-item">
-                                    <input type="checkbox" name="permisosSeleccionados" value="@permiso.PermisoId"
-                                           onchange="actualizarContador()" />
-                                    <span class="permiso-chip chip-@permiso.Accion" title="@permiso.Descripcion">
-                                        <span class="chip-check">✓</span>
-                                        @permiso.Accion
-                                    </span>
-                                </label>
-                            }
-                        </div>
+                    <div style="color:#9a8a84; font-size:.82rem; font-style:italic; padding:.8rem; background:#faf9f8; border-radius:8px; border:1px dashed rgba(0,0,0,.1); text-align:center;">
+                        No hay permisos registrados en el sistema.
                     </div>
                 }
-            }
+                else
+                {
+                    <div id="crModulosContainer">
+                        @foreach (var modulo in modulosAgrupados)
+                        {
+                            <div class="cr-modulo-block" data-modulo="@modulo.Key.ToLower()">
+                                <div class="cr-modulo-title">
+                                    <span class="cr-modulo-name">@modulo.Key</span>
+                                    <div class="cr-modulo-line"></div>
+                                    <div class="cr-modulo-actions">
+                                        <button type="button" class="cr-mod-link" onclick="toggleModulo('@modulo.Key', true)">todo</button>
+                                        <button type="button" class="cr-mod-link" onclick="toggleModulo('@modulo.Key', false)">ninguno</button>
+                                    </div>
+                                </div>
+                                <div class="cr-perms-grid" data-modulo="@modulo.Key">
+                                    @foreach (var permiso in modulo.OrderBy(p => p.Accion))
+                                    {
+                                        <label class="cr-perm-item" data-accion="@permiso.Accion.ToLower()" data-modulo="@modulo.Key.ToLower()">
+                                            <input type="checkbox" name="permisosSeleccionados" value="@permiso.PermisoId"
+                                                   onchange="actualizarContador(); calcProgress(); actualizarPreview()" />
+                                            <span class="cr-perm-chip chip-@permiso.Accion"
+                                                  title="@permiso.Descripcion">
+                                                <span class="cr-chip-check">✓</span>
+                                                @permiso.Accion
+                                            </span>
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- Preview del rol -->
+                <div class="cr-preview-card">
+                    <div class="cr-preview-title">Vista previa del rol</div>
+                    <div class="cr-preview-name" id="crPreviewNombre">Sin nombre aún</div>
+                    <div id="crPreviewPerms" class="cr-preview-perms">
+                        <span class="cr-preview-empty">Ningún permiso seleccionado</span>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
-        <!-- ── Acciones ── -->
-        <div class="form-actions">
-            <a asp-action="Index" class="btn-cancel">← Cancelar</a>
-            <button type="submit" class="btn-submit">✔ Crear Rol</button>
+        <!-- ── BARRA DE ACCIONES ── -->
+        <div class="cr-actions-bar">
+            <div class="cr-actions-info">
+                Permisos asignados: <strong id="crActionsCount">0</strong> de @todosPermisos.Count
+            </div>
+            <div class="cr-actions-btns">
+                <a asp-action="Roles" class="cr-btn-cancel">← Cancelar</a>
+                <button type="submit" class="cr-btn-submit">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Crear Rol
+                </button>
+            </div>
         </div>
+
     </form>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script>
-        function actualizarContador() {
-            const total = document.querySelectorAll('input[name="permisosSeleccionados"]:checked').length;
-            document.getElementById('contadorPermisos').textContent = total;
-        }
+<script>
+    // ── Contador de permisos ──
+    function actualizarContador() {
+        const n = document.querySelectorAll('input[name="permisosSeleccionados"]:checked').length;
+        document.getElementById('crCount').textContent = n;
+        document.getElementById('crActionsCount').textContent = n;
+    }
 
-        function toggleTodos(marcar) {
-            document.querySelectorAll('input[name="permisosSeleccionados"]')
-                .forEach(cb => cb.checked = marcar);
-            actualizarContador();
-        }
+    // ── Toggle todos ──
+    function toggleTodos(marcar) {
+        document.querySelectorAll('input[name="permisosSeleccionados"]').forEach(cb => cb.checked = marcar);
+        actualizarContador(); calcProgress(); actualizarPreview();
+    }
 
-        function toggleModulo(modulo, marcar) {
-            document.querySelectorAll(`[data-modulo="${modulo}"] input[name="permisosSeleccionados"]`)
-                .forEach(cb => cb.checked = marcar);
-            actualizarContador();
-        }
+    // ── Toggle por módulo ──
+    function toggleModulo(modulo, marcar) {
+        document.querySelectorAll(`[data-modulo="${modulo}"] input[name="permisosSeleccionados"]`)
+            .forEach(cb => cb.checked = marcar);
+        actualizarContador(); calcProgress(); actualizarPreview();
+    }
 
-        // Inicializar contador
+    // ── Búsqueda de permisos ──
+    function filtrarPermisos() {
+        const q = document.getElementById('crPermsSearch').value.toLowerCase().trim();
+        document.querySelectorAll('.cr-modulo-block').forEach(bloque => {
+            const moduloNombre = bloque.dataset.modulo || '';
+            let hayVisible = false;
+            bloque.querySelectorAll('.cr-perm-item').forEach(item => {
+                const accion = item.dataset.accion || '';
+                const match  = !q || accion.includes(q) || moduloNombre.includes(q);
+                item.style.display = match ? '' : 'none';
+                if (match) hayVisible = true;
+            });
+            bloque.style.display = hayVisible ? '' : 'none';
+        });
+    }
+
+    // ── Vista previa ──
+    function actualizarPreview() {
+        const nombre = document.getElementById('crNombreInput')?.value.trim() || '';
+        document.getElementById('crPreviewNombre').textContent = nombre || 'Sin nombre aún';
+
+        const checked = Array.from(document.querySelectorAll('input[name="permisosSeleccionados"]:checked'));
+        const cont = document.getElementById('crPreviewPerms');
+        if (checked.length === 0) {
+            cont.innerHTML = '<span class="cr-preview-empty">Ningún permiso seleccionado</span>';
+        } else {
+            cont.innerHTML = checked.map(cb => {
+                const chip = cb.nextElementSibling;
+                const accion = chip?.querySelector(':last-child')?.textContent.trim() || '';
+                return `<span style="display:inline-flex;align-items:center;gap:.25rem;padding:.18rem .55rem;border-radius:999px;font-size:.65rem;font-family:monospace;background:rgba(200,40,30,.07);border:1px solid rgba(200,40,30,.18);color:#a81f16;font-weight:600;">${accion}</span>`;
+            }).join('');
+        }
+    }
+
+    // ── Toggle label estado ──
+    function actualizarToggleLbl() {
+        const chk = document.querySelector('[name="Activo"]');
+        const lbl = document.getElementById('crToggleLbl');
+        if (lbl) lbl.textContent = chk?.checked ? 'Rol activo al crearse' : 'Rol inactivo al crearse';
+    }
+
+    // ── Contadores de caracteres ──
+    function actualizarCharCount() {
+        const n = document.getElementById('crNombreInput');
+        const d = document.getElementById('crDescInput');
+        if (n) document.getElementById('crNombreLen').textContent = n.value.length;
+        if (d) document.getElementById('crDescLen').textContent   = d.value.length;
+    }
+
+    // ── Barra de progreso ──
+    function calcProgress() {
+        const nombre = document.getElementById('crNombreInput')?.value.trim() !== '';
+        const desc   = document.getElementById('crDescInput')?.value.trim()   !== '';
+        const perms  = document.querySelectorAll('input[name="permisosSeleccionados"]:checked').length > 0;
+        const filled = [nombre, desc, perms].filter(Boolean).length;
+        const pct = Math.round((filled / 3) * 100);
+        document.getElementById('crProgressFill').style.width = pct + '%';
+        document.getElementById('crProgressPct').textContent  = pct;
+        actualizarCharCount();
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
         actualizarContador();
-    </script>
+        calcProgress();
+        actualizarPreview();
+    });
+</script>
 }

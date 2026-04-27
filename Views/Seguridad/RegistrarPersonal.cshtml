@@ -1,215 +1,484 @@
 @model RefrescosDelValle.Models.ViewModels.RegistroEmpleadoViewModel
-
 @{
     ViewData["Title"] = "Aprovisionamiento de Personal";
-    Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 @section Styles {
-    <style>
-        /* ══ ESTILOS ORIGINALES RESTAURADOS ══ */
-        .cyber-panel {
-            background: var(--dark-800, #1a0f0f);
-            border: 1px solid var(--dark-600, #2a1a1a);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .panel-header {
-            border-bottom: 1px solid var(--dark-600, #2a1a1a);
-            padding-bottom: 1rem;
-            margin-bottom: 2rem;
-        }
-        .panel-title {
-            color: #fff;
-            font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
-            margin: 0;
-        }
-        .panel-subtitle {
-            color: #9ca3af;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
-        }
+<style>
+/* ── HERO ── */
+.ap-hero {
+    background: #0f0b09;
+    padding: 2.8rem 2.5rem 2.2rem;
+    position: relative; overflow: hidden;
+}
+.ap-hero-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,40,30,.04) 59px, rgba(200,40,30,.04) 60px),
+        repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,40,30,.04) 59px, rgba(200,40,30,.04) 60px);
+}
+.ap-hero-glow {
+    position: absolute; width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(200,40,30,.10) 0%, transparent 70%);
+    top: -180px; right: -60px; pointer-events: none;
+}
+.ap-hero-inner {
+    position: relative; z-index: 2;
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 2rem; flex-wrap: wrap;
+}
+.ap-eyebrow {
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-family: monospace; font-size: .62rem;
+    color: rgba(200,40,30,.85); letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: .5rem;
+}
+.ap-eyebrow-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #C8281E; animation: appulse 2.5s ease infinite;
+}
+@@keyframes appulse {
+    0%,100%{opacity:1;transform:scale(1);}
+    50%{opacity:.3;transform:scale(.5);}
+}
+.ap-hero-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.4rem, 3vw, 2.3rem);
+    color: #fff; line-height: 1; font-weight: 800;
+    letter-spacing: 1px; margin-bottom: .3rem;
+}
+.ap-hero-title .stroke { -webkit-text-stroke: 2px #C8281E; color: transparent; }
+.ap-hero-sub { font-size: .78rem; color: rgba(255,255,255,.32); line-height: 1.5; max-width: 420px; }
+.ap-breadcrumb {
+    display: flex; align-items: center; gap: .45rem;
+    font-family: monospace; font-size: .65rem;
+    color: rgba(255,255,255,.25);
+}
+.ap-breadcrumb a { color: rgba(200,40,30,.8); text-decoration: none; }
+.ap-breadcrumb a:hover { color: #C8281E; }
+.ap-hero-stat {
+    display: flex; flex-direction: column; align-items: center;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 10px; padding: .6rem 1.1rem;
+}
+.ap-hero-stat-val {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.4rem; color: #C8281E; font-weight: 800; line-height: 1;
+}
+.ap-hero-stat-lbl {
+    font-size: .54rem; font-family: monospace;
+    color: rgba(255,255,255,.25); margin-top: .12rem;
+    text-transform: uppercase; letter-spacing: 1px;
+}
+.ap-hero-right { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
 
-        /* Grid Layouts */
-        .form-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
-        .form-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
-        
-        .form-label {
-            display: block; color: #9ca3af; font-size: 0.8rem; text-transform: uppercase;
-            letter-spacing: 1px; margin-bottom: 0.5rem; font-family: 'DM Mono', monospace;
-        }
-        .form-control, .form-select {
-            width: 100%; padding: 0.8rem 1rem; background: #0a0303; border: 1px solid #2a1a1a;
-            color: #fff; border-radius: 8px; transition: all 0.3s; box-sizing: border-box;
-            font-family: var(--font-body, sans-serif);
-        }
-        .form-control:focus, .form-select:focus {
-            outline: none; border-color: #C8281E; box-shadow: 0 0 10px rgba(200, 40, 30, 0.2);
-        }
-        
-        /* Estilos para los Checkboxes de Roles (Estilo Toggles Cyberpunk) */
-        .roles-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1rem;
-            padding: 1.5rem;
-            background: rgba(0,0,0,0.3);
-            border-radius: 8px;
-            border: 1px dashed #2a1a1a;
-        }
-        .role-checkbox-wrapper {
-            display: flex;
-            align-items: center;
-            padding: 0.8rem;
-            background: #111;
-            border: 1px solid #2a1a1a;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .role-checkbox-wrapper:hover { border-color: #C8281E; }
-        .role-checkbox-wrapper input[type="checkbox"] {
-            accent-color: #C8281E;
-            width: 18px; height: 18px; margin-right: 10px; cursor: pointer;
-        }
-        .role-name { color: #fff; font-size: 0.9rem; font-weight: 500; }
+/* ── SECCIÓN BLANCA ── */
+.ap-white { background: #f7f5f4; padding: 2rem 2.5rem 3rem; }
 
-        .btn-ejecutar {
-            background: #C8281E; color: white; border: none; padding: 1rem 2rem;
-            border-radius: 8px; font-weight: bold; font-family: 'DM Mono', monospace;
-            cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 2px;
-            display: flex; align-items: center; gap: 10px; margin-top: 2rem;
-            width: fit-content;
-        }
-        .btn-ejecutar:hover { background: #a81f16; transform: translateY(-2px); }
+/* Progreso */
+.ap-progress-bar {
+    height: 3px; background: rgba(0,0,0,.06);
+    border-radius: 999px; overflow: hidden; margin-bottom: .4rem;
+}
+.ap-progress-fill {
+    height: 100%; background: linear-gradient(90deg, #C8281E, #f1934c);
+    border-radius: 999px; transition: width .3s ease; width: 0%;
+}
+.ap-progress-lbl { font-size: .65rem; font-family: monospace; color: #9a8a84; text-align: right; margin-bottom: 1.5rem; }
 
-        /* Validación en rojo estilo Mono */
-        .field-validation-error {
-            color: #ef4444;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
-            display: block;
-        }
+/* Alert éxito */
+.ap-alert-ok {
+    display: flex; align-items: center; gap: .6rem;
+    background: rgba(26,122,60,.07); border: 1px solid rgba(26,122,60,.2);
+    color: #1a7a3c; border-radius: 10px;
+    padding: .75rem 1.1rem; font-size: .82rem;
+    margin-bottom: 1.5rem; font-weight: 600;
+}
+.ap-alert-ok svg { stroke: #1a7a3c; flex-shrink: 0; }
 
-        @@media (max-width: 900px) {
-            .form-grid-3, .form-grid-2 { grid-template-columns: 1fr; }
-        }
-    </style>
+/* Cards */
+.ap-card {
+    background: #fff; border: 1px solid rgba(0,0,0,.07);
+    border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem;
+}
+.ap-card-header {
+    display: flex; align-items: center; gap: .75rem;
+    padding: .85rem 1.25rem;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+    background: #faf9f8;
+}
+.ap-card-header-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(200,40,30,.08); border: 1px solid rgba(200,40,30,.14);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .85rem; flex-shrink: 0;
+}
+.ap-card-step {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #C8281E; color: #fff;
+    font-family: monospace; font-size: .65rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.ap-card-header-title {
+    font-family: monospace; font-size: .68rem;
+    text-transform: uppercase; letter-spacing: .1em;
+    color: #18120f; font-weight: 700;
+}
+.ap-card-header-sub { font-size: .7rem; color: #9a8a84; margin-top: .1rem; }
+.ap-card-body { padding: 1.5rem 1.25rem; }
+
+/* Grid */
+.ap-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; }
+.ap-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+
+/* Campos */
+.ap-field { display: flex; flex-direction: column; gap: .4rem; }
+.ap-label {
+    font-size: .7rem; font-weight: 700; color: #5a4a44;
+    text-transform: uppercase; letter-spacing: .06em;
+    font-family: monospace; display: flex; align-items: center; gap: .3rem;
+}
+.ap-label .req { color: #C8281E; }
+.ap-input-wrap { position: relative; }
+.ap-input-wrap svg {
+    position: absolute; left: .85rem; top: 50%;
+    transform: translateY(-50%); pointer-events: none; stroke: #9a8a84;
+    transition: stroke .2s;
+}
+.ap-input {
+    width: 100%; background: #faf9f8;
+    border: 1px solid rgba(0,0,0,.1); border-radius: 9px;
+    color: #18120f; padding: .65rem .9rem .65rem 2.4rem;
+    font-size: .85rem; outline: none;
+    transition: border-color .2s, box-shadow .2s, background .2s;
+    box-sizing: border-box; font-family: inherit;
+}
+.ap-input.no-icon { padding-left: .9rem; }
+.ap-input:focus {
+    border-color: #C8281E;
+    box-shadow: 0 0 0 3px rgba(200,40,30,.1);
+    background: #fff;
+}
+.ap-input:focus ~ svg,
+.ap-input:focus + svg { stroke: #C8281E; }
+.ap-input::placeholder { color: #c9b9b3; }
+.ap-select {
+    width: 100%; background: #faf9f8;
+    border: 1px solid rgba(0,0,0,.1); border-radius: 9px;
+    color: #18120f; padding: .65rem .9rem;
+    font-size: .85rem; outline: none; font-family: inherit;
+    transition: border-color .2s, box-shadow .2s;
+    box-sizing: border-box; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='%239a8a84' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right .9rem center;
+    padding-right: 2.5rem;
+}
+.ap-select:focus { border-color: #C8281E; box-shadow: 0 0 0 3px rgba(200,40,30,.1); }
+.ap-hint { font-size: .7rem; color: #9a8a84; }
+.field-validation-error { color: #e74c3c; font-size: .72rem; display: block; }
+
+/* Password toggle */
+.ap-pwd-wrap { position: relative; }
+.ap-pwd-wrap .ap-input { padding-right: 2.5rem; }
+.ap-pwd-toggle {
+    position: absolute; right: .8rem; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: #9a8a84; padding: 0; display: flex; align-items: center;
+    transition: color .15s;
+}
+.ap-pwd-toggle:hover { color: #C8281E; }
+
+/* Strength bar */
+.ap-strength-bar {
+    height: 3px; background: rgba(0,0,0,.08);
+    border-radius: 999px; overflow: hidden; margin-top: .4rem;
+}
+.ap-strength-fill {
+    height: 100%; border-radius: 999px;
+    transition: width .3s, background .3s; width: 0%;
+}
+.ap-strength-lbl { font-size: .65rem; font-family: monospace; color: #9a8a84; margin-top: .2rem; }
+
+/* Roles grid */
+.ap-roles-grid { display: flex; flex-wrap: wrap; gap: .5rem; }
+.ap-rol-item input[type="checkbox"] { display: none; }
+.ap-rol-chip {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .42rem 1.05rem; border-radius: 999px; font-size: .78rem;
+    cursor: pointer; transition: all .2s; user-select: none;
+    border: 1px solid rgba(0,0,0,.1); background: #faf9f8; color: #9a8a84;
+    font-weight: 600;
+}
+.ap-rol-chip:hover { border-color: #C8281E; color: #C8281E; background: rgba(200,40,30,.04); }
+.ap-rol-item input:checked + .ap-rol-chip {
+    background: rgba(200,40,30,.08); border-color: #C8281E; color: #C8281E;
+}
+.ap-chip-check { opacity: 0; transition: opacity .15s; color: #1a7a3c; font-size: .65rem; font-weight: 700; }
+.ap-rol-item input:checked + .ap-rol-chip .ap-chip-check { opacity: 1; }
+.ap-roles-count { font-size: .7rem; font-family: monospace; color: #9a8a84; margin-top: .6rem; }
+.ap-roles-count strong { color: #C8281E; }
+
+/* Acciones */
+.ap-actions-bar {
+    background: #fff; border: 1px solid rgba(0,0,0,.07);
+    border-radius: 14px; padding: 1rem 1.25rem;
+    display: flex; align-items: center;
+    justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+}
+.ap-actions-info { font-size: .74rem; color: #9a8a84; font-family: monospace; line-height: 1.6; }
+.ap-actions-info strong { color: #C8281E; }
+.ap-actions-btns { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+.ap-btn-cancel {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: #faf9f8; color: #5a4a44;
+    border: 1px solid rgba(0,0,0,.1); border-radius: 999px;
+    padding: .55rem 1.3rem; font-size: .78rem; font-weight: 700;
+    text-decoration: none; transition: all .18s; font-family: inherit;
+}
+.ap-btn-cancel:hover { border-color: #9a8a84; color: #18120f; }
+.ap-btn-submit {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: #C8281E; color: #fff;
+    border: none; border-radius: 999px;
+    padding: .55rem 1.5rem; font-size: .78rem; font-weight: 700;
+    cursor: pointer; transition: all .18s; font-family: inherit;
+    box-shadow: 0 2px 10px rgba(200,40,30,.3);
+}
+.ap-btn-submit:hover { background: #a81f16; transform: translateY(-1px); }
+
+/* Responsive */
+@@media (max-width: 900px) {
+    .ap-white { padding: 1.5rem 1rem 2rem; }
+    .ap-hero  { padding: 2rem 1rem 1.8rem; }
+    .ap-grid-3, .ap-grid-2 { grid-template-columns: 1fr; }
+    .ap-hero-right { display: none; }
+}
+</style>
 }
 
-<div class="container-fluid px-4" style="margin-top: 2rem;">
-    
+<!-- ══ HERO ══ -->
+<div class="ap-hero">
+    <div class="ap-hero-grid"></div>
+    <div class="ap-hero-glow"></div>
+    <div class="ap-hero-inner">
+        <div>
+            <div class="ap-eyebrow">
+                <span class="ap-eyebrow-dot"></span>
+                Seguridad · Gestión de personal
+            </div>
+            <h1 class="ap-hero-title">REGISTRO DE<br><span class="stroke">OPERADOR</span></h1>
+            <p class="ap-hero-sub">Alta de nuevo personal con credenciales, asignación de nodo y niveles de privilegio.</p>
+        </div>
+        <div class="ap-hero-right">
+            <div class="ap-hero-stat">
+                <span class="ap-hero-stat-val">3</span>
+                <span class="ap-hero-stat-lbl">Secciones</span>
+            </div>
+            <div class="ap-hero-stat">
+                <span class="ap-hero-stat-val">RBAC</span>
+                <span class="ap-hero-stat-lbl">Control acceso</span>
+            </div>
+            <nav class="ap-breadcrumb" style="margin-left:.5rem;">
+                <a asp-controller="Seguridad" asp-action="DirectorioUsuarios">Directorio</a>
+                <span style="color:rgba(255,255,255,.15)">›</span>
+                <span>Nuevo Operador</span>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- ══ SECCIÓN BLANCA ══ -->
+<div class="ap-white">
+
     @if (TempData["SuccessMsg"] != null)
     {
-        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #34d399; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-family: 'DM Mono', monospace;">
-            > [SYS_OK]: @TempData["SuccessMsg"]
+        <div class="ap-alert-ok">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke-width="2.5" stroke-linecap="round">
+                <circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/>
+            </svg>
+            @TempData["SuccessMsg"]
         </div>
     }
 
-    <form asp-action="RegistrarPersonal" method="post">
+    <!-- Progreso -->
+    <div class="ap-progress-bar">
+        <div class="ap-progress-fill" id="apProgressFill"></div>
+    </div>
+    <div class="ap-progress-lbl">Completitud del formulario: <span id="apProgressPct">0</span>%</div>
+
+    <form asp-action="RegistrarPersonal" method="post" id="apForm">
         @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="field-validation-error" style="margin-bottom:1rem;font-size:.8rem;"></div>
 
-        <div asp-validation-summary="ModelOnly" class="field-validation-error" style="margin-bottom: 1.5rem; font-size: 0.85rem;"></div>
-        
-        <div class="cyber-panel">
-            <div class="panel-header">
-                <h2 class="panel-title">Identidad del Operador</h2>
-                <p class="panel-subtitle">_DATOS_PERSONALES_Y_CREDenciales</p>
-            </div>
-
-            <div class="form-grid-3">
-                <div class="form-group">
-                    <label asp-for="CI" class="form-label">Cédula de Identidad</label>
-                    <input asp-for="CI" class="form-control" placeholder="Ej. 12345678" />
-                    <span asp-validation-for="CI" class="field-validation-error"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Nombres" class="form-label">Nombres</label>
-                    <input asp-for="Nombres" class="form-control" placeholder="Nombre completo" />
-                    <span asp-validation-for="Nombres" class="field-validation-error"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="ApellidoPat" class="form-label">Apellido Paterno</label>
-                    <input asp-for="ApellidoPat" class="form-control" placeholder="Paterno" />
-                    <span asp-validation-for="ApellidoPat" class="field-validation-error"></span>
+        <!-- ── CARD 1: Identidad ── -->
+        <div class="ap-card">
+            <div class="ap-card-header">
+                <div class="ap-card-step">1</div>
+                <div class="ap-card-header-icon">👤</div>
+                <div>
+                    <div class="ap-card-header-title">Identidad del Operador</div>
+                    <div class="ap-card-header-sub">Datos personales y credenciales de acceso</div>
                 </div>
             </div>
-
-            <div class="form-grid-2">
-                <div class="form-group">
-                    <label asp-for="Email" class="form-label">Correo Corporativo (Usuario)</label>
-                    <input asp-for="Email" type="email" class="form-control" placeholder="usuario@refrescosdelvalle.bo" />
-                    <span asp-validation-for="Email" class="field-validation-error"></span>
+            <div class="ap-card-body">
+                <div class="ap-grid-3" style="margin-bottom:1.2rem;">
+                    <div class="ap-field">
+                        <label class="ap-label" asp-for="CI">Cédula de Identidad <span class="req">*</span></label>
+                        <div class="ap-input-wrap">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                                <rect x="3" y="5" width="18" height="14" rx="2"/><line x1="7" y1="15" x2="11" y2="15"/>
+                            </svg>
+                            <input asp-for="CI" class="ap-input" placeholder="Ej. 12345678" oninput="calcProgress()" />
+                        </div>
+                        <span asp-validation-for="CI" class="field-validation-error"></span>
+                    </div>
+                    <div class="ap-field">
+                        <label class="ap-label" asp-for="Nombres">Nombres <span class="req">*</span></label>
+                        <div class="ap-input-wrap">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            <input asp-for="Nombres" class="ap-input" placeholder="Nombres del operador" oninput="calcProgress()" />
+                        </div>
+                        <span asp-validation-for="Nombres" class="field-validation-error"></span>
+                    </div>
+                    <div class="ap-field">
+                        <label class="ap-label" asp-for="ApellidoPat">Apellido Paterno <span class="req">*</span></label>
+                        <div class="ap-input-wrap">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            </svg>
+                            <input asp-for="ApellidoPat" class="ap-input" placeholder="Apellido paterno" oninput="calcProgress()" />
+                        </div>
+                        <span asp-validation-for="ApellidoPat" class="field-validation-error"></span>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label asp-for="Password" class="form-label">Contraseña de Red</label>
-                    <input asp-for="Password" type="password" class="form-control" placeholder="Asigne una contraseña segura" />
-                    <span asp-validation-for="Password" class="field-validation-error"></span>
+                <div class="ap-grid-2">
+                    <div class="ap-field">
+                        <label class="ap-label" asp-for="Email">Correo Corporativo <span class="req">*</span></label>
+                        <div class="ap-input-wrap">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                            <input asp-for="Email" type="email" class="ap-input" placeholder="usuario@refrescosdelvalle.bo" oninput="calcProgress()" />
+                        </div>
+                        <span asp-validation-for="Email" class="field-validation-error"></span>
+                    </div>
+                    <div class="ap-field">
+                        <label class="ap-label" asp-for="Password">Contraseña de Red <span class="req">*</span></label>
+                        <div class="ap-pwd-wrap">
+                            <div class="ap-input-wrap">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                                <input asp-for="Password" type="password" class="ap-input" id="apPwdInput"
+                                       placeholder="Contraseña segura" style="padding-right:2.5rem;"
+                                       oninput="calcProgress(); medirFuerza(this.value)" />
+                            </div>
+                            <button type="button" class="ap-pwd-toggle" onclick="togglePwd('apPwdInput')">
+                                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="ap-strength-bar"><div class="ap-strength-fill" id="apStrengthFill"></div></div>
+                        <div class="ap-strength-lbl" id="apStrengthLbl">Ingresa una contraseña</div>
+                        <span asp-validation-for="Password" class="field-validation-error"></span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="cyber-panel">
-            <div class="panel-header">
-                <h2 class="panel-title">Asignación Física</h2>
-                <p class="panel-subtitle">_SUCURSAL_Y_PUESTO_OPERATIVO</p>
-            </div>
-
-            <div class="form-grid-2">
-                <div class="form-group">
-                    <label asp-for="SucursalID" class="form-label">Nodo / Sucursal</label>
-                    <select asp-for="SucursalID" class="form-select" asp-items="ViewBag.Sucursales">
-                        <option value="">-- Seleccionar Nodo --</option>
-                    </select>
-                    <span asp-validation-for="SucursalID" class="field-validation-error"></span>
+        <!-- ── CARD 2: Asignación ── -->
+        <div class="ap-card">
+            <div class="ap-card-header">
+                <div class="ap-card-step">2</div>
+                <div class="ap-card-header-icon">🏢</div>
+                <div>
+                    <div class="ap-card-header-title">Asignación Operativa</div>
+                    <div class="ap-card-header-sub">Nodo de trabajo y puesto designado</div>
                 </div>
-                <div class="form-group">
-                    <label asp-for="CargoID" class="form-label">Designación (Cargo)</label>
-                    <select asp-for="CargoID" class="form-select" asp-items="ViewBag.Cargos">
-                        <option value="">-- Asignar Puesto --</option>
-                    </select>
-                    <span asp-validation-for="CargoID" class="field-validation-error"></span>
+            </div>
+            <div class="ap-card-body">
+                <div class="ap-grid-2">
+                    <div class="ap-field">
+                        <label class="ap-label" asp-for="SucursalID">Nodo / Sucursal <span class="req">*</span></label>
+                        <select asp-for="SucursalID" class="ap-select" asp-items="ViewBag.Sucursales" onchange="calcProgress()">
+                            <option value="">— Seleccionar nodo —</option>
+                        </select>
+                        <span asp-validation-for="SucursalID" class="field-validation-error"></span>
+                    </div>
+                    <div class="ap-field">
+                        <label class="ap-label" asp-for="CargoID">Cargo / Designación <span class="req">*</span></label>
+                        <select asp-for="CargoID" class="ap-select" asp-items="ViewBag.Cargos" onchange="calcProgress()">
+                            <option value="">— Asignar puesto —</option>
+                        </select>
+                        <span asp-validation-for="CargoID" class="field-validation-error"></span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="cyber-panel">
-            <div class="panel-header">
-                <h2 class="panel-title">Niveles de Privilegio</h2>
-                <p class="panel-subtitle">_CONTROL_DE_ACCESO_BASADO_EN_ROLES_(RBAC)</p>
+        <!-- ── CARD 3: Roles ── -->
+        <div class="ap-card">
+            <div class="ap-card-header">
+                <div class="ap-card-step">3</div>
+                <div class="ap-card-header-icon">🛡</div>
+                <div>
+                    <div class="ap-card-header-title">Niveles de Privilegio (RBAC)</div>
+                    <div class="ap-card-header-sub">Asigna los roles de acceso al sistema</div>
+                </div>
             </div>
-
-            <div class="roles-grid">
+            <div class="ap-card-body">
                 @if (ViewBag.RolesDisponibles != null)
                 {
-                    foreach (var rol in ViewBag.RolesDisponibles as List<SelectListItem>)
-                    {
-                        <label class="role-checkbox-wrapper">
-                            <input type="checkbox" name="RolesSeleccionados" value="@rol.Value" />
-                            <span class="role-name">@rol.Text</span>
-                        </label>
-                    }
+                    <div class="ap-roles-grid" id="apRolesGrid">
+                        @foreach (var rol in ViewBag.RolesDisponibles as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)
+                        {
+                            <label class="ap-rol-item">
+                                <input type="checkbox" name="RolesSeleccionados" value="@rol.Value"
+                                       onchange="calcProgress()" />
+                                <span class="ap-rol-chip">
+                                    <span class="ap-chip-check">✓</span>
+                                    @rol.Text
+                                </span>
+                            </label>
+                        }
+                    </div>
+                    <div class="ap-roles-count">
+                        Roles asignados: <strong id="apRolesCount">0</strong>
+                    </div>
                 }
                 else
                 {
-                    <p style="color: #ef4444; font-family: 'DM Mono', monospace; font-size: 0.8rem;">
-                        > [SYS_ERR]: No se pudieron cargar los roles de seguridad.
-                    </p>
+                    <div style="font-size:.8rem;color:#9a8a84;font-style:italic;padding:.8rem;background:#faf9f8;border-radius:8px;border:1px dashed rgba(0,0,0,.1);text-align:center;">
+                        No se pudieron cargar los roles de seguridad.
+                    </div>
                 }
             </div>
+        </div>
 
-            <button type="submit" class="btn-ejecutar">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                Inyectar Operador en DB
-            </button>
+        <!-- ── BARRA DE ACCIONES ── -->
+        <div class="ap-actions-bar">
+            <div class="ap-actions-info">
+                Registro de nuevo operador<br>
+                Completitud: <strong><span id="apPctInfo">0</span>%</strong>
+            </div>
+            <div class="ap-actions-btns">
+                <a asp-controller="Seguridad" asp-action="DirectorioUsuarios" class="ap-btn-cancel">← Cancelar</a>
+                <button type="submit" class="ap-btn-submit">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    Registrar Operador
+                </button>
+            </div>
         </div>
 
     </form>
@@ -217,4 +486,53 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+<script>
+    function togglePwd(id) {
+        const inp = document.getElementById(id);
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+
+    function medirFuerza(v) {
+        const fill = document.getElementById('apStrengthFill');
+        const lbl  = document.getElementById('apStrengthLbl');
+        if (!v) { fill.style.width = '0%'; lbl.textContent = 'Ingresa una contraseña'; return; }
+        let score = 0;
+        if (v.length >= 8)  score++;
+        if (/[A-Z]/.test(v)) score++;
+        if (/[0-9]/.test(v)) score++;
+        if (/[^A-Za-z0-9]/.test(v)) score++;
+        const configs = [
+            { w:'15%', bg:'#e74c3c', txt:'Muy débil' },
+            { w:'35%', bg:'#e67e22', txt:'Débil' },
+            { w:'60%', bg:'#f1c40f', txt:'Moderada' },
+            { w:'85%', bg:'#2ecc71', txt:'Fuerte' },
+            { w:'100%',bg:'#1a7a3c', txt:'Muy fuerte' },
+        ];
+        const c = configs[score] || configs[0];
+        fill.style.width = c.w; fill.style.background = c.bg; lbl.textContent = c.txt;
+    }
+
+    function calcProgress() {
+        const reqs = [
+            document.querySelector('[name="CI"]'),
+            document.querySelector('[name="Nombres"]'),
+            document.querySelector('[name="ApellidoPat"]'),
+            document.querySelector('[name="Email"]'),
+            document.querySelector('[name="Password"]'),
+            document.querySelector('[name="SucursalID"]'),
+            document.querySelector('[name="CargoID"]'),
+        ];
+        const filled = reqs.filter(el => el && el.value.trim() !== '' && el.value !== '').length;
+        const pct = Math.round((filled / reqs.length) * 100);
+        document.getElementById('apProgressFill').style.width = pct + '%';
+        document.getElementById('apProgressPct').textContent = pct;
+        document.getElementById('apPctInfo').textContent = pct;
+
+        const rolesN = document.querySelectorAll('[name="RolesSeleccionados"]:checked').length;
+        const countEl = document.getElementById('apRolesCount');
+        if (countEl) countEl.textContent = rolesN;
+    }
+
+    document.addEventListener('DOMContentLoaded', calcProgress);
+</script>
 }

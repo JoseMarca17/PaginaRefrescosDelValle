@@ -4,116 +4,300 @@
 }
 
 @section Styles {
-    <style>
-        .hero-seg {
-            background: #0a0303;
-            min-height: 85vh;
-            display: flex;
-            align-items: center;
-            justify-content: center; /* Centrado horizontal */
-            position: relative;
-            overflow: hidden;
-            padding: 2rem;
-        }
-
-        .hero-grid-bg {
-            position: absolute; inset: 0; pointer-events: none;
-            background-image:
-                repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,40,30,0.05) 59px, rgba(200,40,30,0.05) 60px),
-                repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,40,30,0.05) 59px, rgba(200,40,30,0.05) 60px);
-        }
-
-        .hero-glow { position:absolute; width:600px; height:600px; background:radial-gradient(circle,rgba(200,40,30,.1) 0%,transparent 70%); top:50%; left:50%; transform:translate(-50%, -50%); pointer-events:none; }
-
-        .hero-seg-inner { 
-            max-width: 1000px; /* Reducido para compactar */
-            margin: 0 auto; 
-            width: 100%; 
-            position: relative; 
-            z-index: 2; 
-            text-align: center; /* Centramos el texto del lado izquierdo */
-        }
-
-        .hero-eyebrow { display:inline-flex; align-items:center; gap:.6rem; font-family:monospace; font-size:.7rem; color:#9ca3af; letter-spacing:2px; margin-bottom:1.5rem; }
-        .eyebrow-dot { width:6px; height:6px; border-radius:50%; background:#d82c20; }
-
-        .hero-seg-title { font-family: 'Playfair Display', serif; font-size: 4rem; color:#ffffff; line-height:1; margin-bottom:1.5rem; }
-        .title-stroke { -webkit-text-stroke:1px #d82c20; color:transparent; }
-        
-        .hero-seg-desc { color:#9ca3af; font-size:1rem; max-width:600px; margin: 0 auto 3rem; line-height:1.6; }
-
-        /* Grid de tarjetas centrado */
-        .module-grid-center { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-            gap: 1.5rem; 
-            justify-content: center;
-        }
-
-        .module-card { 
-            background: #1a0f0f; 
-            border: 1px solid #3a2525; 
-            border-radius: 12px; 
-            padding: 1.5rem; 
-            text-decoration: none !important; 
-            transition: 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
-        .module-card:hover { border-color: #d82c20; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-
-        .mc-icon { font-size: 2.5rem; margin-bottom: 1rem; }
-        .mc-title { color: #ffffff; font-size: 1.2rem; font-family: 'Playfair Display', serif; margin-bottom: 0.5rem; }
-        .mc-desc { color: #6b7280; font-size: 0.8rem; }
-    </style>
+<style>
+/* ── HERO ── */
+.seg-hero {
+    background: #0f0b09;
+    padding: 4rem 2.5rem 3.5rem;
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
 }
 
-<section class="hero-seg">
-    <div class="hero-grid-bg"></div>
-    <div class="hero-glow"></div>
+.seg-hero-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,40,30,.04) 59px, rgba(200,40,30,.04) 60px),
+        repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,40,30,.04) 59px, rgba(200,40,30,.04) 60px);
+}
+.seg-hero-glow-left {
+    position: absolute; width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(200,40,30,.12) 0%, transparent 70%);
+    top: -150px; left: -150px; pointer-events: none;
+}
+.seg-hero-glow-right {
+    position: absolute; width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(200,40,30,.07) 0%, transparent 70%);
+    bottom: -100px; right: -80px; pointer-events: none;
+}
 
-    <div class="hero-seg-inner">
-        <div class="hero-eyebrow">
-            <span class="eyebrow-dot"></span>
-            SECURITY OPERATIONS CENTER
+.seg-hero-inner {
+    position: relative; z-index: 2;
+    width: 100%; max-width: 1200px; margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+/* ── LADO IZQUIERDO ── */
+.seg-hero-left {}
+
+.seg-eyebrow {
+    display: inline-flex; align-items: center; gap: .6rem;
+    font-family: monospace; font-size: .68rem;
+    color: rgba(200,40,30,.85); letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 1.5rem;
+}
+.seg-eyebrow-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #C8281E;
+    animation: segpulse 2.5s ease infinite;
+}
+@@keyframes segpulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: .35; transform: scale(.55); }
+}
+
+.seg-hero-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.8rem, 5vw, 4.5rem);
+    color: #fff; line-height: .92;
+    letter-spacing: 2px; font-weight: 800;
+    margin-bottom: 1.25rem;
+}
+.seg-hero-title .stroke {
+    -webkit-text-stroke: 2px #C8281E; color: transparent;
+}
+
+.seg-hero-desc {
+    font-size: .9rem; color: rgba(255,255,255,.38);
+    line-height: 1.75; max-width: 420px;
+    margin-bottom: 2.5rem;
+}
+
+/* Stats inline bajo el desc */
+.seg-hero-stats {
+    display: flex; align-items: center; gap: 0;
+    padding: 1.25rem 0;
+    border-top: 1px solid rgba(255,255,255,.07);
+}
+.seg-stat-item { display: flex; flex-direction: column; padding: 0 1.5rem; }
+.seg-stat-item:first-child { padding-left: 0; }
+.seg-stat-val {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.8rem; color: #C8281E;
+    line-height: 1; font-weight: 800;
+}
+.seg-stat-lbl {
+    font-size: .58rem; font-family: monospace;
+    color: rgba(255,255,255,.28); margin-top: .2rem;
+    text-transform: uppercase; letter-spacing: 1px;
+}
+.seg-stat-sep { width: 1px; height: 36px; background: rgba(255,255,255,.1); }
+
+/* ── LADO DERECHO: tarjetas ── */
+.seg-hero-right {
+    display: flex; flex-direction: column; gap: 1rem;
+}
+
+.seg-mod-card {
+    background: #1a0d0d;
+    border: 1px solid #2e1a1a;
+    border-radius: 12px;
+    padding: 1.25rem 1.4rem;
+    display: flex; align-items: center; gap: 1.2rem;
+    text-decoration: none;
+    position: relative; overflow: hidden;
+    transition: border-color .22s, transform .2s, box-shadow .22s;
+}
+.seg-mod-card::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: #C8281E;
+    transform: scaleY(0); transform-origin: bottom;
+    transition: transform .22s;
+}
+.seg-mod-card:hover {
+    border-color: #C8281E;
+    transform: translateX(5px);
+    box-shadow: 0 4px 24px rgba(200,40,30,.18);
+}
+.seg-mod-card:hover::before { transform: scaleY(1); }
+
+.seg-mod-icon {
+    width: 48px; height: 48px; flex-shrink: 0;
+    background: rgba(200,40,30,.1);
+    border: 1px solid rgba(200,40,30,.2);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    transition: background .2s, border-color .2s;
+}
+.seg-mod-card:hover .seg-mod-icon {
+    background: rgba(200,40,30,.2);
+    border-color: #C8281E;
+}
+
+.seg-mod-body { flex: 1; min-width: 0; }
+.seg-mod-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.05rem; color: #fff;
+    letter-spacing: .5px; line-height: 1;
+    margin-bottom: .3rem;
+}
+.seg-mod-desc {
+    font-size: .78rem; color: rgba(255,255,255,.38);
+    line-height: 1.5;
+}
+.seg-mod-tag {
+    font-family: monospace; font-size: .58rem;
+    color: #C8281E;
+    background: rgba(200,40,30,.1);
+    border: 1px solid rgba(200,40,30,.2);
+    border-radius: 999px; padding: .13rem .5rem;
+    display: inline-block; margin-top: .4rem;
+}
+
+.seg-mod-arrow {
+    width: 30px; height: 30px; flex-shrink: 0;
+    background: rgba(255,255,255,.05);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .18s, transform .18s;
+}
+.seg-mod-arrow svg {
+    width: 12px; height: 12px;
+    stroke: rgba(255,255,255,.3); fill: none; stroke-width: 2.5;
+    transition: stroke .18s;
+}
+.seg-mod-card:hover .seg-mod-arrow {
+    background: #C8281E;
+    transform: translateX(2px);
+}
+.seg-mod-card:hover .seg-mod-arrow svg { stroke: #fff; }
+
+/* ── RESPONSIVE ── */
+@@media (max-width: 950px) {
+    .seg-hero-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+    .seg-hero { min-height: auto; padding: 3rem 1.5rem; }
+}
+@@media (max-width: 600px) {
+    .seg-hero-stats { flex-wrap: wrap; gap: 1rem; }
+    .seg-stat-item { padding: 0 .75rem; }
+}
+</style>
+}
+
+<section class="seg-hero">
+    <div class="seg-hero-grid"></div>
+    <div class="seg-hero-glow-left"></div>
+    <div class="seg-hero-glow-right"></div>
+
+    <div class="seg-hero-inner">
+
+        <!-- IZQUIERDA -->
+        <div class="seg-hero-left">
+            <div class="seg-eyebrow">
+                <span class="seg-eyebrow-dot"></span>
+                Security Operations Center
+            </div>
+            <h1 class="seg-hero-title">
+                CONTROL DE<br>
+                <span class="stroke">ACCESOS</span>
+            </h1>
+            <p class="seg-hero-desc">
+                Administración centralizada de privilegios, auditoría de transacciones
+                y monitoreo de nodos activos en la red.
+            </p>
+            <div class="seg-hero-stats">
+                <div class="seg-stat-item">
+                    <span class="seg-stat-val">@ViewBag.TotalUsuarios</span>
+                    <span class="seg-stat-lbl">Usuarios</span>
+                </div>
+                <div class="seg-stat-sep"></div>
+                <div class="seg-stat-item">
+                    <span class="seg-stat-val">@ViewBag.TotalRoles</span>
+                    <span class="seg-stat-lbl">Roles</span>
+                </div>
+                <div class="seg-stat-sep"></div>
+                <div class="seg-stat-item">
+                    <span class="seg-stat-val">@ViewBag.SesionesActivas</span>
+                    <span class="seg-stat-lbl">Sesiones activas</span>
+                </div>
+                <div class="seg-stat-sep"></div>
+                <div class="seg-stat-item">
+                    <span class="seg-stat-val">@ViewBag.TotalSucursales</span>
+                    <span class="seg-stat-lbl">Sucursales</span>
+                </div>
+            </div>
         </div>
-        <h1 class="hero-seg-title">
-            CONTROL DE <span class="title-stroke">ACCESOS</span>
-        </h1>
-        <p class="hero-seg-desc">
-            Administración centralizada de privilegios, auditoría de transacciones y monitoreo de nodos. 
-            
-        </p>
 
-        <div class="module-grid-center">
-            <a asp-action="DirectorioUsuarios" class="module-card">
-                <div class="mc-icon">👤</div>
-                <div class="mc-title">USUARIOS</div>
-                <div class="mc-desc">Gestión de identidades y alta de personal.</div>
+        <!-- DERECHA: módulos -->
+        <div class="seg-hero-right">
+
+            <a asp-action="DirectorioUsuarios" class="seg-mod-card">
+                <div class="seg-mod-icon">👤</div>
+                <div class="seg-mod-body">
+                    <div class="seg-mod-title">USUARIOS</div>
+                    <div class="seg-mod-desc">Gestión de identidades, alta de personal y asignación de roles.</div>
+                    <span class="seg-mod-tag">Directorio · Perfiles</span>
+                </div>
+                <div class="seg-mod-arrow">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
             </a>
-            <a asp-action="Roles" class="module-card">
-                <div class="mc-icon">🛡️</div>
-                <div class="mc-title">ROLES</div>
-                <div class="mc-desc">Definición de permisos y jerarquías de seguridad.</div>
+
+            <a asp-action="Roles" class="seg-mod-card">
+                <div class="seg-mod-icon">🛡️</div>
+                <div class="seg-mod-body">
+                    <div class="seg-mod-title">ROLES</div>
+                    <div class="seg-mod-desc">Definición de permisos y jerarquías de seguridad por módulo.</div>
+                    <span class="seg-mod-tag">Permisos · Jerarquías</span>
+                </div>
+                <div class="seg-mod-arrow">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
             </a>
-            <a asp-action="Sesiones" class="module-card">
-                <div class="mc-icon">💻</div>
-                <div class="mc-title">SESIONES</div>
-                <div class="mc-desc">Monitoreo de terminales activas en la red.</div>
+
+            <a asp-action="Sesiones" class="seg-mod-card">
+                <div class="seg-mod-icon">💻</div>
+                <div class="seg-mod-body">
+                    <div class="seg-mod-title">SESIONES</div>
+                    <div class="seg-mod-desc">Monitoreo de terminales activas y accesos en tiempo real.</div>
+                    <span class="seg-mod-tag">Tiempo real · Terminales</span>
+                </div>
+                <div class="seg-mod-arrow">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
             </a>
-            <a asp-action="Auditoria" class="module-card">
-                <div class="mc-icon">📜</div>
-                <div class="mc-title">AUDITORÍA</div>
-                <div class="mc-desc">Registro inmutable de acciones en la DB.</div>
+
+            <a asp-action="Auditoria" class="seg-mod-card">
+                <div class="seg-mod-icon">📜</div>
+                <div class="seg-mod-body">
+                    <div class="seg-mod-title">AUDITORÍA</div>
+                    <div class="seg-mod-desc">Registro inmutable de todas las acciones ejecutadas en la base de datos.</div>
+                    <span class="seg-mod-tag">Bitácora · Trazabilidad</span>
+                </div>
+                <div class="seg-mod-arrow">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
             </a>
-            <a asp-action="Sucursales" class="module-card">
-    <div class="mc-icon">🏢</div>
-    <div class="mc-title">SUCURSALES</div>
-    <div class="mc-desc">Red de nodos, cobertura geográfica y zonas de distribución.</div>
-</a>
+
+            <a asp-action="Sucursales" class="seg-mod-card">
+                <div class="seg-mod-icon">🏢</div>
+                <div class="seg-mod-body">
+                    <div class="seg-mod-title">SUCURSALES</div>
+                    <div class="seg-mod-desc">Red de nodos, cobertura geográfica y zonas de distribución nacional.</div>
+                    <span class="seg-mod-tag">Nodos · Geografía</span>
+                </div>
+                <div class="seg-mod-arrow">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+            </a>
+
         </div>
     </div>
 </section>

@@ -1,73 +1,720 @@
 @model IEnumerable<RefrescosDelValle.Models.ViewModels.AuditoriaViewModel>
-
 @{
     ViewData["Title"] = "Auditoría SQL";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var total      = Model.Count();
+    var inserts    = Model.Count(l => l.Operacion.Contains("INSERT"));
+    var updates    = Model.Count(l => l.Operacion.Contains("UPDATE"));
+    var deletes    = Model.Count(l => l.Operacion.Contains("DELETE"));
+    var usuarios   = Model.Select(l => l.Usuario).Distinct().Count();
+    var tablas     = Model.Select(l => l.Tabla).Distinct().OrderBy(t => t).ToList();
+    var usuariosList = Model.Select(l => l.Usuario).Distinct().OrderBy(u => u).ToList();
 }
 
 @section Styles {
-    <style>
-        /* Mantenemos tus excelentes estilos originales */
-        .page-wrapper { max-width: 1200px; margin: 0 auto; padding: 6rem 2rem; position: relative; z-index: 2; }
-        .page-header { margin-bottom: 2.5rem; border-left: 4px solid var(--red-600); padding-left: 1.5rem; }
-        .page-title { font-family: var(--font-display); font-size: 2.2rem; color: var(--white); margin-bottom: 0.5rem; }
-        .page-desc { color: var(--gray-400); font-size: 0.95rem; }
-        .audit-table-wrap { background: var(--dark-800); border: 1px solid var(--dark-600); border-radius: var(--radius-md); overflow-x: auto; }
-        .audit-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; }
-        .audit-table th { padding: 1.2rem 1rem; background: rgba(0,0,0,0.3); color: var(--red-400); font-family: var(--font-mono); border-bottom: 1px solid var(--dark-600); }
-        .audit-table td { padding: 1rem; color: var(--gray-300); border-bottom: 1px solid var(--dark-700); }
-        .audit-action { padding: 0.2rem 0.5rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.75rem; font-weight: bold; }
-        
-        /* Colores dinámicos para operaciones */
-        .action-update { background: rgba(255,189,46,0.1); color: #ffbd2e; border: 1px solid rgba(255,189,46,0.3); }
-        .action-delete { background: rgba(255,95,86,0.1); color: #ff5f56; border: 1px solid rgba(255,95,86,0.3); }
-        .action-insert { background: rgba(39,201,63,0.1); color: #27c93f; border: 1px solid rgba(39,201,63,0.3); }
-
-        .code-block { font-family: var(--font-mono); color: #9ca3af; background: var(--dark-900); padding: 0.4rem; border-radius: 4px; border: 1px solid var(--dark-700); display: inline-block; }
-    </style>
+<style>
+/* ── HERO ── */
+.aud-hero {
+    background: #0f0b09;
+    padding: 3rem 2.5rem 2.5rem;
+    position: relative; overflow: hidden;
+}
+.aud-hero-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,40,30,.04) 59px, rgba(200,40,30,.04) 60px),
+        repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,40,30,.04) 59px, rgba(200,40,30,.04) 60px);
+}
+.aud-hero-glow {
+    position: absolute; width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(200,40,30,.11) 0%, transparent 70%);
+    top: -160px; left: -80px; pointer-events: none;
+}
+.aud-hero-inner {
+    position: relative; z-index: 2;
+    display: flex; align-items: flex-end;
+    justify-content: space-between; gap: 2rem; flex-wrap: wrap;
+}
+.aud-eyebrow {
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-family: monospace; font-size: .64rem;
+    color: rgba(200,40,30,.85); letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: .9rem;
+}
+.aud-eyebrow-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #C8281E; display: inline-block;
+    animation: audpulse 2.5s ease infinite;
+}
+@@keyframes audpulse {
+    0%,100%{opacity:1;transform:scale(1);}
+    50%{opacity:.35;transform:scale(.55);}
+}
+.aud-hero-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    color: #fff; line-height: .95;
+    letter-spacing: 2px; font-weight: 800; margin-bottom: .6rem;
+}
+.aud-hero-title .stroke { -webkit-text-stroke: 2px #C8281E; color: transparent; }
+.aud-hero-sub {
+    font-size: .82rem; color: rgba(255,255,255,.35);
+    line-height: 1.6; max-width: 420px;
+}
+.aud-hero-chips {
+    display: flex; gap: .75rem; flex-wrap: wrap; align-items: center;
+}
+.aud-chip {
+    display: flex; flex-direction: column; align-items: center;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px; padding: .65rem 1.1rem;
+}
+.aud-chip-val {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.5rem; line-height: 1; font-weight: 800;
+}
+.aud-chip-val.ins { color: #1a7a3c; }
+.aud-chip-val.upd { color: #b45309; }
+.aud-chip-val.del { color: #C8281E; }
+.aud-chip-val.tot { color: rgba(255,255,255,.7); }
+.aud-chip-lbl {
+    font-size: .55rem; font-family: monospace;
+    color: rgba(255,255,255,.25); margin-top: .15rem;
+    text-transform: uppercase; letter-spacing: 1px;
 }
 
-<div class="page-wrapper">
-    <div class="page-header">
-        <h1 class="page-title">Trazabilidad de Sistema</h1>
-        <p class="page-desc">Registros inmutables de operaciones DML en la base de datos V1.11.</p>
-    </div>
+/* ── SECCIÓN BLANCA ── */
+.aud-white { background: #f7f5f4; padding: 2rem 2.5rem 3rem; }
 
-    <div class="audit-table-wrap">
-        <table class="audit-table">
-            <thead>
-                <tr>
-                    <th>FECHA</th>
-                    <th>USUARIO</th>
-                    <th>OPERACIÓN</th>
-                    <th>TABLA</th>
-                    <th>DETALLE</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var log in Model)
-                {
-                    <tr>
-                        <td>@log.Fecha.ToString("yyyy-MM-dd HH:mm:ss")</td>
-                        <td>@log.Usuario</td>
-                        <td>
-                            @{
-                                string actionClass = log.Operacion.Contains("UPDATE") ? "action-update" : 
-                                                    log.Operacion.Contains("DELETE") ? "action-delete" : "action-insert";
-                            }
-                            <span class="audit-action @actionClass">@log.Operacion</span>
-                        </td>
-                        <td><span class="code-block">[dbo].[@log.Tabla]</span></td>
-                        <td><small>@log.Detalle</small></td>
-                    </tr>
-                }
-                @if (!Model.Any())
-                {
-                    <tr>
-                        <td colspan="5" style="text-align:center; padding: 2rem;">No hay registros de auditoría disponibles.</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+/* Toolbar */
+.aud-toolbar {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto auto;
+    gap: .75rem; margin-bottom: 1.5rem; align-items: center;
+    flex-wrap: wrap;
+}
+.aud-search-wrap { position: relative; }
+.aud-search-wrap svg {
+    position: absolute; left: .9rem; top: 50%;
+    transform: translateY(-50%); stroke: #9a8a84; pointer-events: none;
+}
+.aud-search {
+    width: 100%; background: #fff;
+    border: 1px solid rgba(0,0,0,.1); border-radius: 999px;
+    padding: .6rem 1rem .6rem 2.5rem;
+    font-size: .82rem; color: #18120f; outline: none;
+    transition: border-color .2s; font-family: inherit;
+}
+.aud-search:focus { border-color: #C8281E; }
+.aud-search::placeholder { color: #bbb; }
+
+.aud-select {
+    background: #fff; border: 1px solid rgba(0,0,0,.1);
+    border-radius: 999px; padding: .58rem 1rem;
+    font-size: .78rem; color: #5a4a44;
+    outline: none; cursor: pointer; font-family: inherit;
+    transition: border-color .2s; appearance: none;
+    padding-right: 2rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a8a84' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right .75rem center;
+}
+.aud-select:focus { border-color: #C8281E; }
+
+.aud-date-input {
+    background: #fff; border: 1px solid rgba(0,0,0,.1);
+    border-radius: 999px; padding: .56rem 1rem;
+    font-size: .78rem; color: #5a4a44;
+    outline: none; font-family: monospace;
+    transition: border-color .2s;
+}
+.aud-date-input:focus { border-color: #C8281E; }
+
+.aud-btn-export {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: #fff; border: 1px solid rgba(0,0,0,.1);
+    border-radius: 999px; padding: .58rem 1.1rem;
+    font-size: .76rem; color: #5a4a44; cursor: pointer;
+    font-family: inherit; transition: all .18s;
+}
+.aud-btn-export:hover { border-color: #C8281E; color: #C8281E; }
+.aud-btn-export svg { stroke: currentColor; }
+
+/* KPI row */
+.aud-kpi-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1rem; margin-bottom: 1.75rem;
+}
+.aud-kpi {
+    background: #fff; border: 1px solid rgba(0,0,0,.07);
+    border-radius: 12px; padding: 1.1rem 1.25rem;
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; gap: 1rem;
+}
+.aud-kpi::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.aud-kpi.ins::before { background: #1a7a3c; }
+.aud-kpi.upd::before { background: #b45309; }
+.aud-kpi.del::before { background: #C8281E; }
+.aud-kpi.tot::before { background: #6d28d9; }
+.aud-kpi-icon {
+    width: 38px; height: 38px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 1rem;
+}
+.aud-kpi.ins .aud-kpi-icon { background: rgba(26,122,60,.1); }
+.aud-kpi.upd .aud-kpi-icon { background: rgba(180,83,9,.1); }
+.aud-kpi.del .aud-kpi-icon { background: rgba(200,40,30,.08); }
+.aud-kpi.tot .aud-kpi-icon { background: rgba(109,40,217,.08); }
+.aud-kpi-num {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.75rem; font-weight: 800;
+    color: #18120f; line-height: 1;
+}
+.aud-kpi-lbl { font-size: .7rem; color: #9a8a84; margin-top: .2rem; }
+
+/* Section label */
+.aud-slbl { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; }
+.aud-slbl-txt {
+    font-family: monospace; font-size: .6rem;
+    color: #9a8a84; letter-spacing: 2px; text-transform: uppercase; white-space: nowrap;
+}
+.aud-slbl-line { flex: 1; height: 1px; background: rgba(0,0,0,.07); }
+.aud-result-count {
+    font-family: monospace; font-size: .65rem;
+    color: #9a8a84; white-space: nowrap;
+}
+
+/* Tabla */
+.aud-table-card {
+    background: #fff; border: 1px solid rgba(0,0,0,.07);
+    border-radius: 12px; overflow: hidden;
+}
+table.aud-tbl { width: 100%; border-collapse: collapse; }
+table.aud-tbl th {
+    background: #faf9f8; color: #9a8a84;
+    padding: .65rem 1.1rem;
+    font-family: monospace; font-size: .6rem;
+    text-transform: uppercase; letter-spacing: .07em;
+    border-bottom: 1px solid rgba(0,0,0,.05);
+    text-align: left; font-weight: 500; white-space: nowrap;
+    cursor: pointer; user-select: none;
+}
+table.aud-tbl th:hover { color: #C8281E; }
+table.aud-tbl th .sort-icon { margin-left: .3rem; opacity: .4; font-size: .55rem; }
+table.aud-tbl th.sorted .sort-icon { opacity: 1; color: #C8281E; }
+
+table.aud-tbl td {
+    padding: .85rem 1.1rem;
+    border-bottom: 1px solid rgba(0,0,0,.04);
+    font-size: .8rem; color: #5a4a44; vertical-align: top;
+}
+table.aud-tbl tr:last-child td { border-bottom: none; }
+table.aud-tbl tr:hover td { background: #faf9f8; }
+table.aud-tbl tr.hidden { display: none; }
+
+/* Fecha */
+.aud-fecha-main { color: #18120f; font-family: monospace; font-size: .78rem; font-weight: 600; }
+.aud-fecha-rel  { font-size: .68rem; color: #9a8a84; margin-top: 2px; }
+
+/* Usuario */
+.aud-usr-cell { display: flex; align-items: center; gap: .6rem; }
+.aud-usr-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #C8281E; display: inline-flex;
+    align-items: center; justify-content: center;
+    font-size: .65rem; font-weight: 700; color: #fff;
+    flex-shrink: 0; font-family: 'Playfair Display', Georgia, serif;
+}
+.aud-usr-name { font-size: .78rem; color: #18120f; font-weight: 600; }
+
+/* Operación badge */
+.aud-op {
+    display: inline-flex; align-items: center; gap: .3rem;
+    padding: .22rem .65rem; border-radius: 999px;
+    font-family: monospace; font-size: .68rem; font-weight: 700;
+    white-space: nowrap;
+}
+.aud-op.ins { background: rgba(26,122,60,.08);  color: #1a7a3c; border: 1px solid rgba(26,122,60,.2); }
+.aud-op.upd { background: rgba(180,83,9,.08);   color: #92400e; border: 1px solid rgba(180,83,9,.2); }
+.aud-op.del { background: rgba(200,40,30,.07);  color: #C8281E; border: 1px solid rgba(200,40,30,.18); }
+.aud-op.oth { background: rgba(0,0,0,.05);      color: #9a8a84; border: 1px solid rgba(0,0,0,.1); }
+
+/* Tabla badge */
+.aud-tabla-code {
+    font-family: monospace; font-size: .72rem;
+    background: rgba(26,79,168,.06);
+    border: 1px solid rgba(26,79,168,.14);
+    color: #1a4fa8; border-radius: 5px;
+    padding: .18rem .55rem; display: inline-block;
+}
+
+/* Detalle expandible */
+.aud-detalle {
+    font-size: .76rem; color: #5a4a44;
+    line-height: 1.55; max-width: 360px;
+}
+.aud-detalle-full { display: none; }
+.aud-detalle-short { display: block; }
+.aud-expand-btn {
+    font-family: monospace; font-size: .62rem;
+    color: #C8281E; cursor: pointer; border: none;
+    background: none; padding: 0; margin-top: 3px;
+}
+
+/* Paginación */
+.aud-pagination {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(0,0,0,.06);
+    flex-wrap: wrap; gap: .75rem;
+}
+.aud-page-info { font-family: monospace; font-size: .68rem; color: #9a8a84; }
+.aud-page-btns { display: flex; gap: .4rem; }
+.aud-page-btn {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: monospace; font-size: .72rem;
+    border: 1px solid rgba(0,0,0,.1); background: #fff;
+    color: #5a4a44; cursor: pointer; transition: all .15s;
+}
+.aud-page-btn:hover { border-color: #C8281E; color: #C8281E; }
+.aud-page-btn.active { background: #C8281E; color: #fff; border-color: #C8281E; }
+.aud-page-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+/* Empty */
+.aud-empty { text-align: center; padding: 3rem 1rem; color: #9a8a84; font-size: .82rem; }
+.aud-empty-icon { font-size: 2rem; margin-bottom: .75rem; opacity: .35; }
+
+/* Responsive */
+@@media (max-width: 1000px) {
+    .aud-toolbar { grid-template-columns: 1fr 1fr; }
+    .aud-search-wrap { grid-column: 1 / -1; }
+    .aud-kpi-row { grid-template-columns: 1fr 1fr; }
+}
+@@media (max-width: 650px) {
+    .aud-white { padding: 1.5rem 1rem 2rem; }
+    .aud-hero  { padding: 2.5rem 1rem 2rem; }
+    .aud-kpi-row { grid-template-columns: 1fr 1fr; }
+    table.aud-tbl th:nth-child(5),
+    table.aud-tbl td:nth-child(5) { display: none; }
+}
+</style>
+}
+
+<!-- ══ HERO ══ -->
+<div class="aud-hero">
+    <div class="aud-hero-grid"></div>
+    <div class="aud-hero-glow"></div>
+    <div class="aud-hero-inner">
+        <div>
+            <div class="aud-eyebrow">
+                <span class="aud-eyebrow-dot"></span>
+                Seguridad · Trazabilidad SQL
+            </div>
+            <h1 class="aud-hero-title">
+                BITÁCORA DE<br><span class="stroke">AUDITORÍA</span>
+            </h1>
+            <p class="aud-hero-sub">
+                Registro inmutable de todas las operaciones DML ejecutadas sobre la base de datos.
+                Cada evento queda firmado con usuario, timestamp y detalle completo.
+            </p>
+        </div>
+        <div class="aud-hero-chips">
+            <div class="aud-chip">
+                <span class="aud-chip-val tot">@total</span>
+                <span class="aud-chip-lbl">Total eventos</span>
+            </div>
+            <div class="aud-chip">
+                <span class="aud-chip-val ins">@inserts</span>
+                <span class="aud-chip-lbl">Inserciones</span>
+            </div>
+            <div class="aud-chip">
+                <span class="aud-chip-val upd">@updates</span>
+                <span class="aud-chip-lbl">Actualizaciones</span>
+            </div>
+            <div class="aud-chip">
+                <span class="aud-chip-val del">@deletes</span>
+                <span class="aud-chip-lbl">Eliminaciones</span>
+            </div>
+            <div class="aud-chip">
+                <span class="aud-chip-val tot" style="color:rgba(255,255,255,.5);">@usuarios</span>
+                <span class="aud-chip-lbl">Operadores</span>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- ══ SECCIÓN BLANCA ══ -->
+<div class="aud-white">
+
+    <!-- KPI CARDS -->
+    <div class="aud-kpi-row">
+        <div class="aud-kpi ins">
+            <div class="aud-kpi-icon">🟢</div>
+            <div>
+                <div class="aud-kpi-num">@inserts</div>
+                <div class="aud-kpi-lbl">INSERT registrados</div>
+            </div>
+        </div>
+        <div class="aud-kpi upd">
+            <div class="aud-kpi-icon">🟡</div>
+            <div>
+                <div class="aud-kpi-num">@updates</div>
+                <div class="aud-kpi-lbl">UPDATE registrados</div>
+            </div>
+        </div>
+        <div class="aud-kpi del">
+            <div class="aud-kpi-icon">🔴</div>
+            <div>
+                <div class="aud-kpi-num">@deletes</div>
+                <div class="aud-kpi-lbl">DELETE registrados</div>
+            </div>
+        </div>
+        <div class="aud-kpi tot">
+            <div class="aud-kpi-icon">📋</div>
+            <div>
+                <div class="aud-kpi-num">@tablas.Count</div>
+                <div class="aud-kpi-lbl">Tablas afectadas</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOOLBAR FILTROS -->
+    <div class="aud-toolbar">
+        <div class="aud-search-wrap">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" class="aud-search" id="audSearch"
+                   placeholder="Buscar por usuario, tabla o detalle…"
+                   oninput="audFiltrar()"/>
+        </div>
+
+        <select class="aud-select" id="filtroOp" onchange="audFiltrar()">
+            <option value="">Todas las operaciones</option>
+            <option value="INSERT">INSERT</option>
+            <option value="UPDATE">UPDATE</option>
+            <option value="DELETE">DELETE</option>
+        </select>
+
+        <select class="aud-select" id="filtroTabla" onchange="audFiltrar()">
+            <option value="">Todas las tablas</option>
+            @foreach (var t in tablas)
+            {
+                <option value="@t.ToLower()">@t</option>
+            }
+        </select>
+
+        <select class="aud-select" id="filtroUsuario" onchange="audFiltrar()">
+            <option value="">Todos los usuarios</option>
+            @foreach (var u in usuariosList)
+            {
+                <option value="@u.ToLower()">@u</option>
+            }
+        </select>
+
+        <button class="aud-btn-export" onclick="exportarCSV()">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke-width="2" stroke-linecap="round">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Exportar CSV
+        </button>
+    </div>
+
+    <!-- SECTION LABEL + CONTADOR -->
+    <div class="aud-slbl">
+        <span class="aud-slbl-txt">Registro de eventos</span>
+        <div class="aud-slbl-line"></div>
+        <span class="aud-result-count" id="audCount">@total evento(s)</span>
+    </div>
+
+    <!-- TABLA -->
+    <div class="aud-table-card">
+        @if (!Model.Any())
+        {
+            <div class="aud-empty">
+                <div class="aud-empty-icon">📋</div>
+                No hay registros de auditoría disponibles.
+            </div>
+        }
+        else
+        {
+            <table class="aud-tbl" id="audTabla">
+                <thead>
+                    <tr>
+                        <th onclick="audOrdenar(0)" data-col="0">
+                            FECHA / HORA <span class="sort-icon">↕</span>
+                        </th>
+                        <th onclick="audOrdenar(1)" data-col="1">
+                            OPERADOR <span class="sort-icon">↕</span>
+                        </th>
+                        <th onclick="audOrdenar(2)" data-col="2">
+                            OPERACIÓN <span class="sort-icon">↕</span>
+                        </th>
+                        <th onclick="audOrdenar(3)" data-col="3">
+                            TABLA <span class="sort-icon">↕</span>
+                        </th>
+                        <th>DETALLE</th>
+                    </tr>
+                </thead>
+                <tbody id="audBody">
+                    @foreach (var log in Model)
+                    {
+                        var opClass = log.Operacion.Contains("INSERT") ? "ins"
+                                    : log.Operacion.Contains("UPDATE") ? "upd"
+                                    : log.Operacion.Contains("DELETE") ? "del" : "oth";
+
+                        var iniciales = log.Usuario.Length >= 2
+                            ? log.Usuario.Substring(0, 2).ToUpper()
+                            : log.Usuario.ToUpper();
+
+                        var detalleLargo = log.Detalle?.Length > 80;
+                        var detalleCorto = detalleLargo ? log.Detalle.Substring(0, 80) + "…" : log.Detalle;
+
+                        <tr class="aud-row"
+                            data-usuario="@log.Usuario.ToLower()"
+                            data-op="@log.Operacion.ToUpper()"
+                            data-tabla="@log.Tabla.ToLower()"
+                            data-detalle="@(log.Detalle?.ToLower())"
+                            data-fecha="@log.Fecha.ToString("yyyy-MM-dd HH:mm:ss")">
+                            <td>
+                                <div class="aud-fecha-main">@log.Fecha.ToString("yyyy-MM-dd HH:mm:ss")</div>
+                                <div class="aud-fecha-rel">@TiempoRelativo(log.Fecha)</div>
+                            </td>
+                            <td>
+                                <div class="aud-usr-cell">
+                                    <div class="aud-usr-avatar">@iniciales</div>
+                                    <span class="aud-usr-name">@log.Usuario</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="aud-op @opClass">@log.Operacion</span>
+                            </td>
+                            <td>
+                                <span class="aud-tabla-code">[dbo].[@log.Tabla]</span>
+                            </td>
+                            <td>
+                                <div class="aud-detalle">
+                                    <span class="aud-detalle-short" id="short-@log.GetHashCode()">@detalleCorto</span>
+                                    @if (detalleLargo)
+                                    {
+                                        <span class="aud-detalle-full" id="full-@log.GetHashCode()">@log.Detalle</span>
+                                        <button class="aud-expand-btn"
+                                                onclick="audExpandir('@log.GetHashCode()', this)">
+                                            ver más →
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <!-- PAGINACIÓN -->
+            <div class="aud-pagination">
+                <span class="aud-page-info" id="pageInfo">Mostrando 1–50 de @total</span>
+                <div class="aud-page-btns" id="pageBtns"></div>
+            </div>
+        }
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+// ── CONFIG ──
+const POR_PAGINA = 50;
+let paginaActual = 1;
+let filasVisibles = [];
+let sortCol = -1;
+let sortAsc = true;
+
+// ── TIEMPO RELATIVO ──
+// (ya calculado desde C#, esto es solo por si se necesita en JS)
+
+// ── FILTRAR ──
+function audFiltrar() {
+    const q       = document.getElementById('audSearch').value.toLowerCase().trim();
+    const opFil   = document.getElementById('filtroOp').value.toUpperCase();
+    const tablaFil= document.getElementById('filtroTabla').value.toLowerCase();
+    const usrFil  = document.getElementById('filtroUsuario').value.toLowerCase();
+
+    const filas = document.querySelectorAll('#audBody .aud-row');
+    filasVisibles = [];
+
+    filas.forEach(row => {
+        const usuario = row.dataset.usuario || '';
+        const op      = row.dataset.op      || '';
+        const tabla   = row.dataset.tabla   || '';
+        const detalle = row.dataset.detalle || '';
+
+        const matchQ     = !q      || usuario.includes(q) || tabla.includes(q) || detalle.includes(q);
+        const matchOp    = !opFil  || op.includes(opFil);
+        const matchTabla = !tablaFil || tabla === tablaFil;
+        const matchUsr   = !usrFil   || usuario === usrFil;
+
+        if (matchQ && matchOp && matchTabla && matchUsr) {
+            filasVisibles.push(row);
+            row.classList.remove('hidden');
+        } else {
+            row.classList.add('hidden');
+            row.style.display = 'none';
+        }
+    });
+
+    document.getElementById('audCount').textContent = filasVisibles.length + ' evento(s)';
+    paginaActual = 1;
+    audPaginar();
+}
+
+// ── PAGINAR ──
+function audPaginar() {
+    const inicio = (paginaActual - 1) * POR_PAGINA;
+    const fin    = inicio + POR_PAGINA;
+
+    filasVisibles.forEach((row, i) => {
+        row.style.display = (i >= inicio && i < fin) ? '' : 'none';
+    });
+
+    const total   = filasVisibles.length;
+    const totalPag= Math.ceil(total / POR_PAGINA) || 1;
+    const desde   = total === 0 ? 0 : inicio + 1;
+    const hasta   = Math.min(fin, total);
+
+    document.getElementById('pageInfo').textContent =
+        `Mostrando ${desde}–${hasta} de ${total}`;
+
+    // Botones
+    const cont = document.getElementById('pageBtns');
+    cont.innerHTML = '';
+
+    const btnPrev = crearPageBtn('‹', paginaActual === 1);
+    btnPrev.onclick = () => { if (paginaActual > 1) { paginaActual--; audPaginar(); } };
+    cont.appendChild(btnPrev);
+
+    const rango = paginasVisibles(paginaActual, totalPag);
+    rango.forEach(p => {
+        if (p === '…') {
+            const dots = document.createElement('span');
+            dots.textContent = '…';
+            dots.style.cssText = 'display:inline-flex;align-items:center;padding:0 .3rem;color:#9a8a84;font-family:monospace;font-size:.72rem;';
+            cont.appendChild(dots);
+        } else {
+            const btn = crearPageBtn(p, false);
+            if (p === paginaActual) btn.classList.add('active');
+            btn.onclick = () => { paginaActual = p; audPaginar(); };
+            cont.appendChild(btn);
+        }
+    });
+
+    const btnNext = crearPageBtn('›', paginaActual === totalPag);
+    btnNext.onclick = () => { if (paginaActual < totalPag) { paginaActual++; audPaginar(); } };
+    cont.appendChild(btnNext);
+}
+
+function crearPageBtn(txt, disabled) {
+    const btn = document.createElement('button');
+    btn.className = 'aud-page-btn';
+    btn.textContent = txt;
+    btn.disabled = disabled;
+    return btn;
+}
+
+function paginasVisibles(actual, total) {
+    if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
+    const pages = [1];
+    if (actual > 3) pages.push('…');
+    for (let p = Math.max(2, actual - 1); p <= Math.min(total - 1, actual + 1); p++) pages.push(p);
+    if (actual < total - 2) pages.push('…');
+    pages.push(total);
+    return pages;
+}
+
+// ── ORDENAR ──
+function audOrdenar(col) {
+    const ths = document.querySelectorAll('#audTabla th');
+    ths.forEach(th => th.classList.remove('sorted'));
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    ths[col].classList.add('sorted');
+    ths[col].querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+
+    const tbody = document.getElementById('audBody');
+    const filas = Array.from(tbody.querySelectorAll('.aud-row'));
+
+    filas.sort((a, b) => {
+        const keys = ['fecha', 'usuario', 'op', 'tabla'];
+        const va = (a.dataset[keys[col]] || '').toLowerCase();
+        const vb = (b.dataset[keys[col]] || '').toLowerCase();
+        return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    });
+
+    filas.forEach(f => tbody.appendChild(f));
+    audFiltrar();
+}
+
+// ── EXPANDIR DETALLE ──
+function audExpandir(hash, btn) {
+    const short = document.getElementById('short-' + hash);
+    const full  = document.getElementById('full-'  + hash);
+    if (full.style.display === 'block') {
+        full.style.display = 'none';
+        short.style.display = 'block';
+        btn.textContent = 'ver más →';
+    } else {
+        full.style.display = 'block';
+        short.style.display = 'none';
+        btn.textContent = '← colapsar';
+    }
+}
+
+// ── EXPORTAR CSV ──
+function exportarCSV() {
+    const visibles = filasVisibles.length > 0
+        ? filasVisibles
+        : Array.from(document.querySelectorAll('#audBody .aud-row'));
+
+    let csv = 'Fecha,Usuario,Operación,Tabla,Detalle\n';
+    visibles.forEach(row => {
+        const celdas = row.querySelectorAll('td');
+        const fecha   = (celdas[0]?.querySelector('.aud-fecha-main')?.textContent || '').trim();
+        const usuario = (celdas[1]?.querySelector('.aud-usr-name')?.textContent   || '').trim();
+        const op      = (celdas[2]?.textContent || '').trim();
+        const tabla   = (celdas[3]?.textContent || '').trim();
+        const detalle = (celdas[4]?.textContent || '').replace(/\n/g, ' ').trim();
+        csv += `"${fecha}","${usuario}","${op}","${tabla}","${detalle}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `auditoria_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+    filasVisibles = Array.from(document.querySelectorAll('#audBody .aud-row'));
+    audPaginar();
+});
+</script>
+}
+
+@functions {
+    string TiempoRelativo(DateTime fecha) {
+        var diff = DateTime.Now - fecha;
+        if (diff.TotalMinutes < 1)   return "hace un momento";
+        if (diff.TotalMinutes < 60)  return $"hace {(int)diff.TotalMinutes} min";
+        if (diff.TotalHours   < 24)  return $"hace {(int)diff.TotalHours} h";
+        if (diff.TotalDays    < 7)   return $"hace {(int)diff.TotalDays} días";
+        if (diff.TotalDays    < 30)  return $"hace {(int)(diff.TotalDays/7)} semanas";
+        return fecha.ToString("dd MMM yyyy");
+    }
+}

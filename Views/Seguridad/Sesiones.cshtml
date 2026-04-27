@@ -1,75 +1,781 @@
 @model IEnumerable<RefrescosDelValle.Models.Entities.Sesione>
-
 @{
     ViewData["Title"] = "Monitor de Sesiones";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var total        = Model.Count();
+    var totalHoy     = Model.Count(s => s.FechaInicio.Date == DateTime.Today);
+    var usuarios     = Model.Select(s => s.Usuario?.NombreUsuario).Distinct().Count();
+    var dispositivos = Model.Select(s => s.Dispositivo).Distinct().Where(d => !string.IsNullOrEmpty(d)).OrderBy(d => d).ToList();
+    var usuariosList = Model.Select(s => s.Usuario?.NombreUsuario ?? "Desconocido").Distinct().OrderBy(u => u).ToList();
+    var ips          = Model.Select(s => s.DireccionIp).Distinct().Where(i => !string.IsNullOrEmpty(i)).ToList();
 }
 
 @section Styles {
-    <style>
-        .page-wrapper { max-width: 1200px; margin: 0 auto; padding: 6rem 2rem; position: relative; z-index: 2; }
-        .page-header { margin-bottom: 2.5rem; border-left: 4px solid var(--red-600); padding-left: 1.5rem; }
-        .page-title { font-family: var(--font-display); font-size: 2.2rem; color: var(--white); margin-bottom: 0.5rem; }
-        .page-desc { color: var(--gray-400); font-size: 0.95rem; }
-        
-        .terminal-box { background: #050202; border: 1px solid var(--dark-600); border-radius: 8px; overflow: hidden; font-family: var(--font-mono); box-shadow: var(--shadow-lg); }
-        .term-head { background: var(--dark-800); padding: 0.8rem 1.2rem; display: flex; gap: 8px; align-items: center; border-bottom: 1px solid var(--dark-700); }
-        .term-dot { width: 12px; height: 12px; border-radius: 50%; }
-        .term-dot.r { background: #ff5f56; } .term-dot.y { background: #ffbd2e; } .term-dot.g { background: #27c93f; }
-        .term-cmd { margin-left: 10px; color: var(--gray-400); font-size: 0.85rem; }
-        
-        .term-table { width: 100%; border-collapse: collapse; color: #00ff41; font-size: 0.85rem; }
-        .term-table th { text-align: left; padding: 1.2rem; background: #0a0a0a; color: var(--red-500); text-transform: uppercase; border-bottom: 1px solid var(--dark-700); }
-        .term-table td { padding: 1.2rem; border-bottom: 1px dashed var(--dark-700); }
-        .status-active { color: #00ff41; text-shadow: 0 0 5px rgba(0,255,65,0.4); font-weight: bold; }
-        .no-data { padding: 3rem; text-align: center; color: var(--gray-600); font-style: italic; }
-    </style>
+<style>
+/* ── HERO ── */
+.ses-hero {
+    background: #0f0b09;
+    padding: 3rem 2.5rem 2.5rem;
+    position: relative; overflow: hidden;
+}
+.ses-hero-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,40,30,.04) 59px, rgba(200,40,30,.04) 60px),
+        repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,40,30,.04) 59px, rgba(200,40,30,.04) 60px);
+}
+.ses-hero-glow {
+    position: absolute; width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(200,40,30,.11) 0%, transparent 70%);
+    top: -160px; left: -80px; pointer-events: none;
+}
+.ses-hero-inner {
+    position: relative; z-index: 2;
+    display: flex; align-items: flex-end;
+    justify-content: space-between; gap: 2rem; flex-wrap: wrap;
+}
+.ses-eyebrow {
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-family: monospace; font-size: .64rem;
+    color: rgba(200,40,30,.85); letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: .9rem;
+}
+.ses-eyebrow-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #C8281E; display: inline-block;
+    animation: sespulse 2.5s ease infinite;
+}
+@@keyframes sespulse {
+    0%,100%{opacity:1;transform:scale(1);}
+    50%{opacity:.35;transform:scale(.55);}
+}
+.ses-live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #1a7a3c; display: inline-block;
+    animation: seslivedot 1.5s ease infinite;
+    box-shadow: 0 0 0 0 rgba(26,122,60,.4);
+}
+@@keyframes seslivedot {
+    0%   { box-shadow: 0 0 0 0 rgba(26,122,60,.5); }
+    70%  { box-shadow: 0 0 0 7px rgba(26,122,60,0); }
+    100% { box-shadow: 0 0 0 0 rgba(26,122,60,0); }
+}
+.ses-hero-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    color: #fff; line-height: .95;
+    letter-spacing: 2px; font-weight: 800; margin-bottom: .6rem;
+}
+.ses-hero-title .stroke { -webkit-text-stroke: 2px #C8281E; color: transparent; }
+.ses-hero-sub {
+    font-size: .82rem; color: rgba(255,255,255,.35);
+    line-height: 1.6; max-width: 400px;
+}
+.ses-hero-chips {
+    display: flex; gap: .75rem; flex-wrap: wrap; align-items: center;
+}
+.ses-chip {
+    display: flex; flex-direction: column; align-items: center;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px; padding: .65rem 1.1rem;
+    min-width: 80px;
+}
+.ses-chip-val {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.5rem; line-height: 1; font-weight: 800;
+}
+.ses-chip-val.green { color: #1a7a3c; }
+.ses-chip-val.white { color: rgba(255,255,255,.65); }
+.ses-chip-val.red   { color: #C8281E; }
+.ses-chip-lbl {
+    font-size: .55rem; font-family: monospace;
+    color: rgba(255,255,255,.25); margin-top: .15rem;
+    text-transform: uppercase; letter-spacing: 1px;
 }
 
-<div class="page-wrapper">
-    <div class="page-header">
-        <h1 class="page-title">Sesiones Activas</h1>
-        <p class="page-desc">Monitoreo de conexiones en tiempo de ejecución (V1.11).</p>
+/* ── SECCIÓN BLANCA ── */
+.ses-white { background: #f7f5f4; padding: 2rem 2.5rem 3rem; }
+
+/* KPI row */
+.ses-kpi-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1rem; margin-bottom: 1.75rem;
+}
+.ses-kpi {
+    background: #fff; border: 1px solid rgba(0,0,0,.07);
+    border-radius: 12px; padding: 1.1rem 1.25rem;
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; gap: 1rem;
+}
+.ses-kpi::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.ses-kpi.green::before  { background: #1a7a3c; }
+.ses-kpi.blue::before   { background: #1a4fa8; }
+.ses-kpi.amber::before  { background: #b45309; }
+.ses-kpi.purple::before { background: #6d28d9; }
+.ses-kpi-icon {
+    width: 38px; height: 38px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 1rem;
+}
+.ses-kpi.green  .ses-kpi-icon { background: rgba(26,122,60,.1); }
+.ses-kpi.blue   .ses-kpi-icon { background: rgba(26,79,168,.1); }
+.ses-kpi.amber  .ses-kpi-icon { background: rgba(180,83,9,.1); }
+.ses-kpi.purple .ses-kpi-icon { background: rgba(109,40,217,.08); }
+.ses-kpi-num {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.75rem; font-weight: 800;
+    color: #18120f; line-height: 1;
+}
+.ses-kpi-lbl { font-size: .7rem; color: #9a8a84; margin-top: .2rem; }
+
+/* Toolbar */
+.ses-toolbar {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: .75rem; margin-bottom: 1.5rem; align-items: center;
+}
+.ses-search-wrap { position: relative; }
+.ses-search-wrap svg {
+    position: absolute; left: .9rem; top: 50%;
+    transform: translateY(-50%); stroke: #9a8a84; pointer-events: none;
+}
+.ses-search {
+    width: 100%; background: #fff;
+    border: 1px solid rgba(0,0,0,.1); border-radius: 999px;
+    padding: .6rem 1rem .6rem 2.5rem;
+    font-size: .82rem; color: #18120f; outline: none;
+    transition: border-color .2s; font-family: inherit;
+}
+.ses-search:focus { border-color: #C8281E; }
+.ses-search::placeholder { color: #bbb; }
+.ses-select {
+    background: #fff; border: 1px solid rgba(0,0,0,.1);
+    border-radius: 999px; padding: .58rem 2rem .58rem 1rem;
+    font-size: .78rem; color: #5a4a44;
+    outline: none; cursor: pointer; font-family: inherit;
+    transition: border-color .2s; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a8a84' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right .75rem center;
+}
+.ses-select:focus { border-color: #C8281E; }
+
+.ses-btn-refresh {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: #fff; border: 1px solid rgba(0,0,0,.1);
+    border-radius: 999px; padding: .58rem 1.1rem;
+    font-size: .76rem; color: #5a4a44; cursor: pointer;
+    font-family: inherit; transition: all .18s;
+}
+.ses-btn-refresh:hover { border-color: #C8281E; color: #C8281E; }
+.ses-btn-refresh svg { stroke: currentColor; }
+.ses-btn-export {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: #fff; border: 1px solid rgba(0,0,0,.1);
+    border-radius: 999px; padding: .58rem 1.1rem;
+    font-size: .76rem; color: #5a4a44; cursor: pointer;
+    font-family: inherit; transition: all .18s;
+}
+.ses-btn-export:hover { border-color: #1a4fa8; color: #1a4fa8; }
+.ses-btn-export svg { stroke: currentColor; }
+
+/* Section label */
+.ses-slbl { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; }
+.ses-slbl-txt {
+    font-family: monospace; font-size: .6rem;
+    color: #9a8a84; letter-spacing: 2px; text-transform: uppercase; white-space: nowrap;
+}
+.ses-slbl-line { flex: 1; height: 1px; background: rgba(0,0,0,.07); }
+.ses-live-badge {
+    display: inline-flex; align-items: center; gap: .4rem;
+    font-family: monospace; font-size: .62rem;
+    color: #1a7a3c; background: rgba(26,122,60,.08);
+    border: 1px solid rgba(26,122,60,.2);
+    border-radius: 999px; padding: .2rem .7rem;
+    white-space: nowrap;
+}
+.ses-result-count {
+    font-family: monospace; font-size: .65rem; color: #9a8a84; white-space: nowrap;
+}
+
+/* Tabla */
+.ses-table-card {
+    background: #fff; border: 1px solid rgba(0,0,0,.07);
+    border-radius: 12px; overflow: hidden;
+}
+table.ses-tbl { width: 100%; border-collapse: collapse; }
+table.ses-tbl th {
+    background: #faf9f8; color: #9a8a84;
+    padding: .65rem 1.1rem;
+    font-family: monospace; font-size: .6rem;
+    text-transform: uppercase; letter-spacing: .07em;
+    border-bottom: 1px solid rgba(0,0,0,.05);
+    text-align: left; font-weight: 500;
+    cursor: pointer; user-select: none; white-space: nowrap;
+}
+table.ses-tbl th:hover { color: #C8281E; }
+table.ses-tbl th .si { margin-left: .3rem; opacity: .4; font-size: .55rem; }
+table.ses-tbl th.sorted .si { opacity: 1; color: #C8281E; }
+table.ses-tbl td {
+    padding: .85rem 1.1rem;
+    border-bottom: 1px solid rgba(0,0,0,.04);
+    font-size: .8rem; color: #5a4a44; vertical-align: middle;
+}
+table.ses-tbl tr:last-child td { border-bottom: none; }
+table.ses-tbl tr:hover td { background: #faf9f8; }
+table.ses-tbl tr.ses-hidden { display: none; }
+
+/* ID chip */
+.ses-id-chip {
+    font-family: monospace; font-size: .72rem;
+    background: rgba(0,0,0,.05); border: 1px solid rgba(0,0,0,.1);
+    border-radius: 5px; padding: .18rem .55rem;
+    color: #5a4a44; display: inline-block;
+}
+
+/* Usuario cell */
+.ses-usr-cell { display: flex; align-items: center; gap: .65rem; }
+.ses-usr-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: #C8281E;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: .65rem; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+    font-family: 'Playfair Display', Georgia, serif;
+}
+.ses-usr-name { color: #18120f; font-weight: 600; font-size: .82rem; }
+
+/* IP */
+.ses-ip {
+    font-family: monospace; font-size: .75rem;
+    color: #1a4fa8; background: rgba(26,79,168,.06);
+    border: 1px solid rgba(26,79,168,.14);
+    border-radius: 5px; padding: .18rem .55rem;
+    display: inline-block;
+}
+.ses-ip.local { color: #9a8a84; background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.08); }
+
+/* Dispositivo */
+.ses-device {
+    display: inline-flex; align-items: center; gap: .35rem;
+    font-size: .75rem; color: #5a4a44;
+}
+.ses-device-icon { font-size: .9rem; }
+
+/* Tiempo */
+.ses-time-main { font-family: monospace; font-size: .75rem; color: #18120f; font-weight: 600; }
+.ses-time-dur  { font-size: .68rem; color: #9a8a84; margin-top: 2px; }
+
+/* Duración progress */
+.ses-dur-bar-wrap {
+    width: 80px; height: 4px; background: rgba(0,0,0,.07);
+    border-radius: 999px; margin-top: 5px; overflow: hidden;
+}
+.ses-dur-bar { height: 100%; border-radius: 999px; background: #C8281E; }
+
+/* Status */
+.ses-status-active {
+    display: inline-flex; align-items: center; gap: .38rem;
+    font-size: .72rem; font-weight: 700; color: #1a7a3c;
+    font-family: monospace;
+}
+.ses-dot-live {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #1a7a3c; flex-shrink: 0;
+    animation: seslivedot 1.5s ease infinite;
+    box-shadow: 0 0 0 0 rgba(26,122,60,.4);
+}
+
+/* Acción cerrar sesión */
+.ses-kill-btn {
+    display: inline-flex; align-items: center; gap: .28rem;
+    padding: .28rem .65rem; border-radius: 6px;
+    font-size: .68rem; font-weight: 600;
+    background: rgba(200,40,30,.07); color: #C8281E;
+    border: 1px solid rgba(200,40,30,.18);
+    cursor: pointer; font-family: inherit; transition: all .18s;
+}
+.ses-kill-btn:hover { background: rgba(200,40,30,.15); }
+
+/* Paginación */
+.ses-pagination {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(0,0,0,.06);
+    flex-wrap: wrap; gap: .75rem;
+}
+.ses-page-info { font-family: monospace; font-size: .68rem; color: #9a8a84; }
+.ses-page-btns { display: flex; gap: .4rem; }
+.ses-page-btn {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: monospace; font-size: .72rem;
+    border: 1px solid rgba(0,0,0,.1); background: #fff;
+    color: #5a4a44; cursor: pointer; transition: all .15s;
+}
+.ses-page-btn:hover { border-color: #C8281E; color: #C8281E; }
+.ses-page-btn.active { background: #C8281E; color: #fff; border-color: #C8281E; }
+.ses-page-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+/* Empty */
+.ses-empty { text-align: center; padding: 3.5rem 1rem; color: #9a8a84; }
+.ses-empty-icon { font-size: 2rem; margin-bottom: .75rem; opacity: .35; }
+.ses-empty-txt { font-size: .82rem; }
+.ses-empty-sub { font-family: monospace; font-size: .7rem; color: #bbb; margin-top: .35rem; }
+
+/* Autorefresco badge */
+.ses-autorefresh {
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-family: monospace; font-size: .62rem; color: #9a8a84;
+}
+.ses-autorefresh-toggle {
+    width: 32px; height: 17px; border-radius: 999px;
+    background: #1a7a3c; position: relative; cursor: pointer;
+    transition: background .2s; border: none; flex-shrink: 0;
+}
+.ses-autorefresh-toggle::after {
+    content: ''; position: absolute;
+    width: 13px; height: 13px; border-radius: 50%;
+    background: #fff; top: 2px; left: 17px;
+    transition: left .2s;
+}
+.ses-autorefresh-toggle.off { background: rgba(0,0,0,.15); }
+.ses-autorefresh-toggle.off::after { left: 2px; }
+.ses-countdown { color: #1a7a3c; font-weight: 700; min-width: 16px; }
+
+/* Responsive */
+@@media (max-width: 900px) {
+    .ses-toolbar { grid-template-columns: 1fr 1fr; }
+    .ses-search-wrap { grid-column: 1 / -1; }
+    .ses-kpi-row { grid-template-columns: 1fr 1fr; }
+    table.ses-tbl th:nth-child(4),
+    table.ses-tbl td:nth-child(4) { display: none; }
+}
+@@media (max-width: 600px) {
+    .ses-white { padding: 1.5rem 1rem 2rem; }
+    .ses-hero  { padding: 2.5rem 1rem 2rem; }
+    table.ses-tbl th:nth-child(3),
+    table.ses-tbl td:nth-child(3) { display: none; }
+    .ses-hero-chips { display: none; }
+}
+</style>
+}
+
+@{
+    // Calcular duración máxima para la barra relativa
+    var maxMinutos = Model.Any()
+        ? Model.Max(s => (DateTime.Now - s.FechaInicio).TotalMinutes)
+        : 1;
+}
+
+<!-- ══ HERO ══ -->
+<div class="ses-hero">
+    <div class="ses-hero-grid"></div>
+    <div class="ses-hero-glow"></div>
+    <div class="ses-hero-inner">
+        <div>
+            <div class="ses-eyebrow">
+                <span class="ses-eyebrow-dot"></span>
+                Seguridad · Monitor en tiempo real
+            </div>
+            <h1 class="ses-hero-title">
+                SESIONES<br><span class="stroke">ACTIVAS</span>
+            </h1>
+            <p class="ses-hero-sub">
+                Monitoreo en tiempo real de conexiones activas, dispositivos y origen de acceso.
+                Cada sesión queda registrada con usuario, IP y duración.
+            </p>
+        </div>
+        <div class="ses-hero-chips">
+            <div class="ses-chip">
+                <span class="ses-chip-val green">@total</span>
+                <span class="ses-chip-lbl">Sesiones</span>
+            </div>
+            <div class="ses-chip">
+                <span class="ses-chip-val white">@usuarios</span>
+                <span class="ses-chip-lbl">Operadores</span>
+            </div>
+            <div class="ses-chip">
+                <span class="ses-chip-val white">@ips.Count</span>
+                <span class="ses-chip-lbl">IPs únicas</span>
+            </div>
+            <div class="ses-chip">
+                <span class="ses-chip-val white">@totalHoy</span>
+                <span class="ses-chip-lbl">Iniciadas hoy</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ SECCIÓN BLANCA ══ -->
+<div class="ses-white">
+
+    <!-- KPI CARDS -->
+    <div class="ses-kpi-row">
+        <div class="ses-kpi green">
+            <div class="ses-kpi-icon">🟢</div>
+            <div>
+                <div class="ses-kpi-num">@total</div>
+                <div class="ses-kpi-lbl">Sesiones activas ahora</div>
+            </div>
+        </div>
+        <div class="ses-kpi blue">
+            <div class="ses-kpi-icon">👥</div>
+            <div>
+                <div class="ses-kpi-num">@usuarios</div>
+                <div class="ses-kpi-lbl">Operadores conectados</div>
+            </div>
+        </div>
+        <div class="ses-kpi amber">
+            <div class="ses-kpi-icon">🌐</div>
+            <div>
+                <div class="ses-kpi-num">@ips.Count</div>
+                <div class="ses-kpi-lbl">Direcciones IP únicas</div>
+            </div>
+        </div>
+        <div class="ses-kpi purple">
+            <div class="ses-kpi-icon">📅</div>
+            <div>
+                <div class="ses-kpi-num">@totalHoy</div>
+                <div class="ses-kpi-lbl">Sesiones iniciadas hoy</div>
+            </div>
+        </div>
     </div>
 
-    <div class="terminal-box">
-        <div class="term-head">
-            <span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
-            <span class="term-cmd">root@soc:~# netstat -an | grep :443</span>
+    <!-- TOOLBAR -->
+    <div class="ses-toolbar">
+        <div class="ses-search-wrap">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" class="ses-search" id="sesSearch"
+                   placeholder="Buscar por usuario, IP o dispositivo…"
+                   oninput="sesFiltrar()"/>
         </div>
-        <div class="term-body">
-            <table class="term-table">
+
+        <select class="ses-select" id="filtroUsr" onchange="sesFiltrar()">
+            <option value="">Todos los usuarios</option>
+            @foreach (var u in usuariosList)
+            {
+                <option value="@u.ToLower()">@u</option>
+            }
+        </select>
+
+        <button class="ses-btn-refresh" onclick="location.reload()">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke-width="2" stroke-linecap="round">
+                <polyline points="23 4 23 10 17 10"/>
+                <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
+            </svg>
+            Actualizar
+        </button>
+
+        <button class="ses-btn-export" onclick="sesExportarCSV()">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke-width="2" stroke-linecap="round">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Exportar
+        </button>
+    </div>
+
+    <!-- SECTION LABEL -->
+    <div class="ses-slbl">
+        <span class="ses-slbl-txt">Conexiones activas</span>
+        <div class="ses-slbl-line"></div>
+        <span class="ses-live-badge">
+            <span class="ses-dot-live"></span> EN VIVO
+        </span>
+        &nbsp;
+        <span class="ses-result-count" id="sesCount">@total sesión(es)</span>
+        &nbsp;&nbsp;
+        <span class="ses-autorefresh">
+            Auto-actualizar
+            <button class="ses-autorefresh-toggle" id="autoToggle" onclick="toggleAuto(this)" title="Auto-refresco cada 30s"></button>
+            <span class="ses-countdown" id="sesCountdown"></span>
+        </span>
+    </div>
+
+    <!-- TABLA -->
+    <div class="ses-table-card">
+        @if (!Model.Any())
+        {
+            <div class="ses-empty">
+                <div class="ses-empty-icon">💻</div>
+                <div class="ses-empty-txt">No se detectan sesiones activas en este momento.</div>
+                <div class="ses-empty-sub">> root@@soc:~# netstat -an | grep :443 — 0 connections</div>
+            </div>
+        }
+        else
+        {
+            <table class="ses-tbl" id="sesTabla">
                 <thead>
                     <tr>
-                        <th>ID_SESIÓN</th>
-                        <th>USUARIO</th>
-                        <th>DIRECCIÓN_IP</th>
-                        <th>DISPOSITIVO</th>
-                        <th>INICIO</th>
-                        <th>ESTADO</th>
+                        <th onclick="sesOrdenar(0)" data-col="0">ID <span class="si">↕</span></th>
+                        <th onclick="sesOrdenar(1)" data-col="1">Operador <span class="si">↕</span></th>
+                        <th onclick="sesOrdenar(2)" data-col="2">Dirección IP <span class="si">↕</span></th>
+                        <th onclick="sesOrdenar(3)" data-col="3">Dispositivo <span class="si">↕</span></th>
+                        <th onclick="sesOrdenar(4)" data-col="4">Inicio · Duración <span class="si">↕</span></th>
+                        <th>Estado</th>
+                        <th></th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach (var item in Model)
+                <tbody id="sesBody">
+                    @foreach (var s in Model)
                     {
-                        <tr>
-                            <td>#@item.SesionId</td>
-                            <td>@(item.Usuario?.NombreUsuario ?? "Infiltrado")</td>
-                            <td>@(item.DireccionIp ?? "127.0.0.1")</td>
-                            <td>@(item.Dispositivo ?? "Desconocido")</td>
-                            <td>@item.FechaInicio.ToString("HH:mm:ss")</td>
-                            <td><span class="status-active">[ ACTIVA ]</span></td>
+                        var nombre   = s.Usuario?.NombreUsuario ?? "Desconocido";
+                        var ip       = s.DireccionIp ?? "127.0.0.1";
+                        var disp     = s.Dispositivo ?? "Desconocido";
+                        var esLocal  = ip == "127.0.0.1" || ip == "::1";
+                        var iniciales = nombre.Length >= 2 ? nombre.Substring(0, 2).ToUpper() : nombre.ToUpper();
+                        var durMin   = (DateTime.Now - s.FechaInicio).TotalMinutes;
+                        var durPct   = Math.Min((durMin / maxMinutos) * 100, 100);
+                        var durTxt   = DuracionTexto(s.FechaInicio);
+                        var dispIcon = disp.ToLower().Contains("mobile") || disp.ToLower().Contains("android") || disp.ToLower().Contains("iphone")
+                                       ? "📱" : disp.ToLower().Contains("tablet") || disp.ToLower().Contains("ipad")
+                                       ? "📟" : "🖥️";
+
+                        <tr class="ses-row"
+                            data-id="@s.SesionId"
+                            data-usuario="@nombre.ToLower()"
+                            data-ip="@ip.ToLower()"
+                            data-disp="@disp.ToLower()"
+                            data-inicio="@s.FechaInicio.ToString("yyyy-MM-dd HH:mm:ss")">
+                            <td>
+                                <span class="ses-id-chip">#@s.SesionId</span>
+                            </td>
+                            <td>
+                                <div class="ses-usr-cell">
+                                    <div class="ses-usr-avatar">@iniciales</div>
+                                    <span class="ses-usr-name">@nombre</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="ses-ip @(esLocal ? "local" : "")">@ip</span>
+                            </td>
+                            <td>
+                                <span class="ses-device">
+                                    <span class="ses-device-icon">@dispIcon</span>
+                                    @disp
+                                </span>
+                            </td>
+                            <td>
+                                <div class="ses-time-main">@s.FechaInicio.ToString("HH:mm:ss")</div>
+                                <div class="ses-time-dur">@durTxt</div>
+                                <div class="ses-dur-bar-wrap">
+                                    <div class="ses-dur-bar" style="width:@((int)durPct)%"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="ses-status-active">
+                                    <span class="ses-dot-live"></span> ACTIVA
+                                </span>
+                            </td>
+                            <td>
+                                <form asp-controller="Seguridad" asp-action="CerrarSesion"
+                                      asp-route-id="@s.SesionId" method="post" style="display:inline;"
+                                      onsubmit="return confirm('¿Cerrar la sesión #@s.SesionId de @nombre?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="ses-kill-btn">
+                                        ✕ Cerrar
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     }
                 </tbody>
             </table>
-            
-            @if (!Model.Any())
-            {
-                <div class="no-data">
-                    > No se detectan túneles activos en este momento...
-                </div>
-            }
-        </div>
+
+            <div class="ses-pagination">
+                <span class="ses-page-info" id="sesPageInfo">Mostrando 1–@Math.Min(50, total) de @total</span>
+                <div class="ses-page-btns" id="sesPageBtns"></div>
+            </div>
+        }
     </div>
 </div>
+
+@section Scripts {
+<script>
+const SES_POR_PAG = 50;
+let sesPagina    = 1;
+let sesVisibles  = [];
+let sesSortCol   = -1;
+let sesSortAsc   = true;
+let autoInterval = null;
+let autoSecs     = 30;
+let autoActivo   = false;
+
+// ── FILTRAR ──
+function sesFiltrar() {
+    const q      = document.getElementById('sesSearch').value.toLowerCase().trim();
+    const usrFil = document.getElementById('filtroUsr').value.toLowerCase();
+
+    const filas = document.querySelectorAll('#sesBody .ses-row');
+    sesVisibles = [];
+
+    filas.forEach(row => {
+        const usuario = row.dataset.usuario || '';
+        const ip      = row.dataset.ip      || '';
+        const disp    = row.dataset.disp    || '';
+
+        const matchQ   = !q      || usuario.includes(q) || ip.includes(q) || disp.includes(q);
+        const matchUsr = !usrFil || usuario === usrFil;
+
+        if (matchQ && matchUsr) {
+            sesVisibles.push(row);
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    const cnt = document.getElementById('sesCount');
+    if (cnt) cnt.textContent = sesVisibles.length + ' sesión(es)';
+    sesPagina = 1;
+    sesPaginar();
+}
+
+// ── PAGINAR ──
+function sesPaginar() {
+    const inicio = (sesPagina - 1) * SES_POR_PAG;
+    const fin    = inicio + SES_POR_PAG;
+
+    sesVisibles.forEach((row, i) => {
+        row.style.display = (i >= inicio && i < fin) ? '' : 'none';
+    });
+
+    const total    = sesVisibles.length;
+    const totalPag = Math.ceil(total / SES_POR_PAG) || 1;
+    const desde    = total === 0 ? 0 : inicio + 1;
+    const hasta    = Math.min(fin, total);
+
+    const info = document.getElementById('sesPageInfo');
+    if (info) info.textContent = `Mostrando ${desde}–${hasta} de ${total}`;
+
+    const cont = document.getElementById('sesPageBtns');
+    if (!cont) return;
+    cont.innerHTML = '';
+
+    const prev = mkPageBtn('‹', sesPagina === 1);
+    prev.onclick = () => { if (sesPagina > 1) { sesPagina--; sesPaginar(); } };
+    cont.appendChild(prev);
+
+    pageRange(sesPagina, totalPag).forEach(p => {
+        if (p === '…') {
+            const d = document.createElement('span');
+            d.textContent = '…';
+            d.style.cssText = 'display:inline-flex;align-items:center;padding:0 .3rem;color:#9a8a84;font-family:monospace;font-size:.72rem;';
+            cont.appendChild(d);
+        } else {
+            const b = mkPageBtn(p, false);
+            if (p === sesPagina) b.classList.add('active');
+            b.onclick = () => { sesPagina = p; sesPaginar(); };
+            cont.appendChild(b);
+        }
+    });
+
+    const next = mkPageBtn('›', sesPagina === totalPag);
+    next.onclick = () => { if (sesPagina < totalPag) { sesPagina++; sesPaginar(); } };
+    cont.appendChild(next);
+}
+
+function mkPageBtn(txt, disabled) {
+    const b = document.createElement('button');
+    b.className = 'ses-page-btn';
+    b.textContent = txt;
+    b.disabled = disabled;
+    return b;
+}
+
+function pageRange(actual, total) {
+    if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
+    const p = [1];
+    if (actual > 3) p.push('…');
+    for (let i = Math.max(2, actual-1); i <= Math.min(total-1, actual+1); i++) p.push(i);
+    if (actual < total - 2) p.push('…');
+    p.push(total);
+    return p;
+}
+
+// ── ORDENAR ──
+function sesOrdenar(col) {
+    document.querySelectorAll('#sesTabla th').forEach(th => th.classList.remove('sorted'));
+    if (sesSortCol === col) sesSortAsc = !sesSortAsc;
+    else { sesSortCol = col; sesSortAsc = true; }
+    const th = document.querySelectorAll('#sesTabla th')[col];
+    th.classList.add('sorted');
+    th.querySelector('.si').textContent = sesSortAsc ? '↑' : '↓';
+
+    const keys = ['id','usuario','ip','disp','inicio'];
+    const tbody = document.getElementById('sesBody');
+    const filas = Array.from(tbody.querySelectorAll('.ses-row'));
+    filas.sort((a, b) => {
+        const va = (a.dataset[keys[col]] || '').toLowerCase();
+        const vb = (b.dataset[keys[col]] || '').toLowerCase();
+        return sesSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    });
+    filas.forEach(f => tbody.appendChild(f));
+    sesFiltrar();
+}
+
+// ── AUTO-REFRESCO ──
+function toggleAuto(btn) {
+    autoActivo = !autoActivo;
+    btn.classList.toggle('off', !autoActivo);
+    const cd = document.getElementById('sesCountdown');
+
+    if (autoActivo) {
+        autoSecs = 30;
+        cd.textContent = autoSecs + 's';
+        autoInterval = setInterval(() => {
+            autoSecs--;
+            cd.textContent = autoSecs + 's';
+            if (autoSecs <= 0) location.reload();
+        }, 1000);
+    } else {
+        clearInterval(autoInterval);
+        cd.textContent = '';
+    }
+}
+
+// ── EXPORTAR CSV ──
+function sesExportarCSV() {
+    const filas = sesVisibles.length > 0
+        ? sesVisibles
+        : Array.from(document.querySelectorAll('#sesBody .ses-row'));
+
+    let csv = 'ID,Usuario,IP,Dispositivo,Inicio\n';
+    filas.forEach(row => {
+        csv += `"${row.dataset.id}","${row.dataset.usuario}","${row.dataset.ip}","${row.dataset.disp}","${row.dataset.inicio}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `sesiones_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+    sesVisibles = Array.from(document.querySelectorAll('#sesBody .ses-row'));
+    // Toggle de auto-refresco empieza en OFF
+    const t = document.getElementById('autoToggle');
+    if (t) t.classList.add('off');
+    sesPaginar();
+});
+</script>
+}
+
+@functions {
+    string DuracionTexto(DateTime inicio) {
+        var diff = DateTime.Now - inicio;
+        if (diff.TotalSeconds < 60)  return $"{(int)diff.TotalSeconds}s activa";
+        if (diff.TotalMinutes < 60)  return $"{(int)diff.TotalMinutes}m activa";
+        if (diff.TotalHours   < 24)  return $"{(int)diff.TotalHours}h {diff.Minutes}m activa";
+        return $"{(int)diff.TotalDays}d activa";
+    }
+}

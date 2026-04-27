@@ -1,8 +1,7 @@
 @model RefrescosDelValle.Models.ViewModels.RegistroClienteViewModel
-
 @{
     ViewData["Title"] = "Registro de Cliente";
-    Layout = null; // El salvavidas para que no herede basura del layout
+    Layout = null;
 }
 
 <!DOCTYPE html>
@@ -10,136 +9,443 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nuevo Nodo — Refrescos del Valle</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="~/css/auth.css" />
+    <title>Nuevo Cliente — Refrescos del Valle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        .btn-volver {
-            position: absolute; top: 1.5rem; left: 1.5rem; color: var(--auth-text-muted); text-decoration: none;
-            display: flex; align-items: center; gap: 0.5rem; font-family: 'DM Mono', monospace;
-            font-size: 0.85rem; transition: all 0.3s; z-index: 50; text-transform: uppercase;
-        }
-        .btn-volver:hover { color: var(--auth-red); transform: translateX(-5px); }
-        
-        .registro-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.2rem;
-            margin-bottom: 1.5rem;
-        }
-        .full-width { grid-column: 1 / -1; }
-        
-        @@media (max-width: 600px) {
-            .registro-grid { grid-template-columns: 1fr; }
-        }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        min-height: 100vh;
+        background: #0a0504;
+        font-family: 'DM Mono', monospace;
+        display: flex; align-items: center; justify-content: center;
+        padding: 2rem 1rem;
+        position: relative; overflow-x: hidden;
+    }
+
+    /* Fondo con grid */
+    body::before {
+        content: '';
+        position: fixed; inset: 0; pointer-events: none;
+        background-image:
+            repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,40,30,.03) 59px, rgba(200,40,30,.03) 60px),
+            repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,40,30,.03) 59px, rgba(200,40,30,.03) 60px);
+    }
+    /* Glow decorativo */
+    body::after {
+        content: '';
+        position: fixed; width: 600px; height: 600px;
+        background: radial-gradient(circle, rgba(200,40,30,.08) 0%, transparent 70%);
+        bottom: -200px; right: -150px; pointer-events: none;
+    }
+
+    /* Botón volver */
+    .rc-back {
+        position: fixed; top: 1.5rem; left: 1.5rem; z-index: 50;
+        display: inline-flex; align-items: center; gap: .5rem;
+        font-family: monospace; font-size: .68rem; letter-spacing: 1px;
+        text-transform: uppercase; color: rgba(255,255,255,.3);
+        text-decoration: none; transition: all .2s;
+    }
+    .rc-back:hover { color: #C8281E; transform: translateX(-4px); }
+
+    /* Contenedor principal */
+    .rc-wrapper {
+        position: relative; z-index: 2;
+        width: 100%; max-width: 680px;
+    }
+
+    /* Header con logo */
+    .rc-brand {
+        display: flex; flex-direction: column; align-items: center;
+        margin-bottom: 2rem; text-align: center;
+    }
+    .rc-logo-ring {
+        width: 68px; height: 68px; border-radius: 50%;
+        border: 2px solid rgba(200,40,30,.3);
+        background: rgba(200,40,30,.06);
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 1rem;
+        box-shadow: 0 0 0 8px rgba(200,40,30,.04), 0 0 30px rgba(200,40,30,.1);
+    }
+    .rc-logo-ring img { width: 44px; height: 44px; object-fit: contain; border-radius: 50%; }
+    .rc-eyebrow {
+        display: inline-flex; align-items: center; gap: .45rem;
+        font-family: monospace; font-size: .6rem; letter-spacing: 2px;
+        color: rgba(200,40,30,.8); text-transform: uppercase; margin-bottom: .5rem;
+    }
+    .rc-eyebrow-dot { width: 5px; height: 5px; border-radius: 50%; background: #C8281E; animation: rcpulse 2.5s ease infinite; }
+    @@keyframes rcpulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.3;transform:scale(.5);} }
+    .rc-title {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: clamp(1.6rem, 4vw, 2.4rem);
+        color: #fff; font-weight: 800; letter-spacing: 2px; line-height: 1;
+        margin-bottom: .4rem;
+    }
+    .rc-title .stroke { -webkit-text-stroke: 2px #C8281E; color: transparent; }
+    .rc-subtitle { font-size: .75rem; color: rgba(255,255,255,.28); letter-spacing: 1px; }
+
+    /* Progreso */
+    .rc-progress-wrap { margin-bottom: 1.5rem; }
+    .rc-progress-bar { height: 2px; background: rgba(255,255,255,.06); border-radius: 999px; overflow: hidden; margin-bottom: .35rem; }
+    .rc-progress-fill { height: 100%; background: linear-gradient(90deg, #C8281E, #f1934c); border-radius: 999px; transition: width .3s; width: 0%; }
+    .rc-progress-lbl { font-size: .6rem; color: rgba(255,255,255,.2); text-align: right; }
+
+    /* Card formulario */
+    .rc-card {
+        background: rgba(255,255,255,.03);
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 16px; overflow: hidden;
+        backdrop-filter: blur(4px);
+    }
+    .rc-card-section {
+        padding: 1.4rem 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    .rc-card-section:last-of-type { border-bottom: none; }
+    .rc-section-label {
+        display: flex; align-items: center; gap: .6rem;
+        margin-bottom: 1.1rem;
+    }
+    .rc-section-num {
+        width: 20px; height: 20px; border-radius: 50%;
+        background: #C8281E; color: #fff;
+        font-size: .6rem; font-weight: 700; font-family: monospace;
+        display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .rc-section-title {
+        font-family: monospace; font-size: .63rem;
+        text-transform: uppercase; letter-spacing: .1em;
+        color: rgba(255,255,255,.5);
+    }
+    .rc-section-line { flex: 1; height: 1px; background: rgba(255,255,255,.05); }
+
+    /* Grid */
+    .rc-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .rc-full  { grid-column: 1 / -1; }
+
+    /* Campos */
+    .rc-field { display: flex; flex-direction: column; gap: .35rem; }
+    .rc-label {
+        font-size: .63rem; font-weight: 500; color: rgba(255,255,255,.38);
+        text-transform: uppercase; letter-spacing: .08em; font-family: monospace;
+        display: flex; align-items: center; gap: .25rem;
+    }
+    .rc-label .req { color: #C8281E; }
+    .rc-input-wrap { position: relative; }
+    .rc-input-wrap svg {
+        position: absolute; left: .85rem; top: 50%;
+        transform: translateY(-50%); pointer-events: none;
+        stroke: rgba(255,255,255,.2); transition: stroke .2s;
+    }
+    .rc-input {
+        width: 100%; background: rgba(255,255,255,.04);
+        border: 1px solid rgba(255,255,255,.08); border-radius: 9px;
+        color: #fff; padding: .65rem .9rem .65rem 2.4rem;
+        font-size: .82rem; outline: none; font-family: inherit;
+        transition: border-color .2s, box-shadow .2s, background .2s;
+    }
+    .rc-input:focus {
+        border-color: rgba(200,40,30,.6);
+        box-shadow: 0 0 0 3px rgba(200,40,30,.1);
+        background: rgba(255,255,255,.06);
+    }
+    .rc-input:focus + svg, .rc-input:focus ~ svg { stroke: rgba(200,40,30,.7); }
+    .rc-input::placeholder { color: rgba(255,255,255,.15); }
+    .field-validation-error { color: #e74c3c; font-size: .68rem; }
+
+    /* Password */
+    .rc-pwd-wrap { position: relative; }
+    .rc-pwd-wrap .rc-input { padding-right: 2.5rem; }
+    .rc-pwd-toggle {
+        position: absolute; right: .8rem; top: 50%;
+        transform: translateY(-50%);
+        background: none; border: none; cursor: pointer;
+        color: rgba(255,255,255,.25); padding: 0;
+        display: flex; align-items: center; transition: color .15s;
+    }
+    .rc-pwd-toggle:hover { color: #C8281E; }
+
+    /* Strength */
+    .rc-strength-bar { height: 2px; background: rgba(255,255,255,.06); border-radius: 999px; overflow: hidden; margin-top: .35rem; }
+    .rc-strength-fill { height: 100%; border-radius: 999px; transition: width .3s, background .3s; width: 0%; }
+    .rc-strength-lbl { font-size: .6rem; color: rgba(255,255,255,.2); margin-top: .2rem; }
+
+    /* Match indicator */
+    .rc-match-ok  { font-size: .65rem; color: #1a7a3c; margin-top: .2rem; display: flex; align-items: center; gap: .3rem; }
+    .rc-match-err { font-size: .65rem; color: #e74c3c;  margin-top: .2rem; display: flex; align-items: center; gap: .3rem; }
+
+    /* Footer del card */
+    .rc-card-footer {
+        padding: 1.25rem 1.5rem;
+        background: rgba(0,0,0,.2);
+        border-top: 1px solid rgba(255,255,255,.05);
+    }
+    .rc-btn-submit {
+        width: 100%; background: #C8281E; color: #fff;
+        border: none; border-radius: 10px;
+        padding: .85rem; font-size: .82rem; font-weight: 700;
+        cursor: pointer; font-family: inherit; letter-spacing: .5px;
+        display: flex; align-items: center; justify-content: center; gap: .5rem;
+        transition: all .2s;
+        box-shadow: 0 4px 15px rgba(200,40,30,.3);
+    }
+    .rc-btn-submit:hover { background: #a81f16; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(200,40,30,.4); }
+
+    .rc-footer-link {
+        text-align: center; margin-top: 1rem;
+        font-size: .72rem; color: rgba(255,255,255,.25);
+    }
+    .rc-footer-link a { color: #C8281E; text-decoration: none; font-weight: 600; }
+    .rc-footer-link a:hover { text-decoration: underline; }
+
+    /* Alert error */
+    .rc-alert-err {
+        background: rgba(200,40,30,.07);
+        border: 1px solid rgba(200,40,30,.2);
+        border-radius: 9px; padding: .75rem 1rem;
+        font-size: .76rem; color: rgba(255,255,255,.6);
+        margin-bottom: 1rem;
+    }
+
+    @@media (max-width: 520px) {
+        .rc-grid-2 { grid-template-columns: 1fr; }
+        .rc-full { grid-column: 1; }
+        .rc-back { display: none; }
+    }
     </style>
 </head>
 <body>
-    <div class="auth-container">
-        
-        <a href="/" class="btn-volver">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12 19 5 12 12 5"></polyline>
-            </svg>
-            Volver al inicio
-        </a>
 
-        <div class="auth-card" style="max-width: 650px;">
-            <div class="auth-logo">
-                <img src="~/assets/img/LogoRefrescosDelValle.png" alt="RV" onerror="this.src='https://via.placeholder.com/80x80?text=RV'"/>
+    <a href="/" class="rc-back">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Volver
+    </a>
+
+    <div class="rc-wrapper">
+
+        <!-- Brand -->
+        <div class="rc-brand">
+            <div class="rc-logo-ring">
+                <img src="/assets/img/LogoRefrescosDelValle.png" alt="RV"
+                     onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\'font-family:serif;font-size:1.1rem;font-weight:800;color:#C8281E\'>RV</span>'" />
             </div>
-            
-            <h1 class="auth-title">NUEVO NODO</h1>
-            <p class="auth-subtitle">_ALTA_DE_CLIENTE_WEB</p>
+            <div class="rc-eyebrow"><span class="rc-eyebrow-dot"></span>Alta de cliente</div>
+            <h1 class="rc-title">CREAR <span class="stroke">CUENTA</span></h1>
+            <p class="rc-subtitle">Refrescos del Valle · Sistema de clientes</p>
+        </div>
 
-            <form asp-action="Registro" method="post" id="registroForm">
+        <!-- Progreso -->
+        <div class="rc-progress-wrap">
+            <div class="rc-progress-bar">
+                <div class="rc-progress-fill" id="rcProgressFill"></div>
+            </div>
+            <div class="rc-progress-lbl">Completitud: <span id="rcProgressPct">0</span>%</div>
+        </div>
+
+        <!-- Card -->
+        <div class="rc-card">
+
+            <form asp-action="Registro" method="post" id="rcForm">
+
                 @if (!ViewData.ModelState.IsValid)
                 {
-                    <div class="auth-alert auth-alert-danger">
-                        <div asp-validation-summary="All" style="color: inherit; margin: 0; padding: 0; list-style: none;"></div>
+                    <div style="padding:1rem 1.5rem;">
+                        <div class="rc-alert-err">
+                            <div asp-validation-summary="All" style="color:inherit;margin:0;padding:0;list-style:none;"></div>
+                        </div>
                     </div>
                 }
 
-                <div class="registro-grid">
-                    
-                    <div class="form-group full-width">
-                        <label asp-for="CI" class="form-label">Cédula de Identidad</label>
-                        <div class="input-icon-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect><line x1="7" y1="15" x2="11" y2="15"></line></svg>
-                            <input asp-for="CI" class="auth-input" placeholder="Ej. 12345678" />
-                        </div>
-                        <span asp-validation-for="CI" class="field-validation-error"></span>
+                <!-- Sección 1: Identidad -->
+                <div class="rc-card-section">
+                    <div class="rc-section-label">
+                        <span class="rc-section-num">1</span>
+                        <span class="rc-section-title">Datos de identidad</span>
+                        <div class="rc-section-line"></div>
                     </div>
-
-                    <div class="form-group full-width">
-                        <label asp-for="Nombres" class="form-label">Nombres</label>
-                        <div class="input-icon-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                            <input asp-for="Nombres" class="auth-input" placeholder="Tus nombres" />
+                    <div class="rc-grid-2">
+                        <div class="rc-field rc-full">
+                            <label class="rc-label" asp-for="CI">Cédula de Identidad <span class="req">*</span></label>
+                            <div class="rc-input-wrap">
+                                <input asp-for="CI" class="rc-input" placeholder="Ej. 12345678" oninput="rcCalcProgress()" />
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                                    <rect x="3" y="5" width="18" height="14" rx="2"/><line x1="7" y1="15" x2="11" y2="15"/>
+                                </svg>
+                            </div>
+                            <span asp-validation-for="CI" class="field-validation-error"></span>
                         </div>
-                        <span asp-validation-for="Nombres" class="field-validation-error"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label asp-for="ApellidoPat" class="form-label">Apellido Paterno</label>
-                        <div class="input-icon-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg>
-                            <input asp-for="ApellidoPat" class="auth-input" placeholder="Paterno" />
+                        <div class="rc-field rc-full">
+                            <label class="rc-label" asp-for="Nombres">Nombres <span class="req">*</span></label>
+                            <div class="rc-input-wrap">
+                                <input asp-for="Nombres" class="rc-input" placeholder="Tus nombres" oninput="rcCalcProgress()" />
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                                </svg>
+                            </div>
+                            <span asp-validation-for="Nombres" class="field-validation-error"></span>
                         </div>
-                        <span asp-validation-for="ApellidoPat" class="field-validation-error"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label asp-for="ApellidoMat" class="form-label">Apellido Materno</label>
-                        <div class="input-icon-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg>
-                            <input asp-for="ApellidoMat" class="auth-input" placeholder="Materno (Opc)" />
+                        <div class="rc-field">
+                            <label class="rc-label" asp-for="ApellidoPat">Apellido Paterno <span class="req">*</span></label>
+                            <div class="rc-input-wrap">
+                                <input asp-for="ApellidoPat" class="rc-input" placeholder="Paterno" oninput="rcCalcProgress()" />
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                </svg>
+                            </div>
+                            <span asp-validation-for="ApellidoPat" class="field-validation-error"></span>
                         </div>
-                        <span asp-validation-for="ApellidoMat" class="field-validation-error"></span>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label asp-for="Email" class="form-label">Correo Electrónico</label>
-                        <div class="input-icon-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                            <input asp-for="Email" class="auth-input" placeholder="correo@ejemplo.com" />
+                        <div class="rc-field">
+                            <label class="rc-label" asp-for="ApellidoMat">Apellido Materno</label>
+                            <div class="rc-input-wrap">
+                                <input asp-for="ApellidoMat" class="rc-input" placeholder="Materno (opcional)" />
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                </svg>
+                            </div>
+                            <span asp-validation-for="ApellidoMat" class="field-validation-error"></span>
                         </div>
-                        <span asp-validation-for="Email" class="field-validation-error"></span>
                     </div>
-
-                    <div class="form-group">
-                        <label asp-for="Password" class="form-label">Contraseña</label>
-                        <div class="input-icon-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                            <input asp-for="Password" type="password" class="auth-input" placeholder="••••••••" />
-                        </div>
-                        <span asp-validation-for="Password" class="field-validation-error"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label asp-for="ConfirmPassword" class="form-label">Confirmar Pass</label>
-                        <div class="input-icon-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                            <input asp-for="ConfirmPassword" type="password" class="auth-input" placeholder="••••••••" />
-                        </div>
-                        <span asp-validation-for="ConfirmPassword" class="field-validation-error"></span>
-                    </div>
-
                 </div>
 
-                <button type="submit" class="auth-btn">
-                    <span>Ejecutar Registro</span>
-                </button>
-            </form>
+                <!-- Sección 2: Acceso -->
+                <div class="rc-card-section">
+                    <div class="rc-section-label">
+                        <span class="rc-section-num">2</span>
+                        <span class="rc-section-title">Credenciales de acceso</span>
+                        <div class="rc-section-line"></div>
+                    </div>
+                    <div class="rc-grid-2">
+                        <div class="rc-field rc-full">
+                            <label class="rc-label" asp-for="Email">Correo Electrónico <span class="req">*</span></label>
+                            <div class="rc-input-wrap">
+                                <input asp-for="Email" class="rc-input" placeholder="correo@ejemplo.com" oninput="rcCalcProgress()" />
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                    <polyline points="22,6 12,13 2,6"/>
+                                </svg>
+                            </div>
+                            <span asp-validation-for="Email" class="field-validation-error"></span>
+                        </div>
+                        <div class="rc-field">
+                            <label class="rc-label" asp-for="Password">Contraseña <span class="req">*</span></label>
+                            <div class="rc-pwd-wrap">
+                                <div class="rc-input-wrap">
+                                    <input asp-for="Password" type="password" class="rc-input" id="rcPwd1"
+                                           placeholder="••••••••"
+                                           oninput="rcCalcProgress(); rcMedirFuerza(this.value); rcCheckMatch()" />
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                                        <rect x="3" y="11" width="18" height="11" rx="2"/>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                    </svg>
+                                </div>
+                                <button type="button" class="rc-pwd-toggle" onclick="rcTogglePwd('rcPwd1')">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="rc-strength-bar"><div class="rc-strength-fill" id="rcStrFill"></div></div>
+                            <div class="rc-strength-lbl" id="rcStrLbl">Ingresa una contraseña</div>
+                            <span asp-validation-for="Password" class="field-validation-error"></span>
+                        </div>
+                        <div class="rc-field">
+                            <label class="rc-label" asp-for="ConfirmPassword">Confirmar Contraseña <span class="req">*</span></label>
+                            <div class="rc-pwd-wrap">
+                                <div class="rc-input-wrap">
+                                    <input asp-for="ConfirmPassword" type="password" class="rc-input" id="rcPwd2"
+                                           placeholder="••••••••"
+                                           oninput="rcCalcProgress(); rcCheckMatch()" />
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                                        <rect x="3" y="11" width="18" height="11" rx="2"/>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                    </svg>
+                                </div>
+                                <button type="button" class="rc-pwd-toggle" onclick="rcTogglePwd('rcPwd2')">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div id="rcMatchMsg"></div>
+                            <span asp-validation-for="ConfirmPassword" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                </div>
 
-            <div style="text-align: center; margin-top: 1.5rem;">
-                <p class="auth-footer-text">
-                    ¿Ya tienes un acceso asignado? 
-                    <a href="/Auth/Login" style="color: var(--auth-red); text-decoration: none; font-weight: bold;">Iniciar sesión</a>
-                </p>
-            </div>
+                <!-- Footer acciones -->
+                <div class="rc-card-footer">
+                    <button type="submit" class="rc-btn-submit">
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        Crear mi cuenta
+                    </button>
+                    <div class="rc-footer-link">
+                        ¿Ya tienes acceso? <a href="/Auth/Login">Iniciar sesión</a>
+                    </div>
+                </div>
+
+            </form>
         </div>
+
     </div>
+
+    <script>
+        function rcTogglePwd(id) {
+            const inp = document.getElementById(id);
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+        }
+
+        function rcMedirFuerza(v) {
+            const fill = document.getElementById('rcStrFill');
+            const lbl  = document.getElementById('rcStrLbl');
+            if (!v) { fill.style.width = '0%'; lbl.textContent = 'Ingresa una contraseña'; return; }
+            let s = 0;
+            if (v.length >= 8)  s++;
+            if (/[A-Z]/.test(v)) s++;
+            if (/[0-9]/.test(v)) s++;
+            if (/[^A-Za-z0-9]/.test(v)) s++;
+            const c = [
+                { w:'15%', bg:'#e74c3c', t:'Muy débil' },
+                { w:'35%', bg:'#e67e22', t:'Débil' },
+                { w:'60%', bg:'#f1c40f', t:'Moderada' },
+                { w:'85%', bg:'#2ecc71', t:'Fuerte' },
+                { w:'100%',bg:'#1a7a3c', t:'Muy fuerte' },
+            ][s];
+            fill.style.width = c.w; fill.style.background = c.bg; lbl.textContent = c.t;
+        }
+
+        function rcCheckMatch() {
+            const p1  = document.getElementById('rcPwd1').value;
+            const p2  = document.getElementById('rcPwd2').value;
+            const msg = document.getElementById('rcMatchMsg');
+            if (!p2) { msg.innerHTML = ''; return; }
+            if (p1 === p2) {
+                msg.innerHTML = '<span class="rc-match-ok">✓ Las contraseñas coinciden</span>';
+            } else {
+                msg.innerHTML = '<span class="rc-match-err">✕ No coinciden</span>';
+            }
+        }
+
+        function rcCalcProgress() {
+            const campos = [
+                document.querySelector('[name="CI"]'),
+                document.querySelector('[name="Nombres"]'),
+                document.querySelector('[name="ApellidoPat"]'),
+                document.querySelector('[name="Email"]'),
+                document.querySelector('[name="Password"]'),
+                document.querySelector('[name="ConfirmPassword"]'),
+            ];
+            const filled = campos.filter(el => el && el.value.trim() !== '').length;
+            const pct = Math.round((filled / campos.length) * 100);
+            document.getElementById('rcProgressFill').style.width = pct + '%';
+            document.getElementById('rcProgressPct').textContent = pct;
+        }
+
+        document.addEventListener('DOMContentLoaded', rcCalcProgress);
+    </script>
 </body>
 </html>
