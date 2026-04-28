@@ -112,6 +112,27 @@
   .contact-grid { grid-template-columns: 1fr; }
   .form-row     { grid-template-columns: 1fr; }
 }
+
+.form-success {
+    display: none; text-align: center; padding: 3rem 2rem;
+}
+.form-success-circle {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: rgba(26,122,60,0.1);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.25rem;
+}
+.form-success-circle svg { stroke: #1a7a3c; }
+.form-success-title {
+    font-family: var(--font-display); font-size: 1.6rem;
+    font-weight: 800; color: #18120f; margin-bottom: 0.5rem;
+}
+.form-success-text { font-size: 0.88rem; color: var(--gris-400); line-height: 1.6; }
+.form-success-back {
+    display: inline-block; margin-top: 1.5rem;
+    font-size: 0.8rem; font-family: var(--font-mono);
+    color: var(--rojo); cursor: pointer; text-decoration: underline;
+}
 </style>
 }
 
@@ -154,7 +175,7 @@
             </div>
             <div>
               <div class="contact-info-label">Teléfono</div>
-              <div class="contact-info-val">+591 4 123-4567</div>
+              <div class="contact-info-val">+591 72092837</div>
             </div>
           </div>
           <div class="contact-info-item">
@@ -163,7 +184,7 @@
             </div>
             <div>
               <div class="contact-info-label">Correo</div>
-              <div class="contact-info-val">contacto@refrescosdelvalle.bo</div>
+              <div class="contact-info-val">refrescosdelvalle@gmail.com</div>
             </div>
           </div>
           <div class="contact-info-item">
@@ -212,13 +233,23 @@
             <label class="form-label" for="cMensaje">Mensaje</label>
             <textarea id="cMensaje" class="form-textarea" placeholder="¿En qué podemos ayudarte?"></textarea>
           </div>
-          <button class="form-submit" onclick="enviarFormulario()">Enviar mensaje →</button>
+          <button class="form-submit" id="btnEnviar" onclick="enviarFormulario()">
+    Enviar mensaje →
+</button>
         </div>
         <div class="form-success" id="formSuccess">
-          <div class="form-success-icon">✅</div>
-          <div class="form-success-title">¡Mensaje enviado!</div>
-          <p class="form-success-text">Gracias por contactarnos. Te responderemos pronto.</p>
-        </div>
+    <div class="form-success-circle">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke-width="2.5" stroke-linecap="round">
+            <path d="M20 6L9 17l-5-5"/>
+        </svg>
+    </div>
+    <div class="form-success-title">Mensaje enviado</div>
+    <p class="form-success-text">
+        Gracias por escribirnos.<br/>
+        Te responderemos a la brevedad en menos de 24 horas hábiles.
+    </p>
+    <span class="form-success-back" onclick="resetForm()">← Enviar otro mensaje</span>
+</div>
       </div>
 
     </div>
@@ -226,14 +257,16 @@
 </section>
 
 <!-- Mapa -->
-<section class="map-section">
-  <div class="container">
-    <div class="map-placeholder">
-      <div class="map-placeholder-icon">📍</div>
-      <div class="map-placeholder-text">COCHABAMBA, BOLIVIA — Integra tu API de Google Maps aquí</div>
-    </div>
-  </div>
-</section>
+<div style="text-align: center;">
+  <iframe
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3807.3636309342783!2d-66.2223688247341!3d-17.39432838349408!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x93e374a6b92441ad%3A0xad46eedc189cd25f!2sIndustrias%20Alimenticias%20Del%20Valle!5e0!3m2!1ses!2sbo!4v1777412279723!5m2!1ses!2sbo"
+      
+      width="90%" height="540"
+      style="border:0; border-radius: var(--radius-lg);"
+      allowfullscreen="" loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade">
+  </iframe>
+</div>
 
 @section Scripts {
 <script>
@@ -247,6 +280,63 @@ function enviarFormulario() {
   }
   document.getElementById('formContent').style.display = 'none';
   document.getElementById('formSuccess').style.display = 'block';
+}
+
+async function enviarFormulario() {
+    const nombre   = document.getElementById('cNombre').value.trim();
+    const apellido = document.getElementById('cApellido').value.trim();
+    const email    = document.getElementById('cEmail').value.trim();
+    const asunto   = document.getElementById('cAsunto').value;
+    const mensaje  = document.getElementById('cMensaje').value.trim();
+
+    if (!nombre || !email || !mensaje) {
+        // Resalta los campos vacíos en lugar de un alert feo
+        ['cNombre','cEmail','cMensaje'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el.value.trim()) {
+                el.style.borderColor = '#C8281E';
+                el.addEventListener('input', () => el.style.borderColor = '', { once: true });
+            }
+        });
+        return;
+    }
+
+    const btn = document.getElementById('btnEnviar');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    try {
+        const res  = await fetch('/Contacto/Enviar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ nombre, apellido, email, asunto, mensaje })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            document.getElementById('formContent').style.display = 'none';
+            document.getElementById('formSuccess').style.display  = 'block';
+        } else {
+            btn.disabled    = false;
+            btn.textContent = 'Enviar mensaje →';
+            alert(data.error ?? 'Error inesperado.');
+        }
+    } catch {
+        btn.disabled    = false;
+        btn.textContent = 'Enviar mensaje →';
+        alert('No se pudo conectar. Revisa tu conexión.');
+    }
+}
+
+function resetForm() {
+    document.getElementById('formSuccess').style.display  = 'none';
+    document.getElementById('formContent').style.display  = 'block';
+    ['cNombre','cApellido','cEmail','cAsunto','cMensaje'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    const btn = document.getElementById('btnEnviar');
+    btn.disabled    = false;
+    btn.textContent = 'Enviar mensaje →';
 }
 </script>
 }
