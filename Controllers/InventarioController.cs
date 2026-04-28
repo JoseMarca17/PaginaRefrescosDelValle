@@ -45,17 +45,163 @@ namespace RefrescosDelValle.Controllers
             return View(listaStock);
         }
 
+        //public async Task<IActionResult> Almacenes()
+        //{
+        //    var almacenes = await _context.Almacens
+        //        .Include(a => a.Sucursal)
+        //            .ThenInclude(s => s.Ciudad)
+        //                .ThenInclude(c => c.DepartamentoGeo)  // ✅ DepartamentoGeo, no Departamento
+        //        .Include(a => a.TipoAlmacen)
+        //        .Include(a => a.EstadoAlmacen)
+        //        .ToListAsync();
+
+        //    return View(almacenes);
+        //}
+        // ── ALMACENES (vista principal) ────────────────────────────────────
+        // Reemplaza tu método Almacenes() existente por este:
         public async Task<IActionResult> Almacenes()
         {
             var almacenes = await _context.Almacens
                 .Include(a => a.Sucursal)
                     .ThenInclude(s => s.Ciudad)
-                        .ThenInclude(c => c.DepartamentoGeo)  // ✅ DepartamentoGeo, no Departamento
+                        .ThenInclude(c => c.DepartamentoGeo)
                 .Include(a => a.TipoAlmacen)
                 .Include(a => a.EstadoAlmacen)
+                .OrderBy(a => a.NombreAlmacen)
                 .ToListAsync();
 
+            // Dropdowns para el panel lateral
+            await CargarViewBagAlmacen();
+
             return View(almacenes);
+        }
+
+        // ── CREAR ──────────────────────────────────────────────────────────
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CrearAlmacen(
+            string NombreAlmacen,
+            int TipoAlmacenId,
+            int SucursalId,
+            int EstadoAlmacenId,
+            string? Direccion,
+            string? Observaciones)
+        {
+            if (string.IsNullOrWhiteSpace(NombreAlmacen) || TipoAlmacenId == 0 || SucursalId == 0)
+            {
+                TempData["Error"] = "Faltan datos requeridos para crear el almacén.";
+                return RedirectToAction(nameof(Almacenes));
+            }
+
+            var almacen = new Almacen
+            {
+                NombreAlmacen = NombreAlmacen.Trim(),
+                TipoAlmacenId = TipoAlmacenId,
+                SucursalId = SucursalId,
+                EstadoAlmacenId = EstadoAlmacenId,
+                Direccion = string.IsNullOrWhiteSpace(Direccion) ? null : Direccion.Trim(),
+                Observaciones = string.IsNullOrWhiteSpace(Observaciones) ? null : Observaciones.Trim(),
+                FechaCreacion = DateTime.Now
+            };
+
+            _context.Almacens.Add(almacen);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Almacén \"{almacen.NombreAlmacen}\" creado correctamente.";
+            return RedirectToAction(nameof(Almacenes));
+        }
+
+        // ── EDITAR ─────────────────────────────────────────────────────────
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarAlmacen(
+            int AlmacenId,
+            string NombreAlmacen,
+            int TipoAlmacenId,
+            int SucursalId,
+            int EstadoAlmacenId,
+            string? Direccion,
+            string? Observaciones)
+        {
+            var almacen = await _context.Almacens.FindAsync(AlmacenId);
+            if (almacen == null)
+            {
+                TempData["Error"] = "Almacén no encontrado.";
+                return RedirectToAction(nameof(Almacenes));
+            }
+
+            if (string.IsNullOrWhiteSpace(NombreAlmacen) || TipoAlmacenId == 0 || SucursalId == 0)
+            {
+                TempData["Error"] = "Faltan datos requeridos para editar el almacén.";
+                return RedirectToAction(nameof(Almacenes));
+            }
+
+            almacen.NombreAlmacen = NombreAlmacen.Trim();
+            almacen.TipoAlmacenId = TipoAlmacenId;
+            almacen.SucursalId = SucursalId;
+            almacen.EstadoAlmacenId = EstadoAlmacenId;
+            almacen.Direccion = string.IsNullOrWhiteSpace(Direccion) ? null : Direccion.Trim();
+            almacen.Observaciones = string.IsNullOrWhiteSpace(Observaciones) ? null : Observaciones.Trim();
+            almacen.FechaModificacion = DateTime.Now;
+
+            _context.Almacens.Update(almacen);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Almacén \"{almacen.NombreAlmacen}\" actualizado correctamente.";
+            return RedirectToAction(nameof(Almacenes));
+        }
+
+        // ── ELIMINAR ───────────────────────────────────────────────────────
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarAlmacen(int id)
+        {
+            var almacen = await _context.Almacens
+                .Include(a => a.Contenidos)
+                .FirstOrDefaultAsync(a => a.AlmacenId == id);
+
+            if (almacen == null)
+            {
+                TempData["Error"] = "Almacén no encontrado.";
+                return RedirectToAction(nameof(Almacenes));
+            }
+
+            // Evitar eliminar si tiene contenidos asociados
+            if (almacen.Contenidos.Any())
+            {
+                TempData["Error"] = $"No se puede eliminar \"{almacen.NombreAlmacen}\" porque tiene contenidos registrados.";
+                return RedirectToAction(nameof(Almacenes));
+            }
+
+            _context.Almacens.Remove(almacen);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Almacén \"{almacen.NombreAlmacen}\" eliminado correctamente.";
+            return RedirectToAction(nameof(Almacenes));
+        }
+
+        // ── HELPER PRIVADO ─────────────────────────────────────────────────
+        // Carga los dropdowns que necesita el panel lateral.
+        // Ajusta los DominioTipoId según los valores reales en tu BD.
+        private async Task CargarViewBagAlmacen()
+        {
+            // TiposAlmacen: filtra DominioValor por el grupo de tipos de almacén.
+            // Cambia el DominioTipoId por el que corresponde en tu tabla DominioValor.
+            ViewBag.TiposAlmacen = await _context.DominioValors
+                .Where(d => d.DominioTipoId == 20)   // ← ajusta este ID
+                .OrderBy(d => d.Descripcion)
+                .ToListAsync();
+
+            // EstadosAlmacen: igual, filtra por el grupo de estados.
+            ViewBag.EstadosAlmacen = await _context.DominioValors
+                .Where(d => d.DominioTipoId == 21)   // ← ajusta este ID
+                .OrderBy(d => d.Descripcion)
+                .ToListAsync();
+
+            // Sucursales
+            ViewBag.Sucursales = await _context.Sucursales
+                .OrderBy(s => s.NombreSucursal)
+                .ToListAsync();
         }
 
         public async Task<IActionResult> Movimientos()
