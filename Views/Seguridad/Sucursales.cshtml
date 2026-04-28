@@ -352,6 +352,7 @@
 
         <!-- TEXTO IZQUIERDA -->
         <div class="suc-hero-left">
+            
             <div class="suc-eyebrow">
                 <span class="suc-eyebrow-dot"></span>
                 Red de distribución · Sistema
@@ -361,8 +362,18 @@
                 <span class="stroke">ACTIVAS</span>
             </h1>
             <p class="suc-hero-sub">
-                Disposición geográfica de nodos, ciudades y zonas de distribución a nivel nacional.
+                Disposición geográfica de ciudades y zonas de distribución a nivel nacional.
             </p>
+            <a asp-controller="Seguridad" asp-action="Index"
+   style="display:inline-flex; align-items:center; gap:.4rem;
+          background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+          color:rgba(255,255,255,.5); border-radius:999px;
+          padding:.42rem 1rem; font-size:.72rem; font-family:monospace;
+          text-decoration:none; margin-bottom:1.2rem; transition:all .2s;"
+   onmouseover="this.style.color='#fff'; this.style.background='rgba(255,255,255,.1)'"
+   onmouseout="this.style.color='rgba(255,255,255,.5)'; this.style.background='rgba(255,255,255,.05)'">
+    ← Volver al módulo
+</a>
             <div class="suc-stats">
                 <div class="suc-stat-item">
                     <span class="suc-stat-val">@Model.TotalSucursales</span>
@@ -620,15 +631,23 @@
                                     }
                                 </td>
                                 <td>
-                                    <form asp-controller="Seguridad" asp-action="ToggleSucursal"
-                                          asp-route-id="@s.SucursalId" method="post"
-                                          onsubmit="return confirm('@(s.Activo ? "¿Desactivar" : "¿Reactivar") @s.NombreSucursal?')">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="suc-action-btn @(s.Activo ? "suc-btn-off" : "suc-btn-on")">
-                                            @(s.Activo ? "⏸ Desactivar" : "▶ Reactivar")
-                                        </button>
-                                    </form>
-                                </td>
+    <div style="display:flex; align-items:center; gap:.4rem; flex-wrap:wrap;">
+        <a asp-controller="Seguridad" asp-action="EditarSucursal"
+           asp-route-id="@s.SucursalId"
+           class="suc-action-btn"
+           style="background:rgba(241,196,15,.08);color:#b08d0a;border:1px solid rgba(241,196,15,.25);">
+            ✏ Editar
+        </a>
+        <form asp-controller="Seguridad" asp-action="ToggleSucursal"
+              asp-route-id="@s.SucursalId" method="post" style="display:inline;"
+              onsubmit="return confirm('@(s.Activo ? "¿Desactivar" : "¿Reactivar") @s.NombreSucursal?')">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="suc-action-btn @(s.Activo ? "suc-btn-off" : "suc-btn-on")">
+                @(s.Activo ? "⏸ Desactivar" : "▶ Reactivar")
+            </button>
+        </form>
+    </div>
+</td>
                             </tr>
                         }
                     }

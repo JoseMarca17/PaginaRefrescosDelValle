@@ -161,7 +161,9 @@ public async Task<IActionResult> ToggleUsuario(int id)
                     Usuario = b.Usuario != null ? b.Usuario.NombreUsuario : "Sistema",
                     Operacion = b.Accion ?? "LOG",
                     Tabla = b.Tabla ?? "General",
-                    Detalle = $"RegistroID: {b.RegistroId} | IP: {b.DireccionIp ?? "127.0.0.1"}"
+                    Detalle = !string.IsNullOrEmpty(b.ValorNuevo) || !string.IsNullOrEmpty(b.ValorAnterior)
+    ? $"Antes: {b.ValorAnterior ?? "—"} | Después: {b.ValorNuevo ?? "—"}"
+    : $"RegistroID: {b.RegistroId} | IP: {b.DireccionIp ?? "127.0.0.1"}"
                 })
                 .ToListAsync();
 
@@ -240,6 +242,24 @@ public async Task<IActionResult> RolCreate(Role rol, int[] permisosSeleccionados
 
     return View(sesionesActivas);
 }
+
+
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> CerrarSesion(int id)
+{
+    var sesion = await _db.Sesiones.FindAsync(id);
+    if (sesion == null) return NotFound();
+
+    sesion.Activa      = false;
+    sesion.FechaCierre = DateTime.Now;
+
+    await _db.SaveChangesAsync();
+
+    TempData["SuccessMsg"] = $"Sesión #{id} cerrada correctamente.";
+    return RedirectToAction(nameof(Sesiones));
+}
+
 // ══════════════════════════════════════════════════════════
 // AÑADIR ESTAS ACCIONES AL SeguridadController
 // (o crear un GeoController separado con la misma estructura)
@@ -299,6 +319,8 @@ public async Task<IActionResult> Sucursales()
     return View(vm);
 }
 
+
+
 // POST: /Seguridad/CrearSucursal
 [HttpPost]
 [ValidateAntiForgeryToken]
@@ -338,6 +360,62 @@ public async Task<IActionResult> ToggleSucursal(int id)
 
     var estado = sucursal.Activo ? "reactivada" : "desactivada";
     TempData["SuccessMsg"] = $"Sucursal '{sucursal.NombreSucursal}' {estado}.";
+    return RedirectToAction(nameof(Sucursales));
+}
+
+// GET: /Seguridad/EditarSucursal/5
+public async Task<IActionResult> EditarSucursal(int id)
+{
+    var sucursal = await _db.Sucursales
+        .Include(s => s.Ciudad)
+        .FirstOrDefaultAsync(s => s.SucursalId == id);
+
+    if (sucursal == null) return NotFound();
+
+    ViewBag.Ciudades = new SelectList(
+        await _db.Ciudades
+            .OrderBy(c => c.NombreCiudad)
+            .ToListAsync(),
+        "CiudadId", "NombreCiudad",
+        sucursal.CiudadId
+    );
+
+    var vm = new EditarSucursalViewModel
+    {
+        SucursalId     = sucursal.SucursalId,
+        NombreSucursal = sucursal.NombreSucursal,
+        CiudadId       = sucursal.CiudadId,
+        Direccion      = sucursal.Direccion,
+        Telefono       = sucursal.Telefono
+    };
+
+    return View(vm);
+}
+
+// POST: /Seguridad/EditarSucursal/5
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> EditarSucursal(EditarSucursalViewModel model)
+{
+    if (!ModelState.IsValid)
+    {
+        ViewBag.Ciudades = new SelectList(
+            await _db.Ciudades.OrderBy(c => c.NombreCiudad).ToListAsync(),
+            "CiudadId", "NombreCiudad", model.CiudadId
+        );
+        return View(model);
+    }
+
+    var sucursal = await _db.Sucursales.FindAsync(model.SucursalId);
+    if (sucursal == null) return NotFound();
+
+    sucursal.NombreSucursal = model.NombreSucursal;
+    sucursal.CiudadId       = model.CiudadId;
+    sucursal.Direccion      = model.Direccion;
+    sucursal.Telefono       = model.Telefono;
+
+    await _db.SaveChangesAsync();
+    TempData["SuccessMsg"] = $"Sucursal '{sucursal.NombreSucursal}' actualizada correctamente.";
     return RedirectToAction(nameof(Sucursales));
 }
         // ══════════════════════════════════════════════════════════

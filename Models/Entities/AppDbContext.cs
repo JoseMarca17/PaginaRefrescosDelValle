@@ -2464,7 +2464,12 @@ public partial class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Zonas_Ciudades");
         });
+        foreach (var entity in modelBuilder.Model.GetEntityTypes())
+{
+    entity.UseSqlOutputClause(false);
+}
 
+OnModelCreatingPartial(modelBuilder);
         OnModelCreatingPartial(modelBuilder);
     }
 
