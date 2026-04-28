@@ -34,55 +34,51 @@
 <form asp-action="Create" method="post">
     @Html.AntiForgeryToken()
     
-    <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(10px);">
-        <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom: 1.5rem; color: #C8281E; font-family: 'DM Mono', monospace; font-size: 0.85rem;"></div>
+    <div class="form-container">
+        <div asp-validation-summary="ModelOnly" class="text-danger-modern"></div>
 
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
-            <div>
-                <label asp-for="RazonSocial" style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
-                    Razón Social *
-                </label>
-                <input asp-for="RazonSocial" class="form-control-modern" 
-                       style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;" />
-                <span asp-validation-for="RazonSocial" style="color: #C8281E; font-size: 0.75rem; font-family: 'DM Mono', monospace;"></span>
+            
+            <div style="grid-column: span 2;">
+                <label asp-for="PersonaId" class="form-label-modern">Contacto / Representante Legal *</label>
+                <select asp-for="PersonaId" class="form-input-modern" asp-items="ViewBag.PersonaId">
+                    <option value="">-- Seleccione el responsable registrado --</option>
+                </select>
+                <span asp-validation-for="PersonaId" class="text-danger-modern"></span>
             </div>
 
             <div>
-                <label asp-for="Nit" style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
-                    NIT *
-                </label>
-                <input asp-for="Nit" class="form-control-modern" 
-                       style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;" />
-                <span asp-validation-for="Nit" style="color: #C8281E; font-size: 0.75rem; font-family: 'DM Mono', monospace;"></span>
+                <label asp-for="RazonSocial" class="form-label-modern">Razón Social *</label>
+                <input asp-for="RazonSocial" class="form-input-modern" placeholder="Ej. Envases Bolivianos S.A." />
+                <span asp-validation-for="RazonSocial" class="text-danger-modern"></span>
+            </div>
+
+            <div>
+                <label asp-for="Nit" class="form-label-modern">NIT *</label>
+                <input asp-for="Nit" class="form-input-modern" placeholder="Ej. 1028374021" />
+                <span asp-validation-for="Nit" class="text-danger-modern"></span>
             </div>
 
             <div style="grid-column: span 2;">
-                <label asp-for="Observaciones" style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
-                    Observaciones
-                </label>
-                <textarea asp-for="Observaciones" rows="3" 
-                          style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; resize: vertical;"
-                          placeholder="Información adicional del proveedor..."></textarea>
-                <span asp-validation-for="Observaciones" style="color: #C8281E; font-size: 0.75rem; font-family: 'DM Mono', monospace;"></span>
+                <label asp-for="Observaciones" class="form-label-modern">Observaciones</label>
+                <textarea asp-for="Observaciones" rows="3" class="form-input-modern" 
+                          style="resize: vertical;" placeholder="Información adicional del proveedor..."></textarea>
+                <span asp-validation-for="Observaciones" class="text-danger-modern"></span>
             </div>
         </div>
 
-        <div style="background: rgba(0, 255, 255, 0.05); border: 1px solid rgba(0, 255, 255, 0.2); border-radius: 12px; padding: 1rem; margin-top: 1.5rem;">
-            <div style="display: flex; gap: 0.75rem; align-items: center;">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="#00ffff" fill="none" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="12" y1="8" x2="12" y2="12"/>
-                    <line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
-                <span style="color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.8rem;">
-                    <strong>Nota:</strong> Los campos marcados con * son obligatorios.
-                </span>
-            </div>
+        <div class="info-note">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="#00ffff" fill="none" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span><strong>Nota:</strong> Los campos marcados con * son obligatorios.</span>
         </div>
     </div>
 
     <div style="display: flex; gap: 1rem;">
-        <button type="submit" style="background: #C8281E; color: white; padding: 0.8rem 2rem; border-radius: 8px; border: 1px solid #ff4d4d; font-family: 'DM Mono', monospace; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 0.5rem;">
+        <button type="submit" class="btn-primary-red">
             <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                 <polyline points="17 21 17 13 7 13 7 21"/>
@@ -90,7 +86,7 @@
             </svg>
             Guardar Proveedor
         </button>
-        <a href="/Proveedores" style="background: transparent; color: var(--text-secondary); padding: 0.8rem 2rem; border-radius: 8px; border: 1px solid var(--border-color); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.85rem; text-transform: uppercase; transition: all 0.3s; display: flex; align-items: center; gap: 0.5rem;">
+        <a href="/Proveedores" class="btn-outline-modern">
             <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"/>
                 <line x1="6" y1="6" x2="18" y2="18"/>
@@ -101,17 +97,21 @@
 </form>
 
 <style>
-    button[type="submit"]:hover {
-        background: #a02018 !important;
-        transform: translateY(-2px);
-        box-shadow: 0 0 20px rgba(200, 40, 30, 0.5);
-    }
+    /* Clases extraídas para mantener el código limpio */
+    .form-container { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(10px); }
+    .form-label-modern { display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .form-input-modern { width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; transition: all 0.3s; }
+    .form-input-modern:focus { outline: none; border-color: #C8281E; box-shadow: 0 0 10px rgba(200, 40, 30, 0.3); }
     
-    .form-control-modern:focus {
-        outline: none;
-        border-color: #C8281E;
-        box-shadow: 0 0 10px rgba(200, 40, 30, 0.3);
-    }
+    .text-danger-modern { color: #C8281E; font-size: 0.75rem; font-family: 'DM Mono', monospace; display: block; margin-top: 0.3rem; }
+    
+    .info-note { background: rgba(0, 255, 255, 0.05); border: 1px solid rgba(0, 255, 255, 0.2); border-radius: 12px; padding: 1rem; margin-top: 1.5rem; display: flex; gap: 0.75rem; align-items: center; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.8rem; }
+
+    .btn-primary-red { background: #C8281E; color: white; padding: 0.8rem 2rem; border-radius: 8px; border: 1px solid #ff4d4d; font-family: 'DM Mono', monospace; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 0.5rem; }
+    .btn-primary-red:hover { background: #a02018; transform: translateY(-2px); box-shadow: 0 0 20px rgba(200, 40, 30, 0.5); }
+    
+    .btn-outline-modern { background: transparent; color: var(--text-secondary); padding: 0.8rem 2rem; border-radius: 8px; border: 1px solid var(--border-color); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.85rem; text-transform: uppercase; transition: all 0.3s; display: flex; align-items: center; gap: 0.5rem; }
+    .btn-outline-modern:hover { background: var(--input-bg); color: var(--text-primary); transform: translateY(-2px); }
 </style>
 
 @section Scripts {

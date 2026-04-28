@@ -5,22 +5,24 @@
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
 }
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <div class="dashboard-header">
     <div class="header-left">
         <a href="/Dashboard" class="back-button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
             Volver al Dashboard
         </a>
         <div>
             <h1 class="dashboard-title">Proveedores</h1>
-            <p class="dashboard-subtitle">Gestión de proveedores y catálogo de compras</p>
+            <p class="dashboard-subtitle">Gestión de proveedores e insumos de la embotelladora</p>
         </div>
     </div>
     <div class="dashboard-header-right" style="display: flex; align-items: center; gap: 1rem;">
-        <a href="/Proveedores/Create" style="background: #C8281E; color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-family: 'DM Mono', monospace; font-weight: bold; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; transition: all 0.3s; text-transform: uppercase; border: 1px solid #ff4d4d; box-shadow: 0 0 10px rgba(200, 40, 30, 0.3);">
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
+        <a href="/Proveedores/Create" class="btn-primary-red">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
@@ -38,21 +40,31 @@
     </div>
 </div>
 
-<div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(10px);">
+@if (TempData["Success"] != null)
+{
+    <div class="alert-modern alert-success">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        @TempData["Success"]
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert-modern alert-danger">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        @TempData["Error"]
+    </div>
+}
+
+<div class="filter-card">
     <form asp-action="Index" method="get" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
         <div style="flex: 2; min-width: 250px;">
-            <label style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
-                Buscar
-            </label>
-            <input type="text" name="searchString" placeholder="Razón Social, NIT o Contacto..." value="@ViewBag.CurrentFilter" 
-                   style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;" />
+            <label class="form-label-modern">Buscar</label>
+            <input type="text" name="searchString" placeholder="Razón Social, NIT o Contacto..." value="@ViewBag.CurrentFilter" class="form-input-modern" />
         </div>
         
         <div style="flex: 1; min-width: 150px;">
-            <label style="display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
-                Estado
-            </label>
-            <select name="activo" class="form-select-modern" style="width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;">
+            <label class="form-label-modern">Estado</label>
+            <select name="activo" class="form-input-modern">
                 <option value="">Todos</option>
                 <option value="true" selected="@(ViewBag.CurrentActivo == true)">Activos</option>
                 <option value="false" selected="@(ViewBag.CurrentActivo == false)">Inactivos</option>
@@ -60,61 +72,50 @@
         </div>
         
         <div style="display: flex; gap: 0.5rem;">
-            <button type="submit" style="background: #C8281E; color: white; padding: 0.7rem 1.5rem; border-radius: 8px; border: 1px solid #ff4d4d; font-family: 'DM Mono', monospace; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">
-                Buscar
-            </button>
-            <a href="/Proveedores" style="background: transparent; color: var(--text-secondary); padding: 0.7rem 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.85rem; text-transform: uppercase; transition: all 0.3s;">
-                Limpiar
-            </a>
+            <button type="submit" class="btn-primary-red">Buscar</button>
+            <a href="/Proveedores" class="btn-outline-modern">Limpiar</a>
         </div>
     </form>
 </div>
 
-<div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; backdrop-filter: blur(10px);">
+<div class="table-container">
     <div style="overflow-x: auto;">
         <table style="width: 100%; border-collapse: collapse;">
             <thead>
                 <tr style="background: rgba(200, 40, 30, 0.1); border-bottom: 2px solid #C8281E;">
-                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">ID</th>
-                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Razón Social</th>
-                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">NIT</th>
-                    <th style="padding: 1rem; text-align: center; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Estado</th>
-                    <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Fecha Registro</th>
-                    <th style="padding: 1rem; text-align: center; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Acciones</th>
+                    <th class="th-modern">ID</th>
+                    <th class="th-modern">Proveedor</th>
+                    <th class="th-modern">Contacto (Rep. Legal)</th>
+                    <th class="th-modern" style="text-align: center;">Estado</th>
+                    <th class="th-modern">Fecha Registro</th>
+                    <th class="th-modern" style="text-align: center;">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.3s;" 
-                        onmouseover="this.style.background='var(--input-bg)'" 
-                        onmouseout="this.style.background='transparent'">
+                    <tr class="tr-modern">
                         <td style="padding: 1rem; font-family: 'DM Mono', monospace;">@item.ProveedorId</td>
-                        <td style="padding: 1rem; font-family: 'Space Grotesk', sans-serif; font-weight: 500;">@item.RazonSocial</td>
-                        <td style="padding: 1rem; font-family: 'DM Mono', monospace;">@item.Nit</td>
+                        <td style="padding: 1rem;">
+                            <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 500; color: var(--text-primary);">@item.RazonSocial</div>
+                            <div style="font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--text-secondary);">NIT: @item.Nit</div>
+                        </td>
+                        <td style="padding: 1rem; font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;">
+                            @(item.Persona != null ? $"{item.Persona.Nombres} {item.Persona.ApellidoPat}" : "Sin asignar")
+                        </td>
                         <td style="padding: 1rem; text-align: center;">
-                            @if (item.Activo)
-                            {
-                                <span style="background: rgba(0, 255, 136, 0.15); color: #00ff88; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; font-family: 'DM Mono', monospace; text-transform: uppercase; border: 1px solid rgba(0, 255, 136, 0.3);">Activo</span>
-                            }
-                            else
-                            {
-                                <span style="background: rgba(200, 40, 30, 0.15); color: #C8281E; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; font-family: 'DM Mono', monospace; text-transform: uppercase; border: 1px solid rgba(200, 40, 30, 0.3);">Inactivo</span>
-                            }
+                            <button type="button" onclick="toggleStatus(@item.ProveedorId, this)" 
+                                    class="status-badge @(item.Activo ? "badge-active" : "badge-inactive")"
+                                    title="Clic para cambiar estado">
+                                @(item.Activo ? "ACTIVO" : "INACTIVO")
+                            </button>
                         </td>
                         <td style="padding: 1rem; font-family: 'DM Mono', monospace; font-size: 0.85rem;">@item.FechaRegistro.ToString("dd/MM/yyyy")</td>
                         <td style="padding: 1rem;">
                             <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                                <a href="/Proveedores/Details/@item.ProveedorId" style="background: rgba(0, 255, 255, 0.1); color: #00ffff; padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; border: 1px solid rgba(0, 255, 255, 0.3); transition: all 0.3s;">
-                                    Detalles
-                                </a>
-                                <a href="/Proveedores/Edit/@item.ProveedorId" style="background: rgba(255, 193, 7, 0.1); color: #ffc107; padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; border: 1px solid rgba(255, 193, 7, 0.3); transition: all 0.3s;">
-                                    Editar
-                                </a>
-                                <button type="button" onclick="confirmDelete(@item.ProveedorId, '@item.RazonSocial')" 
-                                        style="background: rgba(200, 40, 30, 0.1); color: #C8281E; padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(200, 40, 30, 0.3); font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">
-                                    Eliminar
-                                </button>
+                                <a href="/Proveedores/Details/@item.ProveedorId" class="action-btn btn-info">Detalles</a>
+                                <a href="/Proveedores/Edit/@item.ProveedorId" class="action-btn btn-warning">Editar</a>
+                                <button type="button" onclick="confirmDelete(@item.ProveedorId, '@item.RazonSocial')" class="action-btn btn-danger">Eliminar</button>
                             </div>
                         </td>
                     </tr>
@@ -122,8 +123,8 @@
                 @if (!Model.Any())
                 {
                     <tr>
-                        <td colspan="6" style="padding: 3rem; text-align: center; color: var(--text-muted); font-family: 'DM Mono', monospace;">
-                            No se encontraron proveedores
+                        <td colspan="6" style="padding: 3rem; text-align: center; color: var(--text-secondary); font-family: 'DM Mono', monospace;">
+                            No se encontraron proveedores registrados.
                         </td>
                     </tr>
                 }
@@ -137,39 +138,113 @@
 </form>
 
 <style>
-    button[type="submit"]:hover, .back-button:hover {
-        transform: translateY(-2px);
+    .btn-primary-red {
+        background: #C8281E; color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; 
+        font-family: 'DM Mono', monospace; font-weight: bold; font-size: 0.85rem; display: flex; align-items: center; 
+        gap: 8px; transition: all 0.3s; text-transform: uppercase; border: 1px solid #ff4d4d; box-shadow: 0 0 10px rgba(200, 40, 30, 0.3); cursor: pointer;
     }
+    .btn-primary-red:hover { transform: translateY(-2px); background: #a02018; box-shadow: 0 0 20px rgba(200, 40, 30, 0.5); color: white; }
     
-    button[type="submit"]:hover {
-        background: #a02018 !important;
-        box-shadow: 0 0 20px rgba(200, 40, 30, 0.5);
+    .btn-outline-modern {
+        background: transparent; color: var(--text-secondary); padding: 0.7rem 1.5rem; border-radius: 8px; 
+        border: 1px solid var(--border-color); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.85rem; 
+        text-transform: uppercase; transition: all 0.3s; cursor: pointer; display: inline-block;
     }
-    
-    a[href="/Proveedores"]:hover {
-        background: var(--input-bg) !important;
-        color: var(--text-primary) !important;
-        transform: translateY(-2px);
-    }
-    
-    td a:hover, td button:hover {
-        filter: brightness(1.2);
-        transform: translateY(-1px);
-    }
-    
-    .form-select-modern:focus {
-        outline: none;
-        border-color: #C8281E;
-        box-shadow: 0 0 10px rgba(200, 40, 30, 0.3);
-    }
+    .btn-outline-modern:hover { background: var(--input-bg); color: var(--text-primary); transform: translateY(-2px); }
+
+    .form-label-modern { display: block; color: var(--text-secondary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .form-input-modern { width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; transition: all 0.3s;}
+    .form-input-modern:focus { outline: none; border-color: #C8281E; box-shadow: 0 0 10px rgba(200, 40, 30, 0.3); }
+
+    .filter-card, .table-container { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 2rem; backdrop-filter: blur(10px); }
+    .filter-card { padding: 1.5rem; }
+    .table-container { overflow: hidden; }
+
+    .th-modern { padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase; }
+    .tr-modern { border-bottom: 1px solid var(--border-color); transition: background 0.3s; }
+    .tr-modern:hover { background: rgba(255, 255, 255, 0.05); }
+
+    /* Badges de estado */
+    .status-badge { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; font-family: 'DM Mono', monospace; text-transform: uppercase; cursor: pointer; transition: all 0.3s; border: 1px solid transparent; }
+    .status-badge:hover { filter: brightness(1.2); transform: scale(1.05); }
+    .badge-active { background: rgba(0, 255, 136, 0.15); color: #00ff88; border-color: rgba(0, 255, 136, 0.3); }
+    .badge-inactive { background: rgba(200, 40, 30, 0.15); color: #C8281E; border-color: rgba(200, 40, 30, 0.3); }
+
+    /* Botones de acción de tabla */
+    .action-btn { padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; transition: all 0.3s; cursor: pointer; }
+    .action-btn:hover { filter: brightness(1.2); transform: translateY(-1px); }
+    .btn-info { background: rgba(0, 255, 255, 0.1); color: #00ffff; border: 1px solid rgba(0, 255, 255, 0.3); }
+    .btn-warning { background: rgba(255, 193, 7, 0.1); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); }
+    .btn-danger { background: rgba(200, 40, 30, 0.1); color: #C8281E; border: 1px solid rgba(200, 40, 30, 0.3); }
+
+    /* Alertas Toast */
+    .alert-modern { padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; font-family: 'Space Grotesk', sans-serif; font-weight: 500; animation: slideIn 0.3s ease-out; }
+    .alert-success { background: rgba(0, 255, 136, 0.1); border: 1px solid #00ff88; color: #00ff88; }
+    .alert-danger { background: rgba(200, 40, 30, 0.1); border: 1px solid #C8281E; color: #ff4d4d; }
+
 </style>
 
 @section Scripts {
     <script>
+        // Modal moderno para eliminar (reemplaza al alert nativo feo)
         function confirmDelete(id, nombre) {
-            if (confirm(`¿Está seguro de eliminar el proveedor "${nombre}"? Esta acción no se puede deshacer.`)) {
-                document.getElementById('deleteId').value = id;
-                document.getElementById('deleteForm').submit();
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: `Se eliminará el proveedor "${nombre}". Esta acción no se puede deshacer.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#C8281E',
+                cancelButtonColor: 'transparent',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                background: '#1a1a1a', // Tema oscuro para tu app
+                color: '#ffffff',
+                customClass: {
+                    cancelButton: 'btn-outline-modern'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('deleteId').value = id;
+                    document.getElementById('deleteForm').submit();
+                }
+            });
+        }
+
+        // Función AJAX para cambiar el estado sin recargar la página
+        async function toggleStatus(id, btnElement) {
+            try {
+                const response = await fetch(`/Proveedores/ToggleStatus/${id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Cambiar clases y texto del botón de forma dinámica
+                    if (data.nuevoEstado) {
+                        btnElement.classList.remove('badge-inactive');
+                        btnElement.classList.add('badge-active');
+                        btnElement.textContent = 'ACTIVO';
+                    } else {
+                        btnElement.classList.remove('badge-active');
+                        btnElement.classList.add('badge-inactive');
+                        btnElement.textContent = 'INACTIVO';
+                    }
+                    
+                    // Notificación Toast pequeña y moderna
+                    Swal.fire({
+                        toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
+                        icon: 'success', title: 'Estado actualizado correctamente',
+                        background: '#1a1a1a', color: '#fff'
+                    });
+                }
+            } catch (error) {
+                console.error("Error cambiando estado:", error);
+                Swal.fire({
+                    toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
+                    icon: 'error', title: 'Error al cambiar el estado', background: '#1a1a1a', color: '#fff'
+                });
             }
         }
     </script>
