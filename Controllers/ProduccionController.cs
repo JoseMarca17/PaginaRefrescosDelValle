@@ -55,5 +55,6 @@ namespace RefrescosDelValle.Controllers
         {
             return Json(new { success = true, message = "Estado actualizado" });
         }
+        
     }
-}
+} 

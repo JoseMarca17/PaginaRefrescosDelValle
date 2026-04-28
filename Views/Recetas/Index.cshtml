@@ -1,6 +1,7 @@
 @* 
     Vista: Views/Recetas/Index.cshtml
     Módulo: Gestión de Recetas - Refrescos Del Valle
+    Versión: RDV UI System v1.0
 *@
 
 @{
@@ -10,304 +11,548 @@
 
 <link rel="stylesheet" href="~/css/modulos/recetas.css" />
 
-<div class="container">
-    <!-- Título de Sección -->
-    <div class="section-title">
-        <h1>Gestión de Recetas</h1>
-        <p>Creación, edición y control de fórmulas para bebidas</p>
-    </div>
-
-    <!-- Dashboard de Recetas -->
-    <div class="dashboard-grid">
-        <div class="card anim-up">
-            <div class="card-icon">📋</div>
-            <div class="card-stats">
-                <span class="stats-number" id="totalRecetas">24</span>
-                <span class="stats-label">Total Recetas</span>
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- HERO NEGRO RDV (Patrón oficial del sistema)                        -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="rec-hero">
+    <div class="rec-hero-grid"></div>
+    <div class="rec-hero-glow"></div>
+    
+    <div class="rec-hero-content">
+        <div class="rec-hero-text">
+            <div class="rec-eyebrow">
+                <span class="rec-eyebrow-dot"></span>
+                RECETAS · FÓRMULAS Y PRODUCCIÓN
             </div>
-            <div class="card-footer">
-                <span class="pill-success">18 activas</span>
+            <h1>
+                Gestión de<br>
+                <span class="rec-stroke">Recetas</span>
+            </h1>
+            <div class="rec-hero-sub">
+                Creación, edición y control de fórmulas para bebidas
             </div>
+            <button class="rec-btn-primary" id="btnNuevaRecetaHero">
+                <span>+</span> Nueva Receta
+            </button>
         </div>
-
-        <div class="card anim-up" style="animation-delay: 0.1s;">
-            <div class="card-icon">🔄</div>
-            <div class="card-stats">
-                <span class="stats-number" id="versionesPendientes">5</span>
-                <span class="stats-label">Versiones Pendientes</span>
+        
+        <div class="rec-hero-stats">
+            <div class="rec-stat">
+                <div class="rec-stat-value" id="totalRecetasHero">24</div>
+                <div class="rec-stat-label">Total recetas</div>
             </div>
-            <div class="card-footer">
-                <span class="pill-warning">Requieren revisión</span>
+            <div class="rec-stat">
+                <div class="rec-stat-value" id="versionesHero">5</div>
+                <div class="rec-stat-label">Versiones pendientes</div>
             </div>
-        </div>
-
-        <div class="card anim-up" style="animation-delay: 0.2s;">
-            <div class="card-icon">🔒</div>
-            <div class="card-stats">
-                <span class="stats-number" id="recetasConfidenciales">8</span>
-                <span class="stats-label">Confidenciales</span>
-            </div>
-            <div class="card-footer">
-                <span class="pill-danger">Acceso restringido</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Barra de Búsqueda y Filtros -->
-    <div class="search-bar">
-        <div class="search-input-wrapper">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="searchReceta" placeholder="Buscar por producto, ingrediente o versión..." class="search-input">
-        </div>
-        <div class="filter-buttons">
-            <button class="filter-chip active" data-filter="todas">Todas</button>
-            <button class="filter-chip" data-filter="activas">Activas</button>
-            <button class="filter-chip" data-filter="inactivas">Inactivas</button>
-            <button class="filter-chip" data-filter="confidencial">Confidencial</button>
-        </div>
-        <button class="btn-primary" id="btnNuevaReceta">
-            <span>+</span> Nueva Receta
-        </button>
-    </div>
-
-    <!-- Listado de Recetas -->
-    <div class="recetas-container">
-        <div class="receta-card" data-id="1" data-estado="activa">
-            <div class="receta-header">
-                <div class="receta-info">
-                    <h3 class="receta-nombre">Refresco Cola</h3>
-                    <div class="receta-meta">
-                        <span class="pill-primary">v2.1.0</span>
-                        <span class="pill-success">Activa</span>
-                        <span class="pill-danger">Confidencial</span>
-                    </div>
-                </div>
-                <div class="receta-actions">
-                    <button class="btn-icon btn-editar" title="Editar">✏️</button>
-                    <button class="btn-icon btn-duplicar" title="Duplicar">📋</button>
-                    <button class="btn-icon btn-historial" title="Historial de Versiones">📊</button>
-                    <button class="btn-icon btn-eliminar" title="Eliminar">🗑️</button>
-                </div>
-            </div>
-            <div class="receta-body">
-                <div class="receta-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">Tipo</span>
-                        <span class="stat-value">Premium</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Ingredientes</span>
-                        <span class="stat-value">8</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Última modificación</span>
-                        <span class="stat-value">10/01/2024</span>
-                    </div>
-                </div>
-                <div class="receta-preview">
-                    <div class="preview-title">Ingredientes principales:</div>
-                    <div class="preview-ingredientes">
-                        <span class="ingrediente-tag">Jarabe de Maíz</span>
-                        <span class="ingrediente-tag">Agua Purificada</span>
-                        <span class="ingrediente-tag">Gas Carbónico</span>
-                        <span class="ingrediente-more">+5 más</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="receta-card" data-id="2" data-estado="activa">
-            <div class="receta-header">
-                <div class="receta-info">
-                    <h3 class="receta-nombre">Naranja Sabor Intenso</h3>
-                    <div class="receta-meta">
-                        <span class="pill-primary">v1.5.2</span>
-                        <span class="pill-success">Activa</span>
-                        <span class="pill-danger">Confidencial</span>
-                    </div>
-                </div>
-                <div class="receta-actions">
-                    <button class="btn-icon btn-editar">✏️</button>
-                    <button class="btn-icon btn-duplicar">📋</button>
-                    <button class="btn-icon btn-historial">📊</button>
-                    <button class="btn-icon btn-eliminar">🗑️</button>
-                </div>
-            </div>
-            <div class="receta-body">
-                <div class="receta-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">Tipo</span>
-                        <span class="stat-value">Premium</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Ingredientes</span>
-                        <span class="stat-value">6</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Última modificación</span>
-                        <span class="stat-value">05/01/2024</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="receta-card" data-id="3" data-estado="activa">
-            <div class="receta-header">
-                <div class="receta-info">
-                    <h3 class="receta-nombre">Lima Limón Zero</h3>
-                    <div class="receta-meta">
-                        <span class="pill-primary">v3.0.0</span>
-                        <span class="pill-success">Activa</span>
-                        <span class="pill-gray">No Confidencial</span>
-                    </div>
-                </div>
-                <div class="receta-actions">
-                    <button class="btn-icon btn-editar">✏️</button>
-                    <button class="btn-icon btn-duplicar">📋</button>
-                    <button class="btn-icon btn-historial">📊</button>
-                    <button class="btn-icon btn-eliminar">🗑️</button>
-                </div>
-            </div>
-            <div class="receta-body">
-                <div class="receta-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">Tipo</span>
-                        <span class="stat-value">Light</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Ingredientes</span>
-                        <span class="stat-value">7</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Última modificación</span>
-                        <span class="stat-value">12/01/2024</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Editor de Recetas (Expandible) -->
-    <div class="receta-editor" id="recetaEditor" style="display: none;">
-        <div class="card">
-            <div class="card-header">
-                <h2>🧪 Editor de Fórmula: <span id="recetaSeleccionada">Refresco Cola v2.1.0</span></h2>
-                <button class="btn-success" id="btnAgregarIngrediente">+ Agregar Ingrediente</button>
-            </div>
-            
-            <div class="ingredientes-grid">
-                <div class="grid-header">
-                    <div>Ingrediente</div>
-                    <div>Cantidad</div>
-                    <div>Unidad</div>
-                    <div>Orden</div>
-                    <div>Costo Unitario</div>
-                    <div></div>
-                </div>
-                <div id="listaIngredientes">
-                    <div class="grid-row ingrediente-item">
-                        <select class="select-ingrediente">
-                            <option value="1" selected>Jarabe de Maíz</option>
-                            <option value="2">Azúcar Refinada</option>
-                            <option value="3">Agua Purificada</option>
-                            <option value="4">Gas Carbónico</option>
-                        </select>
-                        <input type="number" class="input-cantidad" value="25.5" step="0.1">
-                        <select class="select-unidad">
-                            <option value="1">kg</option>
-                            <option value="2">L</option>
-                            <option value="3">g</option>
-                        </select>
-                        <input type="number" class="input-orden" value="1">
-                        <input type="text" class="input-costo" value="$12.50" readonly disabled>
-                        <button class="btn-eliminar-fila">🗑️</button>
-                    </div>
-                    <div class="grid-row ingrediente-item">
-                        <select class="select-ingrediente">
-                            <option value="3" selected>Agua Purificada</option>
-                            <option value="4">Gas Carbónico</option>
-                            <option value="1">Jarabe de Maíz</option>
-                        </select>
-                        <input type="number" class="input-cantidad" value="100.0" step="0.1">
-                        <select class="select-unidad">
-                            <option value="2" selected>L</option>
-                            <option value="3">g</option>
-                        </select>
-                        <input type="number" class="input-orden" value="2">
-                        <input type="text" class="input-costo" value="$0.05" readonly disabled>
-                        <button class="btn-eliminar-fila">🗑️</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="form-actions">
-                <button class="btn-outline" id="btnCerrarEditor">Cerrar Editor</button>
-                <button class="btn-primary" id="btnGuardarReceta">Guardar Cambios</button>
+            <div class="rec-stat">
+                <div class="rec-stat-value" id="confidencialesHero">8</div>
+                <div class="rec-stat-label">Confidenciales</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Nueva/Editar Receta -->
-<div id="modalReceta" class="modal">
-    <div class="modal-content modal-large">
-        <span class="modal-close">&times;</span>
-        <h3 id="modalTitle">📝 Nueva Receta</h3>
-        <form id="formReceta">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Nombre del Producto</label>
-                    <input type="text" id="recetaNombre" required placeholder="Ej: Refresco Cola">
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN BLANCA RDV (Contenido funcional)                           -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="rec-white-section">
+    <div class="rec-container">
+        
+        <!-- Dashboard de Resumen (Cards RDV) -->
+        <div class="rec-dashboard-grid">
+            <div class="rec-card rec-anim-up">
+                <div class="rec-card-header">
+                    <div class="rec-card-icon">📋</div>
+                    <div>
+                        <h3>Total Recetas</h3>
+                        <p>Catálogo completo</p>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Versión</label>
-                    <input type="text" id="recetaVersion" value="1.0.0" required>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Tipo de Receta</label>
-                    <select id="recetaTipo">
-                        <option>Estándar</option>
-                        <option>Premium</option>
-                        <option>Light</option>
-                        <option>Zero</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Categoría</label>
-                    <select id="recetaCategoria">
-                        <option>Cola</option>
-                        <option>Cítricos</option>
-                        <option>Frutales</option>
-                        <option>Energéticos</option>
-                    </select>
+                <div class="rec-card-body">
+                    <div class="rec-stats-number" id="totalRecetas">24</div>
+                    <div class="rec-stats-label">18 activas · 6 inactivas</div>
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Rendimiento (Litros)</label>
-                    <input type="number" id="recetaRendimiento" value="1000" step="100">
+
+            <div class="rec-card rec-anim-up" style="animation-delay: 0.1s;">
+                <div class="rec-card-header">
+                    <div class="rec-card-icon">🔄</div>
+                    <div>
+                        <h3>Versiones Pendientes</h3>
+                        <p>Requieren revisión</p>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Tiempo de Producción (min)</label>
-                    <input type="number" id="recetaTiempo" value="45" step="5">
+                <div class="rec-card-body">
+                    <div class="rec-stats-number" id="versionesPendientes">5</div>
+                    <div class="rec-stats-label">Actualizaciones en cola</div>
                 </div>
             </div>
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" id="recetaConfidencial"> Esta receta es confidencial
-                </label>
+
+            <div class="rec-card rec-anim-up" style="animation-delay: 0.2s;">
+                <div class="rec-card-header">
+                    <div class="rec-card-icon">🔒</div>
+                    <div>
+                        <h3>Confidenciales</h3>
+                        <p>Acceso restringido</p>
+                    </div>
+                </div>
+                <div class="rec-card-body">
+                    <div class="rec-stats-number" id="recetasConfidenciales">8</div>
+                    <div class="rec-stats-label">Fórmulas exclusivas</div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Notas de producción</label>
-                <textarea rows="3" placeholder="Instrucciones especiales, controles de calidad, etc..."></textarea>
+        </div>
+
+        <!-- Toolbar: Búsqueda, Filtros y Acciones -->
+        <div class="rec-toolbar">
+            <div class="rec-search-group">
+                <span class="rec-search-icon">🔍</span>
+                <input type="text" id="searchReceta" placeholder="Buscar por producto, ingrediente o versión..." class="rec-search-input">
             </div>
-            <button type="submit" class="btn-primary" style="width: 100%;">Guardar Receta</button>
-        </form>
+            <div class="rec-filter-group">
+                <button class="rec-filter-chip active" data-filter="todas">Todas</button>
+                <button class="rec-filter-chip" data-filter="activas">Activas</button>
+                <button class="rec-filter-chip" data-filter="inactivas">Inactivas</button>
+                <button class="rec-filter-chip" data-filter="confidencial">Confidencial</button>
+            </div>
+            <button class="rec-btn-primary" id="btnNuevaReceta">
+                <span>+</span> Nueva Receta
+            </button>
+        </div>
+
+        <!-- Listado de Recetas -->
+        <div class="rec-recetas-grid" id="recetasGrid">
+            <!-- Receta 1 - Refresco Cola -->
+            <div class="rec-receta-card" data-id="1" data-estado="activa">
+                <div class="rec-receta-header">
+                    <div class="rec-receta-info">
+                        <div class="rec-receta-nombre">Refresco Cola</div>
+                        <div class="rec-receta-meta">
+                            <span class="rec-badge rec-badge-info">v2.1.0</span>
+                            <span class="rec-badge rec-badge-success">Activa</span>
+                            <span class="rec-badge rec-badge-danger">Confidencial</span>
+                        </div>
+                    </div>
+                    <div class="rec-receta-actions">
+                        <button class="rec-btn-icon rec-btn-edit" title="Editar" data-action="edit">✏️</button>
+                        <button class="rec-btn-icon rec-btn-duplicate" title="Duplicar" data-action="duplicate">📋</button>
+                        <button class="rec-btn-icon rec-btn-history" title="Historial de Versiones" data-action="history">📊</button>
+                        <button class="rec-btn-icon rec-btn-delete" title="Eliminar" data-action="delete">🗑️</button>
+                    </div>
+                </div>
+                <div class="rec-receta-body">
+                    <div class="rec-receta-stats">
+                        <div class="rec-stat-item">
+                            <span class="rec-stat-item-label">Tipo</span>
+                            <span class="rec-stat-item-value">Premium</span>
+                        </div>
+                        <div class="rec-stat-item">
+                            <span class="rec-stat-item-label">Ingredientes</span>
+                            <span class="rec-stat-item-value">8</span>
+                        </div>
+                        <div class="rec-stat-item">
+                            <span class="rec-stat-item-label">Última modificación</span>
+                            <span class="rec-stat-item-value">10/01/2024</span>
+                        </div>
+                    </div>
+                    <div class="rec-receta-preview">
+                        <div class="rec-preview-title">Ingredientes principales:</div>
+                        <div class="rec-ingredientes-preview">
+                            <span class="rec-ingrediente-tag">Jarabe de Maíz</span>
+                            <span class="rec-ingrediente-tag">Agua Purificada</span>
+                            <span class="rec-ingrediente-tag">Gas Carbónico</span>
+                            <span class="rec-ingrediente-more">+5 más</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receta 2 - Naranja Sabor Intenso -->
+            <div class="rec-receta-card" data-id="2" data-estado="activa">
+                <div class="rec-receta-header">
+                    <div class="rec-receta-info">
+                        <div class="rec-receta-nombre">Naranja Sabor Intenso</div>
+                        <div class="rec-receta-meta">
+                            <span class="rec-badge rec-badge-info">v1.5.2</span>
+                            <span class="rec-badge rec-badge-success">Activa</span>
+                            <span class="rec-badge rec-badge-danger">Confidencial</span>
+                        </div>
+                    </div>
+                    <div class="rec-receta-actions">
+                        <button class="rec-btn-icon rec-btn-edit" title="Editar" data-action="edit">✏️</button>
+                        <button class="rec-btn-icon rec-btn-duplicate" title="Duplicar" data-action="duplicate">📋</button>
+                        <button class="rec-btn-icon rec-btn-history" title="Historial de Versiones" data-action="history">📊</button>
+                        <button class="rec-btn-icon rec-btn-delete" title="Eliminar" data-action="delete">🗑️</button>
+                    </div>
+                </div>
+                <div class="rec-receta-body">
+                    <div class="rec-receta-stats">
+                        <div class="rec-stat-item">
+                            <span class="rec-stat-item-label">Tipo</span>
+                            <span class="rec-stat-item-value">Premium</span>
+                        </div>
+                        <div class="rec-stat-item">
+                            <span class="rec-stat-item-label">Ingredientes</span>
+                            <span class="rec-stat-item-value">6</span>
+                        </div>
+                        <div class="rec-stat-item">
+                            <span class="rec-stat-item-label">Última modificación</span>
+                            <span class="rec-stat-item-value">05/01/2024</span>
+                        </div>
+                    </div>
+                    <div class="rec-receta-preview">
+                        <div class="rec-preview-title">Ingredientes principales:</div>
+                        <div class="rec-ingredientes-preview">
+                            <span class="rec-ingrediente-tag">Jugo Concentrado</span>
+                            <span class="rec-ingrediente-tag">Azúcar Refinada</span>
+                            <span class="rec-ingrediente-tag">Agua Purificada</span>
+                            <span class="rec-ingrediente-more">+3 más</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receta 3 - Lima Limón Zero -->
+            <div class="rec-receta-card" data-id="3" data-estado="activa">
+                <div class="rec-receta-header">
+                    <div class="rec-receta-info">
+                        <div class="rec-receta-nombre">Lima Limón Zero</div>
+                        <div class="rec-receta-meta">
+                            <span class="rec-badge rec-badge-info">v3.0.0</span>
+                            <span class="rec-badge rec-badge-success">Activa</span>
+                            <span class="rec-badge rec-badge-neutral">No Confidencial</span>
+                        </div>
+                    </div>
+                    <div class="rec-receta-actions">
+                        <button class="rec-btn-icon rec-btn-edit" title="Editar" data-action="edit">✏️</button>
+                        <button class="rec-btn-icon rec-btn-duplicate" title="Duplicar" data-action="duplicate">📋</button>
+                        <button class="rec-btn-icon rec-btn-history" title="Historial de Versiones" data-action="history">📊</button>
+                        <button class="rec-btn-icon rec-btn-delete" title="Eliminar" data-action="delete">🗑️</button>
+                    </div>
+                </div>
+                <div class="rec-receta-body">
+                    <div class="rec-receta-stats">
+                        <div class="rec-stat-item">
+                            <span class="rec-stat-item-label">Tipo</span>
+                            <span class="rec-stat-item-value">Zero</span>
+                        </div>
+                        <div class="rec-stat-item">
+                            <span class="rec-stat-item-label">Ingredientes</span>
+                            <span class="rec-stat-item-value">7</span>
+                        </div>
+                        <div class="rec-stat-item">
+                            <span class="rec-stat-item-label">Última modificación</span>
+                            <span class="rec-stat-item-value">12/01/2024</span>
+                        </div>
+                    </div>
+                    <div class="rec-receta-preview">
+                        <div class="rec-preview-title">Ingredientes principales:</div>
+                        <div class="rec-ingredientes-preview">
+                            <span class="rec-ingrediente-tag">Educlorante Natural</span>
+                            <span class="rec-ingrediente-tag">Ácido Cítrico</span>
+                            <span class="rec-ingrediente-tag">Agua Purificada</span>
+                            <span class="rec-ingrediente-more">+4 más</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paginación (UX Estándar) -->
+        <div class="rec-pagination">
+            <button disabled>◀ Anterior</button>
+            <button class="active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>Siguiente ▶</button>
+        </div>
+
+        <!-- Editor de Recetas (Expandible) -->
+        <div class="rec-editor" id="recetaEditor" style="display: none;">
+            <div class="rec-editor-card">
+                <div class="rec-editor-header">
+                    <h2>🧪 Editor de Fórmula: <span id="recetaSeleccionada">Refresco Cola v2.1.0</span></h2>
+                    <button class="rec-btn-primary" id="btnAgregarIngrediente">+ Agregar Ingrediente</button>
+                </div>
+                
+                <div class="rec-editor-body">
+                    <div class="rec-ingredientes-section">
+                        <div class="rec-ingredientes-title">Composición de ingredientes</div>
+                        <div class="rec-ingredientes-table">
+                            <div class="rec-grid-header">
+                                <div>Ingrediente</div>
+                                <div>Cantidad</div>
+                                <div>Unidad</div>
+                                <div>Orden</div>
+                                <div>Costo Unitario</div>
+                                <div></div>
+                            </div>
+                            <div id="listaIngredientes">
+                                <div class="rec-grid-row ingrediente-item">
+                                    <select class="select-ingrediente">
+                                        <option value="1" selected>Jarabe de Maíz</option>
+                                        <option value="2">Azúcar Refinada</option>
+                                        <option value="3">Agua Purificada</option>
+                                        <option value="4">Gas Carbónico</option>
+                                    </select>
+                                    <input type="number" class="input-cantidad" value="25.5" step="0.1" placeholder="Cantidad">
+                                    <select class="select-unidad">
+                                        <option value="1">kg</option>
+                                        <option value="2">L</option>
+                                        <option value="3">g</option>
+                                    </select>
+                                    <input type="number" class="input-orden" value="1" placeholder="Orden">
+                                    <input type="text" class="input-costo" value="$12.50" readonly disabled>
+                                    <button class="rec-btn-remove-row">🗑️</button>
+                                </div>
+                                <div class="rec-grid-row ingrediente-item">
+                                    <select class="select-ingrediente">
+                                        <option value="3" selected>Agua Purificada</option>
+                                        <option value="4">Gas Carbónico</option>
+                                        <option value="1">Jarabe de Maíz</option>
+                                    </select>
+                                    <input type="number" class="input-cantidad" value="100.0" step="0.1" placeholder="Cantidad">
+                                    <select class="select-unidad">
+                                        <option value="2" selected>L</option>
+                                        <option value="3">g</option>
+                                    </select>
+                                    <input type="number" class="input-orden" value="2" placeholder="Orden">
+                                    <input type="text" class="input-costo" value="$0.05" readonly disabled>
+                                    <button class="rec-btn-remove-row">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="rec-form-actions">
+                        <button class="rec-btn-secondary" id="btnCerrarEditor">Cerrar Editor</button>
+                        <button class="rec-btn-primary" id="btnGuardarReceta">Guardar Cambios</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- MODAL RDV: Nueva/Editar Receta                                      -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div id="modalReceta" class="rec-modal">
+    <div class="rec-modal-content rec-modal-large">
+        <div class="rec-modal-header">
+            <h3 id="modalTitle">📝 Nueva Receta</h3>
+            <button class="rec-modal-close" id="modalCloseBtn">&times;</button>
+        </div>
+        <div class="rec-modal-body">
+            <form id="formReceta">
+                <div class="rec-form-row">
+                    <div class="rec-form-group">
+                        <label>Nombre del Producto</label>
+                        <input type="text" id="recetaNombre" required placeholder="Ej: Refresco Cola">
+                    </div>
+                    <div class="rec-form-group">
+                        <label>Versión</label>
+                        <input type="text" id="recetaVersion" value="1.0.0" required placeholder="1.0.0">
+                    </div>
+                </div>
+                <div class="rec-form-row">
+                    <div class="rec-form-group">
+                        <label>Tipo de Receta</label>
+                        <select id="recetaTipo">
+                            <option>Estándar</option>
+                            <option>Premium</option>
+                            <option>Light</option>
+                            <option>Zero</option>
+                        </select>
+                    </div>
+                    <div class="rec-form-group">
+                        <label>Categoría</label>
+                        <select id="recetaCategoria">
+                            <option>Cola</option>
+                            <option>Cítricos</option>
+                            <option>Frutales</option>
+                            <option>Energéticos</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="rec-form-row">
+                    <div class="rec-form-group">
+                        <label>Rendimiento (Litros)</label>
+                        <input type="number" id="recetaRendimiento" value="1000" step="100" placeholder="Litros por lote">
+                    </div>
+                    <div class="rec-form-group">
+                        <label>Tiempo de Producción (min)</label>
+                        <input type="number" id="recetaTiempo" value="45" step="5" placeholder="Minutos">
+                    </div>
+                </div>
+                <div class="rec-form-group">
+                                    </div>
+                <div class="rec-form-group">
+                    <label>Notas de producción</label>
+                    <textarea rows="3" placeholder="Instrucciones especiales, controles de calidad, parámetros críticos..."></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="rec-modal-footer">
+            <button class="rec-btn-secondary" id="modalCancelBtn">Cancelar</button>
+            <button class="rec-btn-primary" id="modalSubmitBtn">Guardar Receta</button>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <script src="~/js/modulos/recetas.js"></script>
+    <script>
+        // Script básico para el funcionamiento de tabs, modal y editor
+        (function() {
+            // Modal functionality
+            const modal = document.getElementById('modalReceta');
+            const openModalBtns = [document.getElementById('btnNuevaReceta'), document.getElementById('btnNuevaRecetaHero')];
+            const closeModalBtns = [document.getElementById('modalCloseBtn'), document.getElementById('modalCancelBtn')];
+            
+            function openModal() {
+                document.getElementById('modalTitle').innerText = '📝 Nueva Receta';
+                document.getElementById('formReceta').reset();
+                modal.style.display = 'flex';
+            }
+            
+            function closeModal() {
+                modal.style.display = 'none';
+            }
+            
+            openModalBtns.forEach(btn => {
+                if (btn) btn.addEventListener('click', openModal);
+            });
+            closeModalBtns.forEach(btn => {
+                if (btn) btn.addEventListener('click', closeModal);
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            
+            // Filter chips functionality
+            const filterChips = document.querySelectorAll('.rec-filter-chip');
+            filterChips.forEach(chip => {
+                chip.addEventListener('click', function() {
+                    filterChips.forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    const filter = this.getAttribute('data-filter');
+                    filterRecetas(filter);
+                });
+            });
+            
+            function filterRecetas(filter) {
+                const cards = document.querySelectorAll('.rec-receta-card');
+                cards.forEach(card => {
+                    const estado = card.getAttribute('data-estado');
+                    const esConfidencial = card.querySelector('.rec-badge-danger') !== null;
+                    
+                    if (filter === 'todas') {
+                        card.style.display = '';
+                    } else if (filter === 'activas') {
+                        card.style.display = estado === 'activa' ? '' : 'none';
+                    } else if (filter === 'confidencial') {
+                        card.style.display = esConfidencial ? '' : 'none';
+                    }
+                });
+            }
+            
+            // Search functionality
+            const searchInput = document.getElementById('searchReceta');
+            if (searchInput) {
+                searchInput.addEventListener('keyup', function() {
+                    const term = this.value.toLowerCase();
+                    const cards = document.querySelectorAll('.rec-receta-card');
+                    cards.forEach(card => {
+                        const nombre = card.querySelector('.rec-receta-nombre').textContent.toLowerCase();
+                        card.style.display = nombre.includes(term) ? '' : 'none';
+                    });
+                });
+            }
+            
+            // Editor toggle
+            const editor = document.getElementById('recetaEditor');
+            const editButtons = document.querySelectorAll('.rec-btn-edit');
+            const closeEditorBtn = document.getElementById('btnCerrarEditor');
+            
+            editButtons.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const card = this.closest('.rec-receta-card');
+                    const nombre = card.querySelector('.rec-receta-nombre').textContent;
+                    const version = card.querySelector('.rec-badge-info').textContent;
+                    document.getElementById('recetaSeleccionada').innerText = `${nombre} ${version}`;
+                    editor.style.display = 'block';
+                    editor.scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+            
+            if (closeEditorBtn) {
+                closeEditorBtn.addEventListener('click', () => {
+                    editor.style.display = 'none';
+                });
+            }
+            
+            // Agregar ingrediente dinámico
+            const addIngredientBtn = document.getElementById('btnAgregarIngrediente');
+            const ingredientsList = document.getElementById('listaIngredientes');
+            
+            if (addIngredientBtn && ingredientsList) {
+                addIngredientBtn.addEventListener('click', () => {
+                    const newRow = document.createElement('div');
+                    newRow.className = 'rec-grid-row ingrediente-item';
+                    newRow.innerHTML = `
+                        <select class="select-ingrediente">
+                            <option value="">Seleccionar...</option>
+                            <option value="1">Jarabe de Maíz</option>
+                            <option value="2">Azúcar Refinada</option>
+                            <option value="3">Agua Purificada</option>
+                            <option value="4">Gas Carbónico</option>
+                        </select>
+                        <input type="number" class="input-cantidad" step="0.1" placeholder="Cantidad">
+                        <select class="select-unidad">
+                            <option value="1">kg</option>
+                            <option value="2">L</option>
+                            <option value="3">g</option>
+                        </select>
+                        <input type="number" class="input-orden" placeholder="Orden">
+                        <input type="text" class="input-costo" readonly disabled placeholder="$0.00">
+                        <button class="rec-btn-remove-row">🗑️</button>
+                    `;
+                    const removeBtn = newRow.querySelector('.rec-btn-remove-row');
+                    removeBtn.addEventListener('click', () => newRow.remove());
+                    ingredientsList.appendChild(newRow);
+                });
+            }
+            
+            // Remove row buttons
+            document.querySelectorAll('.rec-btn-remove-row').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.rec-grid-row').remove();
+                });
+            });
+            
+            // Save recipe
+            const saveBtn = document.getElementById('btnGuardarReceta');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', () => {
+                    alert('Receta guardada exitosamente');
+                    editor.style.display = 'none';
+                });
+            }
+            
+            // Submit modal form
+            const modalSubmit = document.getElementById('modalSubmitBtn');
+            if (modalSubmit) {
+                modalSubmit.addEventListener('click', () => {
+                    alert('Receta creada exitosamente');
+                    closeModal();
+                });
+            }
+        })();
+    </script>
 }
