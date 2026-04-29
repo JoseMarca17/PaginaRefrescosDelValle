@@ -1,174 +1,479 @@
 @model RefrescosDelValle.Models.Entities.OrdenesCompra
-
 @{
-    ViewData["Title"] = "Detalles de Orden de Compra";
+    ViewData["Title"] = "Detalle de Orden";
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
 }
 
-<div class="dashboard-header">
-    <div class="header-left">
-        <a href="/Compras/OrdenesCompra" class="back-button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            Volver a Órdenes
-        </a>
+<div class="dashboard-page">
+    <div class="page-header">
         <div>
-            <h1 class="dashboard-title">Detalles de Orden de Compra</h1>
-            <p class="dashboard-subtitle">Información completa de la orden</p>
+            <h1 class="page-title">Detalle de Orden: <span class="order-highlight">@Model.NumeroOrden</span></h1>
+            <p class="page-description">Información completa de la orden de compra</p>
+        </div>
+        <div class="page-actions">
+            <a asp-action="EditarOrdenCompra" asp-route-id="@Model.OrdenCompraId" class="btn-warning">Editar Orden</a>
+            <a asp-action="OrdenesCompra" class="btn-outline">Volver al listado</a>
         </div>
     </div>
-    <div class="dashboard-header-right" style="display: flex; align-items: center; gap: 1rem;">
-        <div class="date-badge">
-            <svg viewBox="0 0 24 24" width="16" height="16">
-                <rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
-                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
-                <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
-                <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
-            </svg>
-            <span>@DateTime.Now.ToString("dddd, dd MMMM yyyy")</span>
-        </div>
-    </div>
-</div>
 
-<div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(10px);">
-    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
-        <div>
-            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">N° Orden</label>
-            <p style="color: var(--text-primary); font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 1.1rem;">@Model.NumeroOrden</p>
-        </div>
-        <div>
-            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Proveedor</label>
-            <p style="color: var(--text-primary); font-family: 'Space Grotesk', sans-serif;">@Model.Proveedor?.RazonSocial</p>
-        </div>
-        <div>
-            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">NIT Proveedor</label>
-            <p style="color: var(--text-secondary); font-family: 'DM Mono', monospace;">@(Model.Proveedor?.Nit ?? "N/A")</p>
-        </div>
-        <div>
-            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Contrato</label>
-            <p style="color: var(--text-secondary); font-family: 'DM Mono', monospace;">@(Model.Contrato?.NumeroContrato ?? "Sin contrato")</p>
-        </div>
-        <div>
-            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Fecha Emisión</label>
-            <p style="color: var(--text-secondary); font-family: 'DM Mono', monospace;">@Model.FechaEmision.ToString("dd/MM/yyyy HH:mm")</p>
-        </div>
-        <div>
-            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Fecha Entrega Estimada</label>
-            <p style="color: var(--text-secondary); font-family: 'DM Mono', monospace;">@(Model.FechaEntregaEsp?.ToString("dd/MM/yyyy") ?? "No especificada")</p>
-        </div>
-        <div>
-            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Monto Total</label>
-            <p style="color: #00ff88; font-family: 'DM Mono', monospace; font-weight: bold; font-size: 1.2rem;">@Model.MontoTotal.ToString("C")</p>
-        </div>
-        <div>
-            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Usuario Creador</label>
-            <p style="color: var(--text-secondary); font-family: 'DM Mono', monospace;">@Model.UsuarioCreador?.NombreUsuario</p>
-        </div>
-        <div style="grid-column: span 2;">
-            <label style="display: block; color: #00ffff; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Observaciones</label>
-            <p style="color: var(--text-secondary); font-family: 'Space Grotesk', sans-serif; background: var(--input-bg); padding: 0.8rem; border-radius: 8px;">@(string.IsNullOrEmpty(Model.Observaciones) ? "Ninguna" : Model.Observaciones)</p>
-        </div>
-    </div>
-</div>
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="info-card h-100">
+                <div class="card-header-custom">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <h5 class="mb-0">Información General</h5>
+                </div>
+                <div class="card-body-custom">
+                    <dl class="info-list">
+                        <dt class="info-label">Proveedor</dt>
+                        <dd class="info-value">@(Model.Proveedor?.RazonSocial ?? "N/A")</dd>
 
-<div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; backdrop-filter: blur(10px);">
-    <div style="background: rgba(0, 255, 136, 0.1); padding: 1rem 1.5rem; border-bottom: 1px solid rgba(0, 255, 136, 0.3);">
-        <h3 style="color: #00ff88; font-family: 'DM Mono', monospace; font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
-                <polyline points="10 9 9 9 8 9"/>
-            </svg>
-            Recepciones Asociadas
-        </h3>
+                        <dt class="info-label">Fecha de Emisión</dt>
+                        <dd class="info-value">@Model.FechaEmision.ToString("dd/MM/yyyy")</dd>
+
+                        <dt class="info-label">Fecha Esperada</dt>
+                        <dd class="info-value">@(Model.FechaEntregaEsp.HasValue ? Model.FechaEntregaEsp.Value.ToString("dd/MM/yyyy") : "No especificada")</dd>
+
+                        <dt class="info-label">Monto Total</dt>
+                        <dd class="info-value amount">Bs. @Model.MontoTotal.ToString("N2")</dd>
+
+                        <dt class="info-label">Contrato Asociado</dt>
+                        <dd class="info-value">@(Model.Contrato?.NumeroContrato ?? "Sin contrato")</dd>
+
+                        <dt class="info-label">Observaciones</dt>
+                        <dd class="info-value">@(string.IsNullOrEmpty(Model.Observaciones) ? "Ninguna" : Model.Observaciones)</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="info-card h-100">
+                <div class="card-header-custom">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <h5 class="mb-0">Estado de Recepción</h5>
+                </div>
+                <div class="card-body-custom">
+                    @{
+                        var totalRecibido = Model.RecepcionMercaderia != null ? Model.RecepcionMercaderia.Sum(r => r.CantidadRecibida) : 0;
+                        var porcentaje = Model.MontoTotal > 0 ? (totalRecibido / Model.MontoTotal) * 100 : 0;
+                        var progressClass = porcentaje >= 100 ? "success" : porcentaje >= 70 ? "warning" : "primary";
+                    }
+                    
+                    <h6 class="text-muted mb-3">Progreso de entrega</h6>
+                    <div class="progress-wrapper mb-3">
+                        <div class="progress-bar-custom @progressClass" style="width: @porcentaje%;">
+                            <span class="progress-text">@porcentaje.ToString("0.##")%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <small class="stat-label">Total Pedido</small>
+                            <span class="stat-value">Bs. @Model.MontoTotal.ToString("N2")</span>
+                        </div>
+                        <div class="stat-item">
+                            <small class="stat-label">Total Recibido</small>
+                            <span class="stat-value">@totalRecibido unidades</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div style="overflow-x: auto;">
-        @if (Model.RecepcionMercaderia != null && Model.RecepcionMercaderia.Any())
-        {
-            <table style="width: 100%; border-collapse: collapse;">
+
+    <div class="table-card">
+        <div class="table-header">
+            <div class="header-left">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+                <h5 class="mb-0">Historial de Recepciones</h5>
+            </div>
+            <a asp-action="CrearRecepcion" asp-route-ordenCompraId="@Model.OrdenCompraId" class="btn-success">Registrar Ingreso</a>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
                 <thead>
-                    <tr style="background: rgba(0, 255, 136, 0.05); border-bottom: 1px solid var(--border-color);">
-                        <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">ID</th>
-                        <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Producto</th>
-                        <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Lote</th>
-                        <th style="padding: 1rem; text-align: right; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Cantidad</th>
-                        <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Almacén</th>
-                        <th style="padding: 1rem; text-align: left; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Fecha</th>
-                        <th style="padding: 1rem; text-align: center; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-transform: uppercase;">Acciones</th>
+                    <tr>
+                        <th class="ps-3">Fecha Recepción</th>
+                        <th>Almacén</th>
+                        <th>Producto</th>
+                        <th>Lote</th>
+                        <th>Cantidad</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var recepcion in Model.RecepcionMercaderia)
+                    @if (Model.RecepcionMercaderia != null && Model.RecepcionMercaderia.Any())
                     {
-                        <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 1rem; font-family: 'DM Mono', monospace;">@recepcion.RecepcionId</td>
-                            <td style="padding: 1rem; font-family: 'Space Grotesk', sans-serif;">@recepcion.Inventario?.Producto?.NombreProducto</td>
-                            <td style="padding: 1rem; font-family: 'DM Mono', monospace; font-size: 0.85rem;">@recepcion.Inventario?.Lote</td>
-                            <td style="padding: 1rem; text-align: right; font-family: 'DM Mono', monospace; color: #00ff88;">@recepcion.CantidadRecibida.ToString("N2")</td>
-                            <td style="padding: 1rem; font-family: 'Space Grotesk', sans-serif;">@recepcion.Almacen?.NombreAlmacen</td>
-                            <td style="padding: 1rem; font-family: 'DM Mono', monospace; font-size: 0.85rem;">@recepcion.FechaRecepcion.ToString("dd/MM/yyyy")</td>
-                            <td style="padding: 1rem; text-align: center;">
-                                <a href="/Compras/RecepcionDetails/@recepcion.RecepcionId" style="color: #00ffff; text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.75rem;">
-                                    Ver Detalles
-                                </a>
+                        foreach (var recepcion in Model.RecepcionMercaderia)
+                        {
+                            <tr>
+                                <td class="ps-3 date-cell">@recepcion.FechaRecepcion.ToString("dd/MM/yyyy")</td>
+                                <td class="warehouse-cell">@(recepcion.Almacen?.NombreAlmacen ?? "N/A")</td>
+                                <td class="product-cell">@(recepcion.Inventario?.Producto?.NombreProducto ?? "N/A")</td>
+                                <td class="batch-cell">@(recepcion.Inventario?.Lote ?? "N/A")</td>
+                                <td class="quantity-cell fw-bold">@recepcion.CantidadRecibida</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="empty-state-table text-center py-4">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <p class="text-muted mb-0">Aún no se han registrado ingresos para esta orden.</p>
                             </td>
                         </tr>
                     }
                 </tbody>
-                <tfoot>
-                    <tr style="background: rgba(0, 255, 136, 0.05); border-top: 1px solid var(--border-color);">
-                        <th colspan="3" style="padding: 1rem; text-align: right; color: var(--text-primary); font-family: 'DM Mono', monospace;">Total Recibido:</th>
-                        <th style="padding: 1rem; text-align: right; color: #00ff88; font-family: 'DM Mono', monospace;">@Model.RecepcionMercaderia.Sum(r => r.CantidadRecibida).ToString("N2") unidades</th>
-                        <th colspan="3"></th>
-                    </tr>
-                </tfoot>
             </table>
-        }
-        else
-        {
-            <div style="padding: 3rem; text-align: center;">
-                <svg viewBox="0 0 24 24" width="48" height="48" stroke="var(--text-muted)" fill="none" stroke-width="1.5" style="margin-bottom: 1rem;">
-                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                </svg>
-                <p style="color: var(--text-muted); font-family: 'DM Mono', monospace;">No hay recepciones registradas para esta orden.</p>
-                <a href="/Compras/CrearRecepcion?ordenCompraId=@Model.OrdenCompraId" style="background: #C8281E; color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
-                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
-                    Registrar Recepción
-                </a>
-            </div>
-        }
-    </div>
-    <div style="padding: 1rem 1.5rem; border-top: 1px solid var(--border-color); display: flex; gap: 1rem;">
-        <a href="/Compras/OrdenesCompra" style="background: transparent; color: var(--text-secondary); padding: 0.6rem 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.8rem; transition: all 0.3s;">
-            ← Volver
-        </a>
-        @if (Model.RecepcionMercaderia == null || !Model.RecepcionMercaderia.Any())
-        {
-            <a href="/Compras/EditarOrdenCompra/@Model.OrdenCompraId" style="background: rgba(255, 193, 7, 0.1); color: #ffc107; padding: 0.6rem 1.5rem; border-radius: 8px; border: 1px solid rgba(255, 193, 7, 0.3); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.8rem; transition: all 0.3s;">
-                ✏️ Editar Orden
-            </a>
-        }
-        <a href="/Compras/CrearRecepcion?ordenCompraId=@Model.OrdenCompraId" style="background: rgba(0, 255, 136, 0.1); color: #00ff88; padding: 0.6rem 1.5rem; border-radius: 8px; border: 1px solid rgba(0, 255, 136, 0.3); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.8rem; transition: all 0.3s;">
-            + Nueva Recepción
-        </a>
+        </div>
     </div>
 </div>
 
 <style>
-    a[href="/Compras/OrdenesCompra"]:hover {
-        background: var(--input-bg) !important;
-        transform: translateY(-1px);
+    .dashboard-page {
+        padding: 0.5rem 0;
     }
-    
-    a[href*="Editar"]:hover, a[href*="Recepcion"]:hover {
-        filter: brightness(1.2);
-        transform: translateY(-1px);
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 1.75rem;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
+
+    .page-title {
+        font-family: 'Playfair Display', serif;
+        font-weight: 700;
+        font-size: 1.8rem;
+        color: var(--light-100, #fef8f5);
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.01em;
+    }
+
+    .order-highlight {
+        color: var(--red-500, #e03a2e);
+        font-family: 'DM Mono', monospace;
+    }
+
+    .page-description {
+        color: var(--dark-300, #b8968c);
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    .page-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-warning, .btn-outline, .btn-success {
+        padding: 0.7rem 1.5rem;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        cursor: pointer;
+        border: none;
+        text-decoration: none;
+    }
+
+    .btn-warning {
+        background: #d97706;
+        color: white;
+        box-shadow: 0 4px 8px rgba(217, 119, 6, 0.3);
+    }
+
+    .btn-warning:hover {
+        background: #b45309;
+        transform: translateY(-2px);
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 1px solid var(--dark-600, #392424);
+        color: var(--dark-100, #f3eae7);
+    }
+
+    .btn-outline:hover {
+        background: var(--dark-700, #2a1919);
+        border-color: var(--red-600, #C8281E);
+        transform: translateY(-2px);
+    }
+
+    .btn-success {
+        background: #16a34a;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+    }
+
+    .info-card {
+        background: var(--dark-800, #120a0a);
+        border: 1px solid var(--dark-600, #2d1c1c);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .card-header-custom {
+        background: var(--dark-900, #050000);
+        padding: 1rem 1.5rem;
+        border-bottom: 2px solid var(--red-600, #C8281E);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .card-header-custom svg {
+        stroke: var(--red-500, #e03a2e);
+    }
+
+    .card-header-custom h5 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--light-100, #fef8f5);
+    }
+
+    .card-body-custom {
+        padding: 1.5rem;
+    }
+
+    .info-list {
+        margin: 0;
+    }
+
+    .info-label {
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--dark-200, #d9bcb2);
+        margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+        font-weight: 500;
+        color: var(--light-100, #fff5f0);
+        margin-bottom: 1rem;
+    }
+
+    .info-value.amount {
+        color: #22c55e;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .progress-wrapper {
+        background: var(--dark-700, #1f1111);
+        border-radius: 30px;
+        overflow: hidden;
+    }
+
+    .progress-bar-custom {
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+        transition: width 0.5s ease;
+        border-radius: 30px;
+    }
+
+    .progress-bar-custom.success {
+        background: linear-gradient(90deg, #22c55e, #16a34a);
+    }
+
+    .progress-bar-custom.warning {
+        background: linear-gradient(90deg, #f59e0b, #d97706);
+    }
+
+    .progress-bar-custom.primary {
+        background: linear-gradient(90deg, #3b82f6, #2563eb);
+    }
+
+    .progress-text {
+        color: white;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .stat-item {
+        background: var(--dark-900, #050000);
+        padding: 0.75rem;
+        border-radius: 12px;
+    }
+
+    .stat-label {
+        display: block;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: var(--dark-300, #b8968c);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+        display: block;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--light-100, #fff5f0);
+    }
+
+    .table-card {
+        background: var(--dark-800, #120a0a);
+        border: 1px solid var(--dark-600, #2d1c1c);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-top: 1.5rem;
+    }
+
+    .table-header {
+        background: var(--dark-900, #050000);
+        padding: 1rem 1.5rem;
+        border-bottom: 2px solid var(--red-600, #C8281E);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .header-left svg {
+        stroke: var(--red-500, #e03a2e);
+    }
+
+    .header-left h5 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--light-100, #fef8f5);
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table thead {
+        background: var(--dark-900, #050000);
+        border-bottom: 1px solid var(--dark-600, #2d1c1c);
+    }
+
+    .data-table th {
+        text-align: left;
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--dark-200, #d9bcb2);
+    }
+
+    .data-table td {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--dark-700, #1f1111);
+        color: var(--light-100, #fff5f0);
+    }
+
+    .data-table tbody tr:hover {
+        background: var(--dark-700, #1f1111);
+        transition: background 0.2s;
+    }
+
+    .date-cell {
+        font-family: 'DM Mono', monospace;
+        font-size: 0.85rem;
+    }
+
+    .warehouse-cell, .product-cell {
+        font-weight: 500;
+    }
+
+    .batch-cell {
+        font-family: 'DM Mono', monospace;
+        font-size: 0.8rem;
+        color: var(--dark-200, #d9bcb2);
+    }
+
+    .quantity-cell {
+        font-weight: 700;
+        color: #22c55e;
+    }
+
+    .empty-state-table {
+        text-align: center;
+    }
+
+    .empty-state-table svg {
+        stroke: var(--dark-500, #533838);
+        margin-bottom: 0.5rem;
+    }
+
+    .ps-3 {
+        padding-left: 1rem !important;
+    }
+
+    .text-muted {
+        color: var(--dark-300, #b8968c) !important;
+    }
+
+    .fw-bold {
+        font-weight: 700;
+    }
+
+    .mb-0 {
+        margin-bottom: 0;
+    }
+
+    .mb-3 {
+        margin-bottom: 1rem;
+    }
+
+    .mb-4 {
+        margin-bottom: 1.5rem;
+    }
+
+    .h-100 {
+        height: 100%;
+    }
+
 </style>
