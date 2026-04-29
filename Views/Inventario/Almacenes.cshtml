@@ -1,173 +1,817 @@
 @model IEnumerable<RefrescosDelValle.Models.Entities.Almacen>
 @{
-    ViewData["Title"] = "Almacenes — Módulo Almacén";
+    ViewData["Title"] = "Almacenes — Módulo Inventario";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var totalAlmacenes    = Model.Count();
+    var totalActivos      = Model.Count(a => a.EstadoAlmacen?.Descripcion == "Activo");
+    var totalDepartamentos = Model
+        .Select(a => a.Sucursal?.Ciudad?.DepartamentoGeo?.NombreDpto)
+        .Where(d => d != null).Distinct().Count();
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/modulos/inventario.css" asp-append-version="true" /> <!--actualizacion aca-->
-    <style>
-        body { background: var(--dark-900); }
-        .page-hero { background:var(--dark-900); padding:3.5rem 2rem 2.5rem; position:relative; overflow:hidden; border-bottom:1px solid var(--dark-700); }
-        .hero-grid-bg { position:absolute; inset:0; pointer-events:none; background-image: repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(192,57,43,.04) 59px,rgba(192,57,43,.04) 60px), repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(192,57,43,.04) 59px,rgba(192,57,43,.04) 60px); }
-        .hero-glow { position:absolute; width:500px; height:500px; background:radial-gradient(circle,rgba(192,57,43,.1) 0%,transparent 70%); top:-180px; right:-60px; pointer-events:none; }
-        .page-hero-inner { max-width:1200px; margin:0 auto; position:relative; z-index:2; display:flex; align-items:flex-end; justify-content:space-between; gap:2rem; flex-wrap:wrap; }
-        .page-eyebrow { display:inline-flex; align-items:center; gap:.6rem; font-family:var(--font-mono); font-size:.65rem; color:var(--gray-500); letter-spacing:1.5px; margin-bottom:.75rem; }
-        .eyebrow-dot { width:6px; height:6px; border-radius:50%; background:var(--red-500); animation:pulse-dot 2s ease infinite; }
-        @@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.75);}}
-        .page-title { font-family:var(--font-display); font-size:clamp(2.5rem,5vw,4rem); color:var(--white); letter-spacing:2px; line-height:.95; }
-        .page-title span { -webkit-text-stroke:2px var(--red-500); color:transparent; }
-        .page-subtitle { font-size:.88rem; color:var(--gray-500); margin-top:.6rem; font-family:var(--font-mono); }
-        .pg-breadcrumb { background:var(--dark-900); border-bottom:1px solid var(--dark-700); }
-        .pg-breadcrumb-inner { max-width:1200px; margin:0 auto; padding:.85rem 2rem; display:flex; align-items:center; gap:.4rem; font-size:.7rem; color:var(--gray-600); font-family:var(--font-mono); }
-        .pg-breadcrumb-inner a { color:var(--red-500); text-decoration:none; }
-        .pg-breadcrumb-inner a:hover { text-decoration:underline; }
-        .pg-breadcrumb-inner svg { width:10px; height:10px; stroke:var(--gray-600); fill:none; stroke-width:2.5; }
-        .page-body { max-width:1200px; margin:0 auto; padding:2.5rem 2rem 5rem; }
-        /* Detail header */
-        .detail-header { margin-bottom:2rem; padding-bottom:1.25rem; border-bottom:1px solid var(--dark-700); display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
-        .detail-title { font-family:var(--font-display); font-size:clamp(1.8rem,3vw,2.8rem); color:var(--white); letter-spacing:1px; line-height:1; }
-        .detail-sub { font-family:var(--font-mono); font-size:.7rem; color:var(--gray-500); margin-top:.4rem; }
-        @@media(max-width:768px){ .page-hero-inner{flex-direction:column;align-items:flex-start;} .warehouse-card{flex-wrap:wrap;} .wh-capacity-wrap{width:100%;} }
-        @@media(max-width:640px){ .dept-grid{grid-template-columns:1fr 1fr;} }
-        @@media(max-width:400px){ .dept-grid{grid-template-columns:1fr;} }
-    </style>
+<style>
+/* ── TOKENS ── */
+:root{
+    --ar:#C8281E;--ar-dk:#a81f16;--ah:#0f0b09;--aw:#f7f5f4;
+    --ac:#ffffff;--ach:#faf9f8;--ai:#faf9f8;
+    --ad:#18120f;--am:#5a4a44;--amt:#9a8a84;
+    --ab:rgba(0,0,0,.07);--abm:rgba(0,0,0,.1);
+    --ag:#1a7a3c;--ay:#b08d0a;
+}
+/* ── HERO ── */
+.ar-hero{background:var(--ah);padding:3rem 2.5rem 2.5rem;position:relative;overflow:hidden}
+.ar-hero-grid{position:absolute;inset:0;pointer-events:none;
+    background-image:repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(200,40,30,.04) 59px,rgba(200,40,30,.04) 60px),
+    repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(200,40,30,.04) 59px,rgba(200,40,30,.04) 60px)}
+.ar-hero-glow{position:absolute;width:520px;height:520px;
+    background:radial-gradient(circle,rgba(200,40,30,.12) 0%,transparent 70%);
+    top:-170px;right:-70px;pointer-events:none}
+.ar-hero-inner{position:relative;z-index:2;display:flex;align-items:flex-end;
+    justify-content:space-between;gap:2rem;flex-wrap:wrap}
+.ar-eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-family:monospace;
+    font-size:.64rem;color:rgba(200,40,30,.85);letter-spacing:2px;
+    text-transform:uppercase;margin-bottom:.9rem}
+.ar-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--ar);
+    display:inline-block;animation:arpulse 2.5s ease infinite}
+@@keyframes arpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.55)}}
+.ar-hero-title{font-family:'Playfair Display',Georgia,serif;
+    font-size:clamp(1.8rem,4vw,3rem);color:#fff;line-height:.95;
+    letter-spacing:2px;font-weight:800;margin-bottom:.6rem}
+.ar-hero-title .stroke{-webkit-text-stroke:2px var(--ar);color:transparent}
+.ar-hero-sub{font-size:.82rem;color:rgba(255,255,255,.35);line-height:1.6;max-width:380px}
+.ar-hero-right{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.ar-stat-chip{display:flex;flex-direction:column;align-items:center;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+    border-radius:10px;padding:.7rem 1.2rem}
+.ar-stat-chip-val{font-family:'Playfair Display',Georgia,serif;
+    font-size:1.6rem;color:var(--ar);line-height:1;font-weight:800}
+.ar-stat-chip-lbl{font-size:.57rem;font-family:monospace;color:rgba(255,255,255,.28);
+    margin-top:.15rem;text-transform:uppercase;letter-spacing:1px}
+.ar-btn-new{background:var(--ar);color:#fff;padding:.55rem 1.3rem;border-radius:999px;
+    font-size:.78rem;font-weight:700;border:none;cursor:pointer;text-decoration:none;
+    display:inline-flex;align-items:center;gap:.4rem;
+    transition:background .2s,transform .15s;
+    box-shadow:0 2px 10px rgba(200,40,30,.3)}
+.ar-btn-new:hover{background:var(--ar-dk);transform:translateY(-1px);color:#fff}
+/* ── SECCIÓN BLANCA ── */
+.ar-white{background:var(--aw);padding:2rem 2.5rem 3rem}
+.ar-alert-ok{display:flex;align-items:center;gap:.6rem;
+    background:rgba(26,122,60,.07);border:1px solid rgba(26,122,60,.2);
+    color:var(--ag);border-radius:10px;padding:.75rem 1.1rem;
+    font-size:.82rem;margin-bottom:1.5rem;font-weight:600}
+.ar-alert-err{display:flex;align-items:center;gap:.6rem;
+    background:rgba(200,40,30,.07);border:1px solid rgba(200,40,30,.2);
+    color:var(--ar);border-radius:10px;padding:.75rem 1.1rem;
+    font-size:.82rem;margin-bottom:1.5rem;font-weight:600}
+/* ── TOOLBAR ── */
+.ar-toolbar{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.ar-search-wrap{position:relative;flex:1;min-width:220px}
+.ar-search-wrap svg{position:absolute;left:.9rem;top:50%;transform:translateY(-50%);
+    stroke:var(--amt);pointer-events:none}
+.ar-search{width:100%;background:#fff;border:1px solid var(--abm);border-radius:999px;
+    padding:.6rem 1rem .6rem 2.5rem;font-size:.83rem;color:var(--ad);
+    outline:none;transition:border-color .2s;font-family:inherit}
+.ar-search:focus{border-color:var(--ar)}
+.ar-search::placeholder{color:#bbb}
+.ar-filter-btn{display:inline-flex;align-items:center;gap:.4rem;
+    background:#fff;border:1px solid var(--abm);border-radius:999px;
+    padding:.55rem 1.05rem;font-size:.76rem;color:var(--am);
+    cursor:pointer;font-family:inherit;transition:border-color .2s,color .2s}
+.ar-filter-btn:hover,.ar-filter-btn.active{border-color:var(--ar);color:var(--ar)}
+/* ── CARD ── */
+.ar-card{background:var(--ac);border:1px solid var(--ab);border-radius:14px;overflow:hidden}
+.ar-card-hd{background:var(--ach);border-bottom:1px solid var(--ab);
+    padding:1rem 1.25rem;display:flex;align-items:center;
+    justify-content:space-between;gap:1rem}
+.ar-card-hd-left{display:flex;align-items:center;gap:.6rem}
+.ar-card-hd-icon{width:30px;height:30px;border-radius:8px;
+    background:rgba(200,40,30,.08);display:flex;align-items:center;justify-content:center}
+.ar-card-hd-icon svg{stroke:var(--ar)}
+.ar-card-hd-title{font-family:monospace;font-size:.7rem;text-transform:uppercase;
+    letter-spacing:1.5px;color:var(--ad);font-weight:700}
+.ar-card-hd-sub{font-size:.7rem;color:var(--amt);margin-top:.1rem}
+.ar-counter{font-family:monospace;font-size:.7rem;color:var(--amt);
+    background:rgba(0,0,0,.04);border:1px solid var(--ab);
+    padding:.25rem .6rem;border-radius:999px}
+/* ── TABLA ── */
+.ar-table-wrap{overflow-x:auto}
+.ar-table{width:100%;border-collapse:collapse}
+.ar-table th{background:var(--ach);padding:.75rem 1rem;font-family:monospace;
+    font-size:.65rem;text-transform:uppercase;letter-spacing:1.5px;
+    color:var(--amt);font-weight:600;border-bottom:1px solid var(--ab);
+    white-space:nowrap;cursor:pointer;user-select:none}
+.ar-table th:hover{color:var(--ar)}
+.ar-table th .si{margin-left:.3rem;opacity:.4;font-size:.6rem}
+.ar-table th.sa .si::after{content:'↑';opacity:1;color:var(--ar)}
+.ar-table th.sd .si::after{content:'↓';opacity:1;color:var(--ar)}
+.ar-table th:not(.sa):not(.sd) .si::after{content:'↕'}
+.ar-table th:last-child{cursor:default}
+.ar-table th:last-child:hover{color:var(--amt)}
+.ar-table td{padding:.8rem 1rem;font-size:.82rem;color:var(--am);
+    border-bottom:1px solid var(--ab);vertical-align:middle}
+.ar-table tr:last-child td{border-bottom:none}
+.ar-table tr:hover td{background:#faf9f8}
+/* ── BADGES ── */
+.badge-activo{display:inline-flex;align-items:center;gap:.35rem;
+    background:rgba(26,122,60,.08);border:1px solid rgba(26,122,60,.2);
+    color:var(--ag);border-radius:999px;padding:.2rem .65rem;
+    font-size:.7rem;font-weight:600}
+.badge-activo::before{content:'';width:5px;height:5px;border-radius:50%;
+    background:var(--ag);box-shadow:0 0 0 2px rgba(26,122,60,.25)}
+.badge-inact{display:inline-flex;align-items:center;gap:.35rem;
+    background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.1);
+    color:var(--amt);border-radius:999px;padding:.2rem .65rem;
+    font-size:.7rem;font-weight:600}
+.badge-inact::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--amt)}
+.badge-tipo{display:inline-block;background:rgba(200,40,30,.07);
+    border:1px solid rgba(200,40,30,.15);color:var(--ar);border-radius:999px;
+    padding:.18rem .6rem;font-size:.68rem;font-family:monospace;
+    font-weight:600;letter-spacing:.5px}
+/* ── BOTONES ACCIÓN ── */
+.ar-act{display:flex;gap:.4rem;align-items:center}
+.btn-edit{display:inline-flex;align-items:center;gap:.3rem;
+    background:rgba(241,196,15,.08);border:1px solid rgba(176,141,10,.3);
+    color:var(--ay);border-radius:7px;padding:.35rem .7rem;
+    font-size:.72rem;font-weight:600;cursor:pointer;
+    transition:all .18s;font-family:inherit}
+.btn-edit:hover{background:rgba(241,196,15,.16)}
+.btn-del{display:inline-flex;align-items:center;gap:.3rem;
+    background:rgba(200,40,30,.07);border:1px solid rgba(200,40,30,.2);
+    color:var(--ar);border-radius:7px;padding:.35rem .7rem;
+    font-size:.72rem;font-weight:600;cursor:pointer;
+    transition:all .18s;font-family:inherit}
+.btn-del:hover{background:rgba(200,40,30,.14)}
+/* ── PAGINACIÓN ── */
+.ar-pag{display:flex;align-items:center;justify-content:space-between;
+    padding:1rem 1.25rem;flex-wrap:wrap;gap:.5rem;
+    border-top:1px solid var(--ab)}
+.ar-pag-info{font-size:.75rem;color:var(--amt);font-family:monospace}
+.ar-pag-btns{display:flex;gap:.3rem}
+.ar-pb{min-width:30px;height:30px;border-radius:7px;
+    border:1px solid var(--abm);background:#fff;
+    font-size:.75rem;color:var(--am);cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:all .18s;font-family:inherit}
+.ar-pb:hover{border-color:var(--ar);color:var(--ar)}
+.ar-pb.active{background:var(--ar);border-color:var(--ar);color:#fff}
+.ar-pb:disabled{opacity:.35;cursor:default}
+/* ── OVERLAY + DRAWER ── */
+.ar-overlay{position:fixed;inset:0;background:rgba(15,11,9,.6);
+    backdrop-filter:blur(3px);z-index:900;
+    opacity:0;pointer-events:none;transition:opacity .28s ease}
+.ar-overlay.open{opacity:1;pointer-events:all}
+.ar-drawer{position:fixed;top:0;right:0;bottom:0;width:460px;max-width:95vw;
+    background:#fff;z-index:901;box-shadow:-8px 0 40px rgba(0,0,0,.18);
+    display:flex;flex-direction:column;
+    transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.ar-drawer.open{transform:translateX(0)}
+.ar-drawer-hd{background:var(--ah);padding:1.5rem 1.75rem;
+    display:flex;align-items:flex-start;justify-content:space-between;
+    gap:1rem;flex-shrink:0}
+.ar-drawer-hd-title{font-family:'Playfair Display',Georgia,serif;
+    font-size:1.3rem;color:#fff;font-weight:800;letter-spacing:1px}
+.ar-drawer-hd-sub{font-family:monospace;font-size:.62rem;color:rgba(255,255,255,.3);
+    margin-top:.3rem;text-transform:uppercase;letter-spacing:1.5px}
+.ar-drawer-close{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+    color:rgba(255,255,255,.6);border-radius:8px;width:32px;height:32px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .18s;flex-shrink:0}
+.ar-drawer-close:hover{background:rgba(200,40,30,.3);color:#fff}
+.ar-drawer-body{flex:1;overflow-y:auto;padding:1.5rem 1.75rem;
+    display:flex;flex-direction:column;gap:1.25rem}
+/* Progreso */
+.ar-prog-bar{height:3px;background:rgba(0,0,0,.06);border-radius:999px;overflow:hidden;margin-bottom:.3rem}
+.ar-prog-fill{height:100%;background:linear-gradient(90deg,var(--ar),#f1934c);
+    border-radius:999px;transition:width .3s ease;width:0%}
+.ar-prog-lbl{font-size:.63rem;font-family:monospace;color:var(--amt);
+    text-align:right;margin-bottom:.25rem}
+/* Form */
+.ar-field{display:flex;flex-direction:column;gap:.35rem}
+.ar-label{font-family:monospace;font-size:.67rem;text-transform:uppercase;
+    letter-spacing:1.5px;color:var(--am);font-weight:700}
+.ar-label .req{color:var(--ar);margin-left:.15rem}
+.ar-iw{position:relative}
+.ar-iw svg{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);
+    pointer-events:none;stroke:var(--amt);flex-shrink:0}
+.ar-input,.ar-select{width:100%;background:var(--ai);
+    border:1px solid var(--abm);border-radius:9px;
+    padding:.65rem .9rem .65rem 2.4rem;font-size:.85rem;color:var(--ad);
+    outline:none;transition:border-color .2s,box-shadow .2s,background .2s;
+    font-family:inherit;appearance:none}
+.ar-input.ni,.ar-select.ni{padding-left:.9rem}
+.ar-input:focus,.ar-select:focus{border-color:var(--ar);
+    box-shadow:0 0 0 3px rgba(200,40,30,.1);background:#fff}
+.ar-input::placeholder{color:#c9b9b3}
+.ar-textarea{width:100%;background:var(--ai);border:1px solid var(--abm);
+    border-radius:9px;padding:.65rem .9rem;font-size:.85rem;color:var(--ad);
+    outline:none;resize:vertical;min-height:80px;font-family:inherit;
+    transition:border-color .2s,box-shadow .2s}
+.ar-textarea:focus{border-color:var(--ar);box-shadow:0 0 0 3px rgba(200,40,30,.1);background:#fff}
+.ar-textarea::placeholder{color:#c9b9b3}
+.ar-hint{font-size:.7rem;color:var(--amt)}
+.ar-ferr{font-size:.7rem;color:var(--ar);display:none}
+.ar-ferr.show{display:block}
+.ar-sect{font-family:monospace;font-size:.62rem;text-transform:uppercase;
+    letter-spacing:2px;color:var(--amt);display:flex;align-items:center;gap:.5rem;margin-top:.25rem}
+.ar-sect::after{content:'';flex:1;height:1px;background:var(--ab)}
+/* Footer drawer */
+.ar-drawer-ft{padding:1.25rem 1.75rem;border-top:1px solid var(--ab);
+    background:var(--ach);display:flex;align-items:center;
+    justify-content:space-between;gap:1rem;flex-shrink:0}
+.ar-drawer-ft-info{font-size:.72rem;color:var(--amt);font-family:monospace}
+.ar-ft-btns{display:flex;gap:.5rem}
+.btn-cancel{background:#fff;border:1px solid var(--abm);color:var(--am);
+    border-radius:999px;padding:.5rem 1.1rem;font-size:.78rem;
+    font-weight:600;cursor:pointer;font-family:inherit;transition:all .18s}
+.btn-cancel:hover{border-color:var(--ar);color:var(--ar)}
+.btn-save{background:var(--ar);color:#fff;border:none;border-radius:999px;
+    padding:.5rem 1.3rem;font-size:.78rem;font-weight:700;cursor:pointer;
+    font-family:inherit;display:inline-flex;align-items:center;gap:.4rem;
+    transition:background .2s,transform .15s;box-shadow:0 2px 10px rgba(200,40,30,.3)}
+.btn-save:hover{background:var(--ar-dk);transform:translateY(-1px)}
+.btn-save:disabled{opacity:.5;cursor:default;transform:none}
+/* ── MODAL ELIMINAR ── */
+.ar-modal-ov{position:fixed;inset:0;background:rgba(15,11,9,.7);
+    backdrop-filter:blur(4px);z-index:1000;
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity .22s}
+.ar-modal-ov.open{opacity:1;pointer-events:all}
+.ar-modal{background:#fff;border-radius:16px;padding:2rem;max-width:400px;
+    width:92%;box-shadow:0 20px 60px rgba(0,0,0,.25);
+    transform:scale(.94);transition:transform .22s}
+.ar-modal-ov.open .ar-modal{transform:scale(1)}
+.ar-modal-icon{width:44px;height:44px;border-radius:12px;
+    background:rgba(200,40,30,.1);margin-bottom:1rem;
+    display:flex;align-items:center;justify-content:center}
+.ar-modal-icon svg{stroke:var(--ar)}
+.ar-modal-title{font-size:1rem;font-weight:700;color:var(--ad);margin-bottom:.4rem}
+.ar-modal-msg{font-size:.82rem;color:var(--am);line-height:1.5;margin-bottom:1.5rem}
+.ar-modal-btns{display:flex;gap:.5rem;justify-content:flex-end}
+.ar-modal-cancel{background:var(--ach);border:1px solid var(--abm);
+    color:var(--am);border-radius:999px;padding:.5rem 1.1rem;
+    font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit}
+.ar-modal-confirm{background:var(--ar);color:#fff;border:none;
+    border-radius:999px;padding:.5rem 1.3rem;font-size:.8rem;
+    font-weight:700;cursor:pointer;font-family:inherit;transition:background .18s}
+.ar-modal-confirm:hover{background:var(--ar-dk)}
+/* ── RESPONSIVE ── */
+@@media(max-width:900px){
+    .ar-white{padding:1.5rem 1rem 2rem}
+    .ar-hero{padding:2.5rem 1rem 2rem}
+    .ar-table th:nth-child(4),.ar-table td:nth-child(4){display:none}
+}
+@@media(max-width:600px){
+    .ar-hero-right{display:none}
+    .ar-table th:nth-child(3),.ar-table td:nth-child(3){display:none}
+    .ar-drawer{width:100%}
+}
+</style>
 }
 
-<!-- Page hero -->
-<div class="page-hero">
-    <div class="hero-grid-bg"></div>
-    <div class="hero-glow"></div>
-    <div class="page-hero-inner">
+<!-- ══ HERO ══ -->
+<div class="ar-hero">
+    <div class="ar-hero-grid"></div>
+    <div class="ar-hero-glow"></div>
+    <div class="ar-hero-inner">
         <div>
-            <div class="page-eyebrow"><span class="eyebrow-dot"></span>INVENTARIO · ALMACENES</div>
-            <div class="page-title" id="heroTitle">ALMACENES <span>BOLIVIA</span></div>
-            <div class="page-subtitle" id="heroSub">Selecciona un departamento para ver el detalle</div>
+            <div class="ar-eyebrow">
+                <span class="ar-eyebrow-dot"></span>
+                INVENTARIO · ALMACENES
+            </div>
+            <h1 class="ar-hero-title">
+                GESTIÓN DE<br><span class="stroke">ALMACENES</span>
+            </h1>
+            <p class="ar-hero-sub">
+                Administra los almacenes registrados en Bolivia. Crea, edita y desactiva bodegas por departamento y sucursal.
+            </p>
+        </div>
+        <div class="ar-hero-right">
+            <div class="ar-stat-chip">
+                <span class="ar-stat-chip-val">@totalAlmacenes</span>
+                <span class="ar-stat-chip-lbl">Total</span>
+            </div>
+            <div class="ar-stat-chip">
+                <span class="ar-stat-chip-val">@totalActivos</span>
+                <span class="ar-stat-chip-lbl">Activos</span>
+            </div>
+            <div class="ar-stat-chip">
+                <span class="ar-stat-chip-val">@totalDepartamentos</span>
+                <span class="ar-stat-chip-lbl">Deptos.</span>
+            </div>
+            <button class="ar-btn-new" onclick="abrirDrawer('crear')">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Nuevo Almacén
+            </button>
         </div>
     </div>
 </div>
 
-<!-- Breadcrumb -->
-<div class="pg-breadcrumb">
-    <div class="pg-breadcrumb-inner">
-        <a asp-controller="Inventario" asp-action="IndexInventario">Inventario</a> <!-- cambio aca-->
-        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-        <span id="bcCur">Almacenes</span>
-    </div>
-</div>
+<!-- ══ SECCIÓN BLANCA ══ -->
+<div class="ar-white">
 
-<!-- Vista: lista de departamentos -->
-<div class="page-body" id="viewDepts">
-    <div class="kpi-row">
-        <div class="kpi-card"><div class="kpi-label">Total almacenes</div><div class="kpi-value">27</div><div class="kpi-sub">en todo el país</div></div>
-        <div class="kpi-card"><div class="kpi-label">Capacidad total</div><div class="kpi-value">1 840</div><div class="kpi-sub">toneladas</div></div>
-        <div class="kpi-card"><div class="kpi-label">Ocupación media</div><div class="kpi-value">73%</div><div class="kpi-sub">promedio nacional</div></div>
-        <div class="kpi-card"><div class="kpi-label">Almacenes llenos</div><div class="kpi-value">4</div><div class="kpi-sub">&gt;90% capacidad</div></div>
-    </div>
-    <div class="dept-grid" id="deptGrid"></div>
-</div>
+    @if (TempData["Success"] != null)
+    {
+        <div class="ar-alert-ok">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/>
+            </svg>
+            @TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="ar-alert-err">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            @TempData["Error"]
+        </div>
+    }
 
-<!-- Vista: detalle de un departamento -->
-<div class="page-body" id="viewDetail" style="display:none">
-    <button class="back-btn" onclick="backToDepts()">
-        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Volver a departamentos
-    </button>
-    <div class="detail-header">
-        <div>
-            <div class="page-eyebrow" style="margin-bottom:.5rem"><span class="eyebrow-dot"></span><span id="detailTag">—</span></div>
-            <div class="detail-title" id="detailTitle">—</div>
-            <div class="detail-sub" id="detailSub">—</div>
+    <!-- Toolbar -->
+    <div class="ar-toolbar">
+        <div class="ar-search-wrap">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke-width="2" stroke-linecap="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" class="ar-search" id="arSearch"
+                   placeholder="Buscar por nombre, dirección, sucursal…"
+                   oninput="aplicarFiltro()" />
+        </div>
+        <button class="ar-filter-btn active" onclick="setFiltro('todos',this)">Todos</button>
+        <button class="ar-filter-btn" onclick="setFiltro('activo',this)">Activos</button>
+        <button class="ar-filter-btn" onclick="setFiltro('inactivo',this)">Inactivos</button>
+    </div>
+
+    <!-- Card tabla -->
+    <div class="ar-card">
+        <div class="ar-card-hd">
+            <div class="ar-card-hd-left">
+                <div class="ar-card-hd-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke-width="2" stroke-linecap="round">
+                        <rect x="2" y="7" width="20" height="14" rx="2"/>
+                        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="ar-card-hd-title">Directorio de Almacenes</div>
+                    <div class="ar-card-hd-sub">Todos los almacenes registrados en el sistema</div>
+                </div>
+            </div>
+            <span class="ar-counter" id="arCounter">@totalAlmacenes registros</span>
+        </div>
+
+        <div class="ar-table-wrap">
+            <table class="ar-table" id="arTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)" data-col="0">ID<span class="si"></span></th>
+                        <th onclick="sortTable(1)" data-col="1">Nombre<span class="si"></span></th>
+                        <th onclick="sortTable(2)" data-col="2">Tipo<span class="si"></span></th>
+                        <th onclick="sortTable(3)" data-col="3">Sucursal / Depto.<span class="si"></span></th>
+                        <th onclick="sortTable(4)" data-col="4">Estado<span class="si"></span></th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="arTbody">
+                @foreach (var a in Model)
+                {
+                    var estado   = a.EstadoAlmacen?.Descripcion ?? "—";
+                    var esActivo = estado.Equals("Activo", StringComparison.OrdinalIgnoreCase);
+                    var depto    = a.Sucursal?.Ciudad?.DepartamentoGeo?.NombreDpto ?? "—";
+                    var sucursal = a.Sucursal?.NombreSucursal ?? "—";
+                    var jsonData = System.Text.Json.JsonSerializer.Serialize(new {
+                        id            = a.AlmacenId,
+                        nombre        = a.NombreAlmacen,
+                        tipoId        = a.TipoAlmacenId,
+                        sucursalId    = a.SucursalId,
+                        estadoId      = a.EstadoAlmacenId,
+                        direccion     = a.Direccion     ?? "",
+                        observaciones = a.Observaciones ?? ""
+                    });
+                    <tr data-estado="@estado.ToLower()"
+                        data-search="@($"{a.NombreAlmacen} {a.TipoAlmacen?.Descripcion} {sucursal} {depto} {a.Direccion}".ToLower())">
+                        <td><span style="font-family:monospace;font-size:.72rem;color:var(--amt)">ALM-@a.AlmacenId</span></td>
+                        <td>
+                            <div style="font-weight:600;color:var(--ad);font-size:.83rem">@a.NombreAlmacen</div>
+                            @if (!string.IsNullOrEmpty(a.Direccion))
+                            {
+                                <div style="font-size:.72rem;color:var(--amt);margin-top:.15rem">@a.Direccion</div>
+                            }
+                        </td>
+                        <td><span class="badge-tipo">@(a.TipoAlmacen?.Descripcion ?? "—")</span></td>
+                        <td>
+                            <div style="font-size:.82rem;color:var(--am)">@sucursal</div>
+                            <div style="font-size:.7rem;color:var(--amt);font-family:monospace">@depto</div>
+                        </td>
+                        <td>
+                            @if (esActivo)
+                            { <span class="badge-activo">Activo</span> }
+                            else
+                            { <span class="badge-inact">@estado</span> }
+                        </td>
+                        <td>
+                            <div class="ar-act">
+                                <button class="btn-edit" onclick='abrirDrawer("editar",@Html.Raw(jsonData))'>
+                                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                    Editar
+                                </button>
+                                <button class="btn-del" onclick="confirmarDel(@a.AlmacenId,'@Html.Raw(a.NombreAlmacen.Replace("'","\'"))')">
+                                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                        <path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
+                                    </svg>
+                                    Eliminar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="ar-pag">
+            <span class="ar-pag-info" id="arPagInfo">Mostrando 1–10 de @totalAlmacenes</span>
+            <div class="ar-pag-btns" id="arPagBtns"></div>
         </div>
     </div>
-    <div class="warehouse-list" id="whList"></div>
 </div>
+
+<!-- ══ OVERLAY ══ -->
+<div class="ar-overlay" id="arOverlay" onclick="cerrarDrawer()"></div>
+
+<!-- ══ PANEL LATERAL ══ -->
+<div class="ar-drawer" id="arDrawer">
+    <div class="ar-drawer-hd">
+        <div>
+            <div class="ar-drawer-hd-title" id="drawerTitle">Nuevo Almacén</div>
+            <div class="ar-drawer-hd-sub"  id="drawerSub">INVENTARIO · ALMACENES</div>
+        </div>
+        <button class="ar-drawer-close" onclick="cerrarDrawer()">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Progreso -->
+    <div style="padding:.75rem 1.75rem .25rem;border-bottom:1px solid var(--ab)">
+        <div class="ar-prog-lbl">Completitud: <span id="drawerPct">0</span>%</div>
+        <div class="ar-prog-bar"><div class="ar-prog-fill" id="drawerFill"></div></div>
+    </div>
+
+    <div class="ar-drawer-body">
+        <div class="ar-sect">Información principal</div>
+
+        <!-- Nombre -->
+        <div class="ar-field">
+            <label class="ar-label" for="fNombre">Nombre del Almacén <span class="req">*</span></label>
+            <div class="ar-iw">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke-width="2" stroke-linecap="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2"/>
+                    <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                </svg>
+                <input type="text" class="ar-input" id="fNombre"
+                       placeholder="Ej. Bodega Central La Paz"
+                       maxlength="120" required oninput="actualizarProgreso()" />
+            </div>
+            <span class="ar-ferr" id="errNombre">El nombre es requerido.</span>
+        </div>
+
+        <!-- Tipo -->
+        <div class="ar-field">
+            <label class="ar-label" for="fTipo">Tipo de Almacén <span class="req">*</span></label>
+            <div class="ar-iw">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke-width="2" stroke-linecap="round">
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                    <line x1="7" y1="7" x2="7.01" y2="7"/>
+                </svg>
+                <select class="ar-select" id="fTipo" required onchange="actualizarProgreso()">
+                    <option value="">— Seleccionar tipo —</option>
+                    @foreach (var t in ViewBag.TiposAlmacen as IEnumerable<RefrescosDelValle.Models.Entities.DominioValor>
+                               ?? Enumerable.Empty<RefrescosDelValle.Models.Entities.DominioValor>())
+                    {
+                        <option value="@t.DominioValorId">@t.Descripcion</option>
+                    }
+                </select>
+            </div>
+            <span class="ar-ferr" id="errTipo">Selecciona un tipo.</span>
+        </div>
+
+        <!-- Sucursal -->
+        <div class="ar-field">
+            <label class="ar-label" for="fSucursal">Sucursal <span class="req">*</span></label>
+            <div class="ar-iw">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke-width="2" stroke-linecap="round">
+                    <circle cx="12" cy="10" r="3"/>
+                    <path d="M12 2a8 8 0 0 0-8 8c0 4.4 7 12 8 12s8-7.6 8-12a8 8 0 0 0-8-8z"/>
+                </svg>
+                <select class="ar-select" id="fSucursal" required onchange="actualizarProgreso()">
+                    <option value="">— Seleccionar sucursal —</option>
+                    @foreach (var s in ViewBag.Sucursales as IEnumerable<RefrescosDelValle.Models.Entities.Sucursale>
+                               ?? Enumerable.Empty<RefrescosDelValle.Models.Entities.Sucursale>())
+                    {
+                        <option value="@s.SucursalId">@s.NombreSucursal</option>
+                    }
+                </select>
+            </div>
+            <span class="ar-ferr" id="errSucursal">Selecciona una sucursal.</span>
+        </div>
+
+        <!-- Estado -->
+        <div class="ar-field">
+            <label class="ar-label" for="fEstado">Estado <span class="req">*</span></label>
+            <div class="ar-iw">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke-width="2" stroke-linecap="round">
+                    <circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/>
+                </svg>
+                <select class="ar-select" id="fEstado" required onchange="actualizarProgreso()">
+                    <option value="">— Seleccionar estado —</option>
+                    @foreach (var e in ViewBag.EstadosAlmacen as IEnumerable<RefrescosDelValle.Models.Entities.DominioValor>
+                               ?? Enumerable.Empty<RefrescosDelValle.Models.Entities.DominioValor>())
+                    {
+                        <option value="@e.DominioValorId">@e.Descripcion</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="ar-sect" style="margin-top:.25rem">Ubicación y notas</div>
+
+        <!-- Dirección -->
+        <div class="ar-field">
+            <label class="ar-label" for="fDireccion">Dirección</label>
+            <div class="ar-iw">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke-width="2" stroke-linecap="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                <input type="text" class="ar-input" id="fDireccion"
+                       placeholder="Av. Principal #123"
+                       maxlength="200" oninput="actualizarProgreso()" />
+            </div>
+        </div>
+
+        <!-- Observaciones -->
+        <div class="ar-field">
+            <label class="ar-label" for="fObs">Observaciones</label>
+            <textarea class="ar-textarea ni" id="fObs"
+                      placeholder="Notas adicionales sobre el almacén…"
+                      maxlength="500" oninput="actualizarProgreso()"></textarea>
+            <span class="ar-hint">Máximo 500 caracteres.</span>
+        </div>
+    </div>
+
+    <div class="ar-drawer-ft">
+        <div class="ar-drawer-ft-info" id="drawerFtInfo">
+            Campos con <span style="color:var(--ar)">*</span> son requeridos
+        </div>
+        <div class="ar-ft-btns">
+            <button class="btn-cancel" onclick="cerrarDrawer()">Cancelar</button>
+            <button class="btn-save" id="btnGuardar" onclick="guardar()">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+                </svg>
+                Guardar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ MODAL ELIMINAR ══ -->
+<div class="ar-modal-ov" id="arModalDel">
+    <div class="ar-modal">
+        <div class="ar-modal-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke-width="2" stroke-linecap="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                <path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
+            </svg>
+        </div>
+        <div class="ar-modal-title">¿Eliminar almacén?</div>
+        <div class="ar-modal-msg" id="modalDelMsg">Esta acción no se puede deshacer.</div>
+        <div class="ar-modal-btns">
+            <button class="ar-modal-cancel" onclick="cerrarModal()">Cancelar</button>
+            <button class="ar-modal-confirm" id="btnConfirmDel">Sí, eliminar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Formularios ocultos para POST -->
+<form id="frmAlmacen" method="post" style="display:none">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="AlmacenId"       id="hId"    />
+    <input type="hidden" name="NombreAlmacen"   id="hNom"   />
+    <input type="hidden" name="TipoAlmacenId"   id="hTipo"  />
+    <input type="hidden" name="SucursalId"      id="hSuc"   />
+    <input type="hidden" name="EstadoAlmacenId" id="hEst"   />
+    <input type="hidden" name="Direccion"        id="hDir"   />
+    <input type="hidden" name="Observaciones"    id="hObsH"  />
+</form>
+<form id="frmDel" method="post" style="display:none">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="hDelId" />
+</form>
 
 @section Scripts {
 <script>
-    window.addEventListener('scroll',()=>document.getElementById('navbar')
-        ?.classList.toggle('scrolled',window.scrollY>10));
+// ── ESTADO GLOBAL ──
+let modo     = 'crear';
+let filtro   = 'todos';
+let pagina   = 1;
+const PP     = 10;
+let visibles = [];
+let sCol = -1, sAsc = true;
 
-    // Datos desde el servidor (C# → JS)
-    const DEPTS_RAW = @Html.Raw(Json.Serialize(
-    Model
-        .GroupBy(a => a.Sucursal?.Ciudad?.DepartamentoGeo?.NombreDpto ?? "Sin depto")  // ✅ correcto
-        .Select(g => new {
-            n = g.Key,
-            a = g.Select(a => new {
-                id  = "ALM-" + a.AlmacenId,
-                n   = a.NombreAlmacen,
-                t   = a.TipoAlmacen?.Descripcion ?? "—",
-                dir = a.Direccion ?? "Sin dirección",
-                est = a.EstadoAlmacen?.Descripcion ?? "—"
-            })
-        })
-));
+// ── DRAWER ──
+function abrirDrawer(m, d) {
+    modo = m;
+    limpiar();
+    if (m === 'editar' && d) {
+        document.getElementById('drawerTitle').textContent  = 'Editar Almacén';
+        document.getElementById('drawerSub').textContent    = 'ALM-' + d.id;
+        document.getElementById('drawerFtInfo').innerHTML   =
+            'Editando <strong style="color:var(--ad)">ALM-' + d.id + '</strong>';
+        document.getElementById('hId').value   = d.id;
+        document.getElementById('fNombre').value    = d.nombre;
+        document.getElementById('fTipo').value      = d.tipoId;
+        document.getElementById('fSucursal').value  = d.sucursalId;
+        document.getElementById('fEstado').value    = d.estadoId;
+        document.getElementById('fDireccion').value = d.direccion;
+        document.getElementById('fObs').value       = d.observaciones;
+        document.getElementById('frmAlmacen').action = '/Inventario/EditarAlmacen';
+    } else {
+        document.getElementById('drawerTitle').textContent  = 'Nuevo Almacén';
+        document.getElementById('drawerSub').textContent    = 'INVENTARIO · ALMACENES';
+        document.getElementById('drawerFtInfo').innerHTML   =
+            'Campos con <span style="color:var(--ar)">*</span> son requeridos';
+        document.getElementById('hId').value = '';
+        document.getElementById('frmAlmacen').action = '/Inventario/CrearAlmacen';
+    }
+    actualizarProgreso();
+    document.getElementById('arOverlay').classList.add('open');
+    document.getElementById('arDrawer').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('fNombre').focus(), 320);
+}
 
-    // Emoji por departamento
-    const EMOJI = {
-        'La Paz':'🏔️','Cochabamba':'🌸','Santa Cruz':'🌴',
-        'Oruro':'⛏️','Potosí':'🏺','Chuquisaca':'⚖️',
-        'Tarija':'🍇','Beni':'🐊','Pando':'🌿'
+function cerrarDrawer() {
+    document.getElementById('arOverlay').classList.remove('open');
+    document.getElementById('arDrawer').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function limpiar() {
+    ['fNombre','fDireccion','fObs'].forEach(id => document.getElementById(id).value = '');
+    ['fTipo','fSucursal','fEstado'].forEach(id => document.getElementById(id).value = '');
+    ['errNombre','errTipo','errSucursal'].forEach(id =>
+        document.getElementById(id).classList.remove('show'));
+}
+
+// ── PROGRESO ──
+function actualizarProgreso() {
+    const req  = ['fNombre','fTipo','fSucursal','fEstado'].map(id => document.getElementById(id).value.trim());
+    const opt  = ['fDireccion','fObs'].map(id => document.getElementById(id).value.trim());
+    const n    = req.filter(Boolean).length + opt.filter(Boolean).length;
+    const pct  = Math.round(n / (req.length + opt.length) * 100);
+    document.getElementById('drawerFill').style.width = pct + '%';
+    document.getElementById('drawerPct').textContent  = pct;
+}
+
+// ── GUARDAR ──
+function guardar() {
+    const nom = document.getElementById('fNombre').value.trim();
+    const tip = document.getElementById('fTipo').value;
+    const suc = document.getElementById('fSucursal').value;
+    let ok = true;
+    const chk = (cond, errId) => {
+        document.getElementById(errId).classList.toggle('show', !cond);
+        if (!cond) ok = false;
     };
+    chk(nom, 'errNombre');
+    chk(tip, 'errTipo');
+    chk(suc, 'errSucursal');
+    if (!ok) return;
 
-    const DEPTS = DEPTS_RAW.map(d => ({...d, e: EMOJI[d.n] ?? '🏭'}));
+    document.getElementById('hNom').value  = nom;
+    document.getElementById('hTipo').value = tip;
+    document.getElementById('hSuc').value  = suc;
+    document.getElementById('hEst').value  = document.getElementById('fEstado').value;
+    document.getElementById('hDir').value  = document.getElementById('fDireccion').value.trim();
+    document.getElementById('hObsH').value = document.getElementById('fObs').value.trim();
 
-    // KPIs dinámicos
-    const totalAlmacenes = DEPTS.reduce((s,d)=>s+d.a.length,0);
-    document.querySelector('.kpi-card:nth-child(1) .kpi-value').textContent = totalAlmacenes;
-    document.querySelector('.kpi-card:nth-child(1) .kpi-sub').textContent   = 'en todo el país';
+    const btn = document.getElementById('btnGuardar');
+    btn.disabled = true;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/></svg> Guardando…';
+    document.getElementById('frmAlmacen').submit();
+}
 
-    // Render grilla de departamentos
-    document.getElementById('deptGrid').innerHTML = DEPTS.map((d,i) => `
-      <div class="dept-card" onclick="showDetail(${i})">
-        <span class="dept-card-map">${d.e}</span>
-        <div class="dept-card-name">${d.n}</div>
-        <div class="dept-card-count"><strong>${d.a.length}</strong> almacén${d.a.length>1?'es':''}</div>
-        <div class="dept-card-caret">
-            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-        </div>
-      </div>`).join('');
+// ── ELIMINAR ──
+let delId = null;
+function confirmarDel(id, nombre) {
+    delId = id;
+    document.getElementById('modalDelMsg').textContent =
+        `¿Seguro que deseas eliminar "${nombre}"? Esta acción no se puede deshacer.`;
+    document.getElementById('arModalDel').classList.add('open');
+}
+function cerrarModal() {
+    document.getElementById('arModalDel').classList.remove('open');
+    delId = null;
+}
+document.getElementById('btnConfirmDel').onclick = () => {
+    if (!delId) return;
+    document.getElementById('hDelId').value = delId;
+    document.getElementById('frmDel').action = '/Inventario/EliminarAlmacen';
+    document.getElementById('frmDel').submit();
+};
 
-    function showDetail(i){
-        const d = DEPTS[i];
-        document.getElementById('viewDepts').style.display  = 'none';
-        document.getElementById('viewDetail').style.display = 'block';
-        document.getElementById('heroTitle').innerHTML  = `${d.e} <span>${d.n.toUpperCase()}</span>`;
-        document.getElementById('heroSub').textContent  = `${d.a.length} almacén${d.a.length>1?'es':''} registrados`;
-        document.getElementById('detailTag').textContent   = d.n.toUpperCase() + ' · ALMACENES';
-        document.getElementById('detailTitle').textContent = `${d.a.length} almacén${d.a.length>1?'es':''} en ${d.n}`;
-        document.getElementById('detailSub').textContent   = 'Tipo y estado actual';
-        document.getElementById('bcCur').textContent = d.n;
-        document.getElementById('whList').innerHTML = d.a.map(a => `
-            <div class="warehouse-card">
-                <div class="wh-icon">🏭</div>
-                <div class="wh-info">
-                    <div class="wh-name">${a.n}</div>
-                    <div class="wh-type">${a.t} · ${a.id}</div>
-                    <div class="wh-type" style="margin-top:.25rem;color:var(--gray-500)">
-                        📍 ${a.dir}
-                    </div>
-                </div>
-                <div class="wh-capacity-wrap">
-                    <div class="wh-capacity-label">
-                        <span>Estado</span>
-                        <strong>${a.est}</strong>
-                    </div>
-                    <div class="wh-bar-track">
-                        <div class="wh-bar-fill ${a.est === 'Activo' ? 'low' : 'full'}" style="width:100%"></div>
-                    </div>
-                </div>
-            </div>`).join('');
-        window.scrollTo(0,0);
+// ── FILTRO + BÚSQUEDA ──
+function setFiltro(f, btn) {
+    filtro = f;
+    document.querySelectorAll('.ar-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    aplicarFiltro();
+}
+function aplicarFiltro() {
+    const q = document.getElementById('arSearch').value.toLowerCase().trim();
+    visibles = [];
+    document.querySelectorAll('#arTbody tr').forEach(tr => {
+        const matchQ = !q || (tr.dataset.search ?? '').includes(q);
+        const matchF = filtro === 'todos' || (tr.dataset.estado ?? '').includes(filtro);
+        const show   = matchQ && matchF;
+        tr.classList.toggle('hidden-row', !show);
+        if (show) visibles.push(tr);
+    });
+    pagina = 1;
+    renderPag();
+}
+
+// ── PAGINACIÓN ──
+function renderPag() {
+    const tot  = visibles.length;
+    const tPag = Math.max(1, Math.ceil(tot / PP));
+    pagina     = Math.min(pagina, tPag);
+    const de   = (pagina - 1) * PP;
+    const a    = de + PP;
+
+    visibles.forEach((tr, i) => tr.style.display = (i >= de && i < a) ? '' : 'none');
+
+    document.getElementById('arPagInfo').textContent =
+        tot === 0 ? '0 registros' : `Mostrando ${de + 1}–${Math.min(a, tot)} de ${tot}`;
+    document.getElementById('arCounter').textContent = tot + ' registros';
+
+    const cont = document.getElementById('arPagBtns');
+    cont.innerHTML = '';
+    const btn = (label, pg, dis, act) => {
+        const b = document.createElement('button');
+        b.className = 'ar-pb' + (act ? ' active' : '');
+        b.textContent = label; b.disabled = dis;
+        if (!dis && !act) b.onclick = () => { pagina = pg; renderPag(); };
+        cont.appendChild(b);
+    };
+    btn('‹', pagina - 1, pagina === 1, false);
+    for (let p = 1; p <= tPag; p++) {
+        if (tPag <= 7 || p === 1 || p === tPag || (p >= pagina - 1 && p <= pagina + 1))
+            btn(p, p, false, p === pagina);
+        else if (p === 2 || p === tPag - 1)
+            btn('…', p, true, false);
     }
+    btn('›', pagina + 1, pagina === tPag, false);
+}
 
-    function backToDepts(){
-        document.getElementById('viewDetail').style.display = 'none';
-        document.getElementById('viewDepts').style.display  = 'block';
-        document.getElementById('heroTitle').innerHTML  = 'ALMACENES <span>BOLIVIA</span>';
-        document.getElementById('heroSub').textContent  = 'Selecciona un departamento para ver el detalle';
-        document.getElementById('bcCur').textContent = 'Almacenes';
-        window.scrollTo(0,0);
-    }
+// ── ORDENAMIENTO ──
+function sortTable(col) {
+    if (sCol === col) sAsc = !sAsc; else { sCol = col; sAsc = true; }
+    document.querySelectorAll('.ar-table th').forEach((th, i) => {
+        th.classList.remove('sa','sd');
+        if (i === col) th.classList.add(sAsc ? 'sa' : 'sd');
+    });
+    const filas = Array.from(document.querySelectorAll('#arTbody tr'));
+    filas.sort((a, b) => {
+        const ta = a.cells[col]?.textContent.trim().toLowerCase() ?? '';
+        const tb = b.cells[col]?.textContent.trim().toLowerCase() ?? '';
+        return sAsc ? ta.localeCompare(tb) : tb.localeCompare(ta);
+    });
+    filas.forEach(f => document.getElementById('arTbody').appendChild(f));
+    aplicarFiltro();
+}
+
+// ── ESC ──
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { cerrarDrawer(); cerrarModal(); }
+});
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', aplicarFiltro);
 </script>
 }
+
