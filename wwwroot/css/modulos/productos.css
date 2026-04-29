@@ -1,0 +1,1132 @@
+/* ==========================================================================
+   SISTEMA DE DISEÑO RDV - MÓDULO DE PRODUCTOS (prod-)
+   Basado en el skill oficial rdv-ui-system para Refrescos del Valle
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. IMPORTS & TOKENS DE DISEÑO RDV
+   -------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+    /* Tokens Primarios RDV */
+    --rdv-red: #C8281E;
+    --rdv-red-dark: #a81f16;
+    --rdv-red-deeper: #7a1a10;
+
+    /* Tokens de Fondos RDV */
+    --rdv-bg-hero: #0f0b09;
+    --rdv-bg-white: #f7f5f4;
+    --rdv-bg-card: #ffffff;
+    --rdv-bg-card-hd: #faf9f8;
+    --rdv-bg-input: #faf9f8;
+
+    /* Tokens de Texto RDV */
+    --rdv-txt-dark: #18120f;
+    --rdv-txt-mid: #5a4a44;
+    --rdv-txt-muted: #9a8a84;
+
+    /* Tokens de Bordes RDV */
+    --rdv-border: rgba(0, 0, 0, .07);
+    --rdv-border-md: rgba(0, 0, 0, .1);
+
+    /* Tokens de Estados RDV */
+    --rdv-green: #1a7a3c;
+    --rdv-green-bg: rgba(26, 122, 60, .07);
+    --rdv-yellow: #b08d0a;
+    --rdv-yellow-bg: rgba(241, 196, 15, .08);
+    --rdv-red-bg: rgba(200, 40, 30, .07);
+    --rdv-blue: #2563EB;
+    --rdv-blue-bg: rgba(37, 99, 235, .07);
+
+    /* Variables de Layout y utilidad */
+    --rdv-border-radius-card: 14px;
+    --rdv-transition: all 200ms ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--rdv-bg-white);
+    color: var(--rdv-txt-dark);
+    line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+   2. LAYOUT PRINCIPAL: HERO NEGRO + SECCIÓN BLANCA
+   -------------------------------------------------------------------------- */
+.prod-hero {
+    background: var(--rdv-bg-hero);
+    position: relative;
+    padding: 3rem 2.5rem 2.5rem;
+    overflow: hidden;
+}
+
+.prod-hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(200, 40, 30, .03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200, 40, 30, .03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+}
+
+.prod-hero-glow {
+    position: absolute;
+    top: -30%;
+    right: -20%;
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(circle, rgba(200, 40, 30, .15) 0%, rgba(15, 11, 9, 0) 70%);
+    filter: blur(60px);
+    pointer-events: none;
+}
+
+.prod-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.prod-hero-text {
+    flex: 1;
+}
+
+.prod-eyebrow {
+    font-family: monospace;
+    font-size: .75rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--rdv-red);
+    background: rgba(200, 40, 30, .12);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 1.5rem;
+    backdrop-filter: blur(4px);
+}
+
+.prod-eyebrow-dot {
+    width: 6px;
+    height: 6px;
+    background-color: var(--rdv-red);
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .5; transform: scale(0.8); }
+}
+
+.prod-hero-text h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.prod-hero-text h1 .prod-stroke {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--rdv-red);
+}
+
+.prod-hero-sub {
+    font-size: .95rem;
+    color: rgba(255, 255, 255, .35);
+    max-width: 450px;
+    margin-bottom: 1.5rem;
+}
+
+.prod-hero-stats {
+    display: flex;
+    gap: 2rem;
+    background: rgba(255, 255, 255, .03);
+    backdrop-filter: blur(8px);
+    padding: 1rem 1.8rem;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, .05);
+}
+
+.prod-stat {
+    text-align: center;
+}
+
+.prod-stat-value {
+    font-family: monospace;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--rdv-red);
+    line-height: 1;
+}
+
+.prod-stat-label {
+    font-family: monospace;
+    font-size: .7rem;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, .5);
+    letter-spacing: 1px;
+}
+
+/* SECCIÓN BLANCA */
+.prod-white-section {
+    background: var(--rdv-bg-white);
+    padding: 2rem 2.5rem 3rem;
+}
+
+.prod-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* --------------------------------------------------------------------------
+   3. TOOLBAR CON FILTROS
+   -------------------------------------------------------------------------- */
+.prod-toolbar {
+    background: var(--rdv-bg-card);
+    border: 1px solid var(--rdv-border);
+    border-radius: var(--rdv-border-radius-card);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.prod-filters-form {
+    width: 100%;
+}
+
+.prod-filter-grid {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 1rem;
+    align-items: end;
+}
+
+.prod-search-group {
+    position: relative;
+}
+
+.prod-search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--rdv-txt-muted);
+    font-size: 1rem;
+    pointer-events: none;
+}
+
+.prod-search-input {
+    width: 100%;
+    padding: .75rem 1rem .75rem 2.5rem;
+    background: var(--rdv-bg-input);
+    border: 1px solid var(--rdv-border-md);
+    border-radius: 10px;
+    font-size: .85rem;
+    transition: var(--rdv-transition);
+    font-family: monospace;
+}
+
+.prod-search-input:focus {
+    outline: none;
+    border-color: var(--rdv-red);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(200, 40, 30, .1);
+}
+
+.prod-filter-group {
+    min-width: 160px;
+}
+
+.prod-filter-select {
+    width: 100%;
+    padding: .75rem 1rem;
+    background: var(--rdv-bg-input);
+    border: 1px solid var(--rdv-border-md);
+    border-radius: 10px;
+    font-size: .85rem;
+    font-family: monospace;
+    color: var(--rdv-txt-mid);
+    cursor: pointer;
+    transition: var(--rdv-transition);
+}
+
+.prod-filter-select:focus {
+    outline: none;
+    border-color: var(--rdv-red);
+    box-shadow: 0 0 0 3px rgba(200, 40, 30, .1);
+}
+
+.prod-filter-actions {
+    display: flex;
+    gap: .75rem;
+}
+
+/* --------------------------------------------------------------------------
+   4. BOTONES RDV
+   -------------------------------------------------------------------------- */
+.prod-btn-primary {
+    background: var(--rdv-red);
+    color: white;
+    border: none;
+    padding: .75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: .85rem;
+    cursor: pointer;
+    transition: var(--rdv-transition);
+    box-shadow: 0 2px 6px rgba(200, 40, 30, .2);
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    font-family: monospace;
+    text-decoration: none;
+}
+
+.prod-btn-primary:hover {
+    background: var(--rdv-red-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(200, 40, 30, .3);
+    color: white;
+    text-decoration: none;
+}
+
+.prod-btn-secondary {
+    background: var(--rdv-bg-card-hd);
+    border: 1px solid var(--rdv-border);
+    padding: .75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: .85rem;
+    cursor: pointer;
+    transition: var(--rdv-transition);
+    font-family: monospace;
+    text-decoration: none;
+    color: var(--rdv-txt-mid);
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.prod-btn-secondary:hover {
+    background: var(--rdv-bg-input);
+    border-color: var(--rdv-border-md);
+    color: var(--rdv-txt-dark);
+    text-decoration: none;
+}
+
+.prod-btn-sm {
+    padding: .4rem .9rem;
+    border-radius: 8px;
+    font-size: .75rem;
+    font-family: monospace;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: var(--rdv-transition);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.prod-btn-sm:hover {
+    transform: translateY(-1px);
+}
+
+.prod-btn-view {
+    background: var(--rdv-blue-bg);
+    color: var(--rdv-blue);
+    border: 1px solid rgba(37, 99, 235, .2);
+}
+
+.prod-btn-edit {
+    background: var(--rdv-yellow-bg);
+    color: var(--rdv-yellow);
+    border: 1px solid rgba(176, 141, 10, .2);
+}
+
+.prod-btn-delete {
+    background: var(--rdv-red-bg);
+    color: var(--rdv-red);
+    border: 1px solid rgba(200, 40, 30, .2);
+}
+
+.prod-btn-icon {
+    background: transparent;
+    border: 1px solid var(--rdv-border);
+    padding: .5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--rdv-transition);
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+.prod-btn-icon:hover {
+    background: var(--rdv-bg-input);
+    border-color: var(--rdv-red);
+    transform: scale(1.02);
+}
+
+/* --------------------------------------------------------------------------
+   5. TABLA DE PRODUCTOS (Estilo RDV)
+   ------------------------------------------------------------------------- */
+.prod-table-card {
+    background: var(--rdv-bg-card);
+    border: 1px solid var(--rdv-border);
+    border-radius: var(--rdv-border-radius-card);
+    overflow: hidden;
+}
+
+.prod-table-header {
+    background: var(--rdv-bg-card-hd);
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--rdv-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.prod-table-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    color: var(--rdv-txt-dark);
+    margin-bottom: .25rem;
+}
+
+.prod-table-header p {
+    font-size: .8rem;
+    color: var(--rdv-txt-muted);
+}
+
+.prod-table-actions {
+    display: flex;
+    gap: .5rem;
+}
+
+.prod-table-responsive {
+    overflow-x: auto;
+}
+
+.prod-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.prod-table th {
+    text-align: left;
+    padding: 1rem 1rem;
+    background: var(--rdv-bg-card-hd);
+    font-family: monospace;
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--rdv-txt-muted);
+    font-weight: 600;
+    border-bottom: 1px solid var(--rdv-border);
+}
+
+.prod-table td {
+    padding: 1rem;
+    font-size: .85rem;
+    color: var(--rdv-txt-mid);
+    border-bottom: 1px solid var(--rdv-border);
+}
+
+.prod-table tr:last-child td {
+    border-bottom: none;
+}
+
+.prod-table tr:hover td {
+    background: var(--rdv-bg-card-hd);
+}
+
+.prod-id-cell {
+    font-family: monospace;
+    font-weight: 600;
+    color: var(--rdv-txt-dark);
+}
+
+.prod-name-cell strong {
+    color: var(--rdv-txt-dark);
+    font-weight: 600;
+}
+
+.prod-sku-cell {
+    font-family: monospace;
+    font-size: .8rem;
+}
+
+.prod-actions-cell {
+    white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   6. BADGES RDV
+   -------------------------------------------------------------------------- */
+.prod-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: .25rem .75rem;
+    border-radius: 999px;
+    font-family: monospace;
+    font-size: .7rem;
+    font-weight: 600;
+}
+
+.prod-badge-success {
+    background: var(--rdv-green-bg);
+    color: var(--rdv-green);
+    border: 1px solid rgba(26, 122, 60, .2);
+}
+
+.prod-badge-danger {
+    background: var(--rdv-red-bg);
+    color: var(--rdv-red);
+    border: 1px solid rgba(200, 40, 30, .2);
+}
+
+/* --------------------------------------------------------------------------
+   7. PAGINACIÓN
+   -------------------------------------------------------------------------- */
+.prod-pagination {
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid var(--rdv-border);
+    background: var(--rdv-bg-card);
+}
+
+.prod-pagination button,
+.prod-pagination-num,
+.prod-pagination-prev,
+.prod-pagination-next {
+    background: var(--rdv-bg-card-hd);
+    border: 1px solid var(--rdv-border);
+    padding: .5rem .9rem;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: .8rem;
+    cursor: pointer;
+    transition: var(--rdv-transition);
+    color: var(--rdv-txt-mid);
+}
+
+.prod-pagination button:hover:not(:disabled),
+.prod-pagination-num:hover,
+.prod-pagination-prev:hover:not(:disabled),
+.prod-pagination-next:hover:not(:disabled) {
+    background: var(--rdv-bg-input);
+    border-color: var(--rdv-red);
+    color: var(--rdv-red);
+}
+
+.prod-pagination button.active,
+.prod-pagination-num.active {
+    background: var(--rdv-red);
+    border-color: var(--rdv-red);
+    color: white;
+}
+
+.prod-pagination button:disabled,
+.prod-pagination-prev:disabled,
+.prod-pagination-next:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   8. ESTADOS VACÍOS
+   -------------------------------------------------------------------------- */
+.prod-empty-cell {
+    padding: 3rem !important;
+    text-align: center;
+}
+
+.prod-empty-state {
+    text-align: center;
+    padding: 2rem;
+}
+
+.prod-empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.prod-empty-state-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: .5rem;
+    color: var(--rdv-txt-dark);
+}
+
+.prod-empty-state-description {
+    font-size: .85rem;
+    color: var(--rdv-txt-muted);
+}
+
+/* --------------------------------------------------------------------------
+   9. RESPONSIVE
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+    .prod-filter-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .prod-filter-actions {
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 900px) {
+    .prod-hero {
+        padding: 2rem 1rem;
+    }
+    
+    .prod-hero-text h1 {
+        font-size: 2.5rem;
+    }
+    
+    .prod-hero-stats {
+        padding: .6rem 1rem;
+        gap: 1rem;
+    }
+    
+    .prod-white-section {
+        padding: 1.5rem;
+    }
+    
+    .prod-table th:nth-child(4),
+    .prod-table td:nth-child(4) {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .prod-hero-stats {
+        display: none;
+    }
+    
+    .prod-table th:nth-child(3),
+    .prod-table td:nth-child(3),
+    .prod-table th:nth-child(5),
+    .prod-table td:nth-child(5) {
+        display: none;
+    }
+    
+    .prod-actions-cell {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+    }
+    
+    .prod-pagination {
+        justify-content: center;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   10. SCROLLBAR
+   -------------------------------------------------------------------------- */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--rdv-bg-card-hd);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--rdv-txt-muted);
+    border-radius: 4px;
+    transition: var(--rdv-transition);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--rdv-red);
+}
+
+
+/* --------------------------------------------------------------------------
+   11. ESTILOS PARA FORMULARIO DE PRODUCTOS (Crear/Editar)
+   -------------------------------------------------------------------------- */
+
+/* Formulario principal */
+.prod-form-card {
+    background: var(--rdv-bg-card);
+    border: 1px solid var(--rdv-border);
+    border-radius: var(--rdv-border-radius-card);
+    overflow: hidden;
+}
+
+.prod-form-header {
+    background: var(--rdv-bg-card-hd);
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--rdv-border);
+}
+
+.prod-form-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--rdv-txt-dark);
+    margin-bottom: 0.5rem;
+}
+
+.prod-form-header p {
+    font-size: 0.85rem;
+    color: var(--rdv-txt-muted);
+}
+
+.prod-form-body {
+    padding: 2rem;
+}
+
+/* Barra de progreso */
+.prod-progress-bar-container {
+    padding: 1.5rem 2rem 0 2rem;
+    background: var(--rdv-bg-card);
+}
+
+.prod-progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.prod-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.prod-step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--rdv-bg-input);
+    border: 2px solid var(--rdv-border-md);
+    border-radius: 50%;
+    font-family: monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--rdv-txt-mid);
+    margin-bottom: 0.5rem;
+    transition: var(--rdv-transition);
+}
+
+.prod-step.active .prod-step-number {
+    background: var(--rdv-red);
+    border-color: var(--rdv-red);
+    color: white;
+}
+
+.prod-step.completed .prod-step-number {
+    background: var(--rdv-green);
+    border-color: var(--rdv-green);
+    color: white;
+}
+
+.prod-step-label {
+    font-family: monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: var(--rdv-txt-muted);
+    letter-spacing: 0.5px;
+}
+
+.prod-step.active .prod-step-label {
+    color: var(--rdv-red);
+    font-weight: 600;
+}
+
+.prod-progress-bar {
+    background: var(--rdv-border);
+    border-radius: 100px;
+    height: 4px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.prod-progress-fill {
+    background: var(--rdv-red);
+    height: 100%;
+    border-radius: 100px;
+    transition: width 0.3s ease;
+}
+
+/* Secciones del formulario */
+.prod-form-section {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.prod-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--rdv-red);
+}
+
+.prod-section-icon {
+    font-size: 1.5rem;
+}
+
+.prod-section-title h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--rdv-txt-dark);
+    margin: 0;
+}
+
+/* Grupos de formulario */
+.prod-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.prod-form-group label {
+    display: block;
+    font-family: monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--rdv-txt-mid);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.prod-required {
+    color: var(--rdv-red);
+    font-size: 1rem;
+    margin-right: 2px;
+}
+
+.prod-input-wrapper {
+    position: relative;
+}
+
+.prod-input-icon {
+    position: absolute;
+    left: 0.9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    color: var(--rdv-txt-muted);
+    pointer-events: none;
+}
+
+.prod-form-control {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    background: var(--rdv-bg-input);
+    border: 1px solid var(--rdv-border-md);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    transition: var(--rdv-transition);
+    font-family: monospace;
+}
+
+.prod-form-control:focus {
+    outline: none;
+    border-color: var(--rdv-red);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(200, 40, 30, 0.1);
+}
+
+.prod-textarea {
+    resize: vertical;
+    min-height: 100px;
+    padding-top: 0.75rem;
+}
+
+.prod-form-control.prod-input-error {
+    border-color: var(--rdv-red);
+    background: var(--rdv-red-bg);
+}
+
+.prod-text-danger {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--rdv-red);
+    margin-top: 0.25rem;
+    font-family: monospace;
+}
+
+.prod-form-hint {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--rdv-txt-muted);
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
+/* Checkbox personalizado */
+.prod-checkbox-group {
+    background: var(--rdv-bg-card-hd);
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--rdv-border);
+}
+
+.prod-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+}
+
+.prod-checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+.prod-checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--rdv-border-md);
+    border-radius: 4px;
+    background: white;
+    transition: var(--rdv-transition);
+    position: relative;
+}
+
+.prod-checkbox-label input[type="checkbox"]:checked + .prod-checkbox-custom {
+    background: var(--rdv-red);
+    border-color: var(--rdv-red);
+}
+
+.prod-checkbox-label input[type="checkbox"]:checked + .prod-checkbox-custom::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+}
+
+.prod-checkbox-text {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: var(--rdv-txt-dark);
+    font-weight: 500;
+}
+
+/* Info box */
+.prod-info-box {
+    background: var(--rdv-blue-bg);
+    border-left: 4px solid var(--rdv-blue);
+    padding: 1rem;
+    border-radius: 10px;
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.prod-info-icon {
+    font-size: 1.25rem;
+}
+
+.prod-info-content strong {
+    display: block;
+    color: var(--rdv-txt-dark);
+    margin-bottom: 0.25rem;
+    font-size: 0.85rem;
+}
+
+.prod-info-content p {
+    font-size: 0.8rem;
+    color: var(--rdv-txt-mid);
+    margin: 0;
+}
+
+/* Validation summary */
+.prod-validation-summary {
+    background: var(--rdv-red-bg);
+    border-left: 4px solid var(--rdv-red);
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.prod-validation-summary ul {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.prod-validation-summary li {
+    font-size: 0.85rem;
+    color: var(--rdv-red);
+    font-family: monospace;
+}
+
+/* Alert */
+.prod-alert {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.prod-alert-warning {
+    background: var(--rdv-yellow-bg);
+    border-left: 4px solid var(--rdv-yellow);
+}
+
+.prod-alert-icon {
+    font-size: 1.25rem;
+}
+
+.prod-alert-content strong {
+    display: block;
+    color: var(--rdv-yellow);
+    margin-bottom: 0.25rem;
+    font-size: 0.85rem;
+}
+
+.prod-alert-content p {
+    font-size: 0.8rem;
+    color: var(--rdv-txt-mid);
+    margin: 0;
+}
+
+/* Barra de acciones fija */
+.prod-form-actions-sticky {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    border-top: 1px solid var(--rdv-border);
+    margin-top: 2rem;
+    padding: 1rem 0;
+    z-index: 10;
+}
+
+.prod-form-actions-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.prod-form-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--rdv-txt-mid);
+    font-family: monospace;
+}
+
+.prod-form-info-icon {
+    font-size: 1rem;
+}
+
+.prod-form-buttons {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+/* Responsive para formulario */
+@media (max-width: 768px) {
+    .prod-form-body {
+        padding: 1rem;
+    }
+    
+    .prod-progress-steps {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .prod-step {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .prod-step-number {
+        margin-bottom: 0;
+    }
+    
+    .prod-progress-bar-container {
+        padding: 1rem;
+    }
+    
+    .prod-form-actions-content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .prod-form-buttons {
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    .prod-form-buttons {
+        flex-direction: column;
+    }
+    
+    .prod-form-buttons .prod-btn-primary,
+    .prod-form-buttons .prod-btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+}

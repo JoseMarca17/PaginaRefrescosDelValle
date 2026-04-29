@@ -1,0 +1,324 @@
+@model IEnumerable<RefrescosDelValle.Models.Entities.Producto>
+
+@{
+    ViewData["Title"] = "Productos";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/modulos/productos.css" />
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- HERO NEGRO RDV (Patrón oficial del sistema)                        -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="prod-hero">
+    <div class="prod-hero-grid"></div>
+    <div class="prod-hero-glow"></div>
+    
+    <div class="prod-hero-content">
+        <div class="prod-hero-text">
+            <div class="prod-eyebrow">
+                <span class="prod-eyebrow-dot"></span>
+                INVENTARIO · GESTIÓN DE PRODUCTOS
+            </div>
+            <h1>
+                Gestión de<br>
+                <span class="prod-stroke">Productos</span>
+            </h1>
+            <div class="prod-hero-sub">
+                Administración completa de productos de producción
+            </div>
+            <a asp-controller="Produccion" asp-action="CrearProducto" class="prod-btn-primary">
+                <span>+</span> Nuevo Producto
+            </a>
+        </div>
+        
+        <div class="prod-hero-stats">
+            <div class="prod-stat">
+                <div class="prod-stat-value" id="totalProductos">@(Model?.Count() ?? 0)</div>
+                <div class="prod-stat-label">Total productos</div>
+            </div>
+            <div class="prod-stat">
+                <div class="prod-stat-value" id="productosActivos">@(Model?.Count(p => p.Activo) ?? 0)</div>
+                <div class="prod-stat-label">Activos</div>
+            </div>
+            <div class="prod-stat">
+                <div class="prod-stat-value" id="categoriasCount">@(Model?.Select(p => p.CategoriaProducto?.Nombre).Distinct().Count() ?? 0)</div>
+                <div class="prod-stat-label">Categorías</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN BLANCA RDV (Contenido funcional)                           -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="prod-white-section">
+    <div class="prod-container">
+        
+        <!-- Toolbar con Filtros RDV -->
+        <div class="prod-toolbar">
+            <form method="get" asp-action="Productos" class="prod-filters-form">
+                <div class="prod-filter-grid">
+                    <div class="prod-search-group">
+                        <span class="prod-search-icon">🔍</span>
+                        <input type="text" 
+                               name="searchString" 
+                               value="@ViewBag.CurrentFilter" 
+                               class="prod-search-input" 
+                               placeholder="Buscar por nombre o código SKU...">
+                    </div>
+                    
+                    <div class="prod-filter-group">
+                        <select name="activo" class="prod-filter-select">
+                            <option value="">Todos los estados</option>
+                            @if (ViewBag.CurrentActivo != null && ViewBag.CurrentActivo == true)
+                            {
+                                <option value="true" selected>Activos</option>
+                                <option value="false">Inactivos</option>
+                            }
+                            else if (ViewBag.CurrentActivo != null && ViewBag.CurrentActivo == false)
+                            {
+                                <option value="true">Activos</option>
+                                <option value="false" selected>Inactivos</option>
+                            }
+                            else
+                            {
+                                <option value="true">Activos</option>
+                                <option value="false">Inactivos</option>
+                            }
+                        </select>
+                    </div>
+                    
+                    <div class="prod-filter-actions">
+                        <button type="submit" class="prod-btn-primary">
+                            🔍 Buscar
+                        </button>
+                        <a asp-action="Productos" class="prod-btn-secondary">
+                            🗑️ Limpiar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tabla de Productos RDV -->
+        <div class="prod-table-card">
+            <div class="prod-table-header">
+                <div>
+                    <h2>📦 Catálogo de Productos</h2>
+                    <p>Listado completo de productos registrados en el sistema</p>
+                </div>
+                <div class="prod-table-actions">
+                    <button class="prod-btn-icon prod-btn-export" id="btnExportar" title="Exportar a CSV">
+                        📊 Exportar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="prod-table-responsive">
+                <table class="prod-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Producto</th>
+                            <th>SKU</th>
+                            <th>Categoría</th>
+                            <th>Unidad</th>
+                            <th>Estado</th>
+                            <th style="width: 280px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="prod-id-cell">@item.ProductoId</td>
+                                    <td class="prod-name-cell">
+                                        <strong>@item.NombreProducto</strong>
+                                    </td>
+                                    <td class="prod-sku-cell">
+                                        @(string.IsNullOrEmpty(item.CodigoSku) ? "—" : item.CodigoSku)
+                                    </td>
+                                    <td>
+                                        @(item.CategoriaProducto != null ? item.CategoriaProducto.Nombre : "—")
+                                    </td>
+                                    <td>
+                                        @(string.IsNullOrEmpty(item.UnidadMedidaTexto) ? "—" : item.UnidadMedidaTexto)
+                                    </td>
+                                    <td>
+                                        @if (item.Activo)
+                                        {
+                                            <span class="prod-badge prod-badge-success">
+                                                ● Activo
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="prod-badge prod-badge-danger">
+                                                ● Inactivo
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="prod-actions-cell">
+                                        <a asp-action="ProductoDetails"
+                                           asp-route-id="@item.ProductoId"
+                                           class="prod-btn-sm prod-btn-view"
+                                           title="Ver detalles">
+                                            👁️ Ver
+                                        </a>
+                                        <a asp-action="EditarProducto"
+                                           asp-route-id="@item.ProductoId"
+                                           class="prod-btn-sm prod-btn-edit"
+                                           title="Editar producto">
+                                            ✏️ Editar
+                                        </a>
+                                        <form asp-action="EliminarProducto"
+          asp-route-id="@item.ProductoId"
+          method="post"
+          style="display:inline;">
+
+        <button type="submit"
+                class="prod-btn-sm prod-btn-delete"
+                onclick="return confirm('¿Seguro que deseas eliminar este producto?')">
+            🗑️ Eliminar
+        </button>
+
+    </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="prod-empty-cell">
+                                    <div class="prod-empty-state">
+                                        <div class="prod-empty-state-icon">📦</div>
+                                        <div class="prod-empty-state-title">No hay productos registrados</div>
+                                        <div class="prod-empty-state-description">
+                                            Comienza agregando un nuevo producto al sistema
+                                        </div>
+                                        <a asp-action="CrearProducto" class="prod-btn-primary" style="margin-top: 1rem; display: inline-block;">
+                                            + Crear primer producto
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginación (UX Estándar) -->
+            @if (Model != null && Model.Any())
+            {
+                <div class="prod-pagination">
+                    <button class="prod-pagination-prev" disabled>
+                        ◀ Anterior
+                    </button>
+                    <button class="prod-pagination-num active">1</button>
+                    <button class="prod-pagination-num">2</button>
+                    <button class="prod-pagination-num">3</button>
+                    <button class="prod-pagination-next">
+                        Siguiente ▶
+                    </button>
+                </div>
+            }
+        </div>
+        
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Script básico para funcionalidades adicionales
+        (function() {
+            // Contar elementos dinámicamente
+            const totalProductos = @(Model?.Count() ?? 0);
+            const productosActivos = @(Model?.Count(p => p.Activo) ?? 0);
+            const categoriasCount = @(Model?.Select(p => p.CategoriaProducto?.Nombre).Distinct().Count() ?? 0);
+            
+            // Actualizar stats del hero si es necesario
+            const statValues = document.querySelectorAll('.prod-stat-value');
+            if (statValues.length >= 3) {
+                console.log(`Total productos: ${totalProductos}, Activos: ${productosActivos}, Categorías: ${categoriasCount}`);
+            }
+            
+            // Funcionalidad de búsqueda en tiempo real (opcional)
+            const searchInput = document.querySelector('.prod-search-input');
+            if (searchInput) {
+                let searchTimeout;
+                searchInput.addEventListener('keyup', function(e) {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        // Auto-submit después de 500ms de inactividad
+                        if (this.value.length >= 3 || this.value.length === 0) {
+                            this.closest('form').submit();
+                        }
+                    }, 500);
+                });
+            }
+            
+            // Exportar funcionalidad
+            const exportBtn = document.getElementById('btnExportar');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', function() {
+                    // Obtener datos de la tabla
+                    const rows = document.querySelectorAll('.prod-table tbody tr');
+                    let csvContent = "ID,Producto,SKU,Categoría,Unidad,Estado\n";
+                    
+                    rows.forEach(row => {
+                        if (row.querySelector('.prod-empty-cell')) return;
+                        
+                        const cells = row.querySelectorAll('td');
+                        if (cells.length >= 7) {
+                            const id = cells[0]?.innerText.trim() || '';
+                            const producto = cells[1]?.innerText.trim() || '';
+                            const sku = cells[2]?.innerText.trim() || '';
+                            const categoria = cells[3]?.innerText.trim() || '';
+                            const unidad = cells[4]?.innerText.trim() || '';
+                            const estado = cells[5]?.innerText.trim() || '';
+                            
+                            csvContent += `"${id}","${producto}","${sku}","${categoria}","${unidad}","${estado}"\n`;
+                        }
+                    });
+                    
+                    // Descargar archivo CSV
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', 'productos_export.csv');
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                });
+            }
+            
+            // Paginación mock (para demostración)
+            const paginationBtns = document.querySelectorAll('.prod-pagination-num, .prod-pagination-next, .prod-pagination-prev');
+            paginationBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    if (!this.disabled) {
+                        // Remover active de todos
+                        document.querySelectorAll('.prod-pagination-num').forEach(b => {
+                            b.classList.remove('active');
+                        });
+                        
+                        // Si es un número, activarlo
+                        if (this.classList.contains('prod-pagination-num')) {
+                            this.classList.add('active');
+                        }
+                        
+                        // Aquí iría la lógica real de paginación
+                        console.log('Cambiar a página:', this.innerText);
+                    }
+                });
+            });
+        })();
+    </script>
+}
