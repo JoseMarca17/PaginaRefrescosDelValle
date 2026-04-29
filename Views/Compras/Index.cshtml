@@ -1,27 +1,67 @@
 @{
-    ViewData["Title"] = "Módulo de Compras";
+    ViewData["Title"] = "Módulo de Compras | Refrescos Del Valle";
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
 }
 
-<div class="dashboard-header">
+<style>
+    /* Pequeños ajustes para que las tarjetas funcionen como enlaces sin subrayarse */
+    .module-card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .module-card-link:hover {
+        transform: translateY(-3px);
+        /* Aquí puedes poner el box-shadow que ya usabas en el hover de .module-card */
+    }
+    .quick-actions-bar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .btn-quick-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        background-color: var(--primary-color, #0056b3);
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    .btn-quick-action:hover {
+        background-color: var(--primary-dark, #004494);
+        color: white;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted, #6c757d);
+    }
+</style>
+
+<div class="dashboard-header mb-4">
     <div class="header-left">
-        <a href="/Dashboard" class="back-button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <a href="@Url.Action("Index", "Dashboard")" class="back-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
             Volver al Dashboard
         </a>
         <div>
             <h1 class="dashboard-title">Módulo de Compras</h1>
-            <p class="dashboard-subtitle">Gestión de proveedores, órdenes y recepciones</p>
+            <p class="dashboard-subtitle">Gestión de proveedores, abastecimiento y recepción de inventario</p>
         </div>
     </div>
-    <div class="dashboard-header-right" style="display: flex; align-items: center; gap: 1rem;">
+    <div class="dashboard-header-right">
         <div class="date-badge">
             <svg viewBox="0 0 24 24" width="16" height="16">
                 <rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
-                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
                 <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
                 <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
             </svg>
             <span>@DateTime.Now.ToString("dddd, dd MMMM yyyy")</span>
@@ -29,105 +69,132 @@
     </div>
 </div>
 
+<div class="quick-actions-bar">
+    <a href="@Url.Action("CrearOrdenCompra", "Compras")" class="btn-quick-action">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Nueva Orden de Compra
+    </a>
+    <a href="@Url.Action("CrearRecepcion", "Compras")" class="btn-quick-action" style="background-color: var(--success-color, #28a745);">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Registrar Recepción
+    </a>
+</div>
+
 <div class="modules-grid">
-    <div class="module-card" onclick="location.href='/Compras/Proveedores'">
+    <a href="@Url.Action("Index", "Proveedores")" class="module-card module-card-link">
         <div class="module-card-header">
             <div class="module-icon compras">
                 <svg viewBox="0 0 24 24" width="28" height="28">
                     <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" fill="none"/>
                     <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor"/>
-                    <path d="M16 10a4 4 0 01-8 0" stroke="currentColor"/>
+                    <path d="M16 10a4 4 0 01-8 0" stroke="currentColor" fill="none"/>
                 </svg>
             </div>
-            <span class="module-badge">Gestión</span>
+            <span class="module-badge">Catálogo</span>
         </div>
         <h3 class="module-title">Proveedores</h3>
-        <p class="module-desc">Administrar catálogo de proveedores y datos de contacto</p>
+        <p class="module-desc">Administrar empresas de suministros e insumos</p>
         <div class="module-stats">
-            <span class="stat-badge">@ViewBag.ProveedoresActivos Proveedores activos</span>
-            <span class="stat-badge">@ViewBag.TotalProveedores Total registrados</span>
+            <span class="stat-badge">@(ViewBag.ProveedoresActivos ?? 0) Activos</span>
+            <span class="stat-badge">@(ViewBag.TotalProveedores ?? 0) Registrados</span>
         </div>
         <div class="module-footer">
-            <span class="module-link">Administrar proveedores →</span>
+            <span class="module-link text-primary">Gestionar directorio →</span>
         </div>
-    </div>
+    </a>
 
-    <div class="module-card" onclick="location.href='/Compras/OrdenesCompra'">
+    <a href="@Url.Action("OrdenesCompra", "Compras")" class="module-card module-card-link">
         <div class="module-card-header">
             <div class="module-icon compras">
-                <svg viewBox="0 0 24 24" width="28" height="28">
-                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" fill="none"/>
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="none">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor"/>
                     <polyline points="14 2 14 8 20 8" stroke="currentColor"/>
                     <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor"/>
                     <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor"/>
                     <polyline points="10 9 9 9 8 9" stroke="currentColor"/>
                 </svg>
             </div>
-            <span class="module-badge warning">@ViewBag.OrdenesPendientes pendientes</span>
+            @if (ViewBag.OrdenesPendientes != null && ViewBag.OrdenesPendientes > 0)
+            {
+                <span class="module-badge warning">@ViewBag.OrdenesPendientes pendientes</span>
+            }
         </div>
         <h3 class="module-title">Órdenes de Compra</h3>
-        <p class="module-desc">Gestionar órdenes de compra a proveedores</p>
+        <p class="module-desc">Emisión y seguimiento de pedidos a proveedores</p>
         <div class="module-stats">
-            <span class="stat-badge">@ViewBag.OrdenesCompra Total</span>
-            <span class="stat-badge success">@ViewBag.OrdenesMes Este mes</span>
+            <span class="stat-badge">@(ViewBag.OrdenesCompra ?? 0) Histórico</span>
+            <span class="stat-badge success">@(ViewBag.OrdenesMes ?? 0) Este mes</span>
         </div>
         <div class="module-footer">
-            <span class="module-link">Gestionar órdenes →</span>
+            <span class="module-link text-primary">Ver panel de órdenes →</span>
         </div>
-    </div>
+    </a>
 
-    <div class="module-card" onclick="location.href='/Compras/Recepciones'">
+    <a href="@Url.Action("Index", "Recepciones")" class="module-card module-card-link">
         <div class="module-card-header">
             <div class="module-icon compras">
-                <svg viewBox="0 0 24 24" width="28" height="28">
-                    <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" fill="none"/>
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="none">
+                    <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor"/>
                     <path d="M8 7v10M16 7v10M7 12h10" stroke="currentColor" stroke-width="2"/>
                     <circle cx="12" cy="12" r="2" fill="currentColor"/>
                 </svg>
             </div>
-            <span class="module-badge success">Recepción</span>
+            <span class="module-badge success">Inventario</span>
         </div>
         <h3 class="module-title">Recepciones</h3>
-        <p class="module-desc">Registrar y verificar recepción de mercadería</p>
+        <p class="module-desc">Control de ingreso de lotes y mercadería al almacén</p>
         <div class="module-stats">
-            <span class="stat-badge">@ViewBag.RecepcionesHoy Recepciones hoy</span>
-            <span class="stat-badge">@ViewBag.RecepcionesMes Este mes</span>
+            <span class="stat-badge">@(ViewBag.RecepcionesHoy ?? 0) Hoy</span>
+            <span class="stat-badge">@(ViewBag.RecepcionesMes ?? 0) Este mes</span>
         </div>
         <div class="module-footer">
-            <span class="module-link">Registrar recepción →</span>
+            <span class="module-link text-primary">Revisar ingresos →</span>
         </div>
-    </div>
+    </a>
 </div>
 
-<div class="activity-section">
-    <div class="activity-header">
-        <h3 class="activity-title">Órdenes de Compra Recientes</h3>
-        <a href="/Compras/OrdenesCompra" class="activity-link">Ver todas →</a>
+<div class="activity-section mt-5">
+    <div class="activity-header d-flex justify-content-between align-items-center mb-3">
+        <h3 class="activity-title mb-0">Actividad Reciente: Órdenes de Compra</h3>
+        <a href="@Url.Action("OrdenesCompra", "Compras")" class="activity-link text-decoration-none">Ver historial completo →</a>
     </div>
+    
     <div class="activity-list">
-        @if (ViewBag.OrdenesRecientes != null && ViewBag.OrdenesRecientes.Count > 0)
+        @if (ViewBag.OrdenesRecientes != null && ((IEnumerable<dynamic>)ViewBag.OrdenesRecientes).Any())
         {
-            @foreach (var orden in ViewBag.OrdenesRecientes)
+            foreach (var orden in ViewBag.OrdenesRecientes)
             {
                 <div class="activity-item">
                     <div class="activity-icon @orden.Estado">
-                        <svg viewBox="0 0 24 24" width="16" height="16">
-                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" fill="none"/>
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor"/>
                             <polyline points="14 2 14 8 20 8" stroke="currentColor"/>
                         </svg>
                     </div>
                     <div class="activity-content">
-                        <p class="activity-text">OC-@orden.NumeroOrden · @orden.Proveedor</p>
-                        <span class="activity-time">@orden.Fecha.ToString("HH:mm") · @orden.Fecha.ToString("dd/MM/yyyy")</span>
+                        <p class="activity-text fw-bold">
+                            @orden.NumeroOrden 
+                            <span class="badge bg-light text-dark ms-2" style="font-size: 0.75em; border: 1px solid #ddd;">@orden.Estado</span>
+                        </p>
+                        <p class="activity-text text-muted mb-0">Proveedor: @orden.Proveedor</p>
+                        <span class="activity-time" style="font-size: 0.85em;">@orden.Fecha.ToString("dd MMM yyyy - HH:mm")</span>
                     </div>
-                    <div class="activity-amount">Bs. @orden.Total.ToString("N2")</div>
+                    <div class="activity-amount fw-bold">
+                        Bs. @orden.Total.ToString("N2")
+                    </div>
                 </div>
             }
         }
         else
         {
-            <div class="activity-item">
-                <p class="activity-text" style="color: var(--text-muted);">No hay órdenes de compra recientes</p>
+            <div class="activity-item empty-state">
+                <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" fill="none" style="opacity: 0.2; margin-bottom: 1rem;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <p class="mb-0">No se encontraron órdenes de compra emitidas recientemente.</p>
+                <a href="@Url.Action("CrearOrdenCompra", "Compras")" class="text-primary mt-2 d-inline-block">Crear la primera orden</a>
             </div>
         }
     </div>
