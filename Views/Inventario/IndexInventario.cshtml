@@ -5,204 +5,425 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/inventario.css" />
-    <style>
-        body { background: var(--dark-900); }
+<style>
+/* ── TOKENS ── */
+:root{
+    --ii-red:    #C8281E; --ii-red-dk: #a81f16;
+    --ii-hero:   #0f0b09; --ii-dark2:  #141010;
+    --ii-white:  #f7f5f4; --ii-card:   #ffffff;
+    --ii-card-hd:#faf9f8; --ii-dark:   #18120f;
+    --ii-mid:    #5a4a44; --ii-muted:  #9a8a84;
+    --ii-border: rgba(0,0,0,.07);
+    --ii-green:  #1a7a3c; --ii-yellow: #b08d0a;
+}
 
-        /* ══ HERO ══ */
-        .hero-inv {
-            background: var(--dark-900);
-            min-height: 88vh;
-            display: flex;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-            padding: 5rem 2rem;
-        }
-        .hero-grid-bg {
-            position: absolute; inset: 0; pointer-events: none;
-            background-image:
-                repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(192,57,43,0.05) 59px, rgba(192,57,43,0.05) 60px),
-                repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(192,57,43,0.05) 59px, rgba(192,57,43,0.05) 60px);
-        }
-        .hero-glow { position:absolute; width:700px; height:700px; background:radial-gradient(circle,rgba(192,57,43,.12) 0%,transparent 70%); top:-150px; left:-150px; pointer-events:none; }
-        .hero-glow-right { position:absolute; width:400px; height:400px; background:radial-gradient(circle,rgba(192,57,43,.07) 0%,transparent 70%); bottom:-100px; right:-60px; pointer-events:none; }
-        .hero-inv-inner { max-width:1200px; margin:0 auto; width:100%; position:relative; z-index:2; display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; }
-        .hero-left { max-width:580px; }
-        .hero-eyebrow { display:inline-flex; align-items:center; gap:.6rem; font-family:var(--font-mono); font-size:.68rem; color:var(--gray-400); letter-spacing:1.5px; margin-bottom:1.5rem; animation:fadeUp .6s ease both; }
-        .eyebrow-dot { width:6px; height:6px; border-radius:50%; background:var(--red-500); animation:pulse-dot 2s ease infinite; }
-        @@keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.75);} }
-        .hero-inv-title { font-family:var(--font-display); font-size:clamp(3rem,6vw,5.5rem); color:var(--white); line-height:.95; letter-spacing:2px; margin-bottom:1.5rem; animation:fadeUp .65s ease .1s both; }
-        .title-stroke { -webkit-text-stroke:2px var(--red-500); color:transparent; }
-        .hero-inv-desc { color:var(--gray-400); font-size:1rem; line-height:1.75; max-width:480px; margin-bottom:2.5rem; animation:fadeUp .65s ease .2s both; }
-        .hero-numbers { display:flex; align-items:center; animation:fadeUp .65s ease .35s both; margin-top:1rem; }
-        .hn-item { display:flex; flex-direction:column; padding:0 1.75rem; }
-        .hn-item:first-child { padding-left:0; }
-        .hn-val { font-family:var(--font-display); font-size:2rem; color:var(--red-400); line-height:1; }
-        .hn-label { font-size:.68rem; color:var(--gray-500); font-family:var(--font-mono); margin-top:.2rem; }
-        .hn-sep { width:1px; height:36px; background:var(--dark-600); }
-        .module-cards-stack { display:flex; flex-direction:column; gap:1rem; animation:fadeUp .65s ease .25s both; }
-        .module-card { background:var(--dark-800); border:1px solid var(--dark-600); border-radius:var(--radius-lg); padding:1.4rem 1.6rem; display:flex; align-items:center; gap:1.25rem; text-decoration:none; position:relative; overflow:hidden; transition:border-color .22s,transform .2s,box-shadow .22s; }
-        .module-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--red-600); transform:scaleY(0); transform-origin:bottom; transition:transform .22s; }
-        .module-card:hover { border-color:var(--red-600); transform:translateX(4px); box-shadow:var(--shadow-red); }
-        .module-card:hover::before { transform:scaleY(1); }
-        .mc-icon-wrap { width:52px; height:52px; flex-shrink:0; background:rgba(192,57,43,.1); border:1px solid rgba(192,57,43,.2); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; font-size:1.4rem; transition:background .2s,border-color .2s; }
-        .module-card:hover .mc-icon-wrap { background:rgba(192,57,43,.2); border-color:var(--red-500); }
-        .mc-body { flex:1; }
-        .mc-title { font-family:var(--font-display); font-size:1.25rem; color:var(--white); letter-spacing:.5px; line-height:1; margin-bottom:.35rem; }
-        .mc-desc { font-size:.8rem; color:var(--gray-500); line-height:1.5; }
-        .mc-tag { font-family:var(--font-mono); font-size:.6rem; color:var(--red-400); background:rgba(192,57,43,.1); border:1px solid rgba(192,57,43,.2); border-radius:999px; padding:.15rem .55rem; display:inline-block; margin-top:.45rem; }
-        .mc-arrow { width:32px; height:32px; flex-shrink:0; background:var(--dark-700); border-radius:50%; display:flex; align-items:center; justify-content:center; transition:background .18s,transform .18s; }
-        .mc-arrow svg { width:13px; height:13px; stroke:var(--gray-400); fill:none; stroke-width:2.5; transition:stroke .18s; }
-        .module-card:hover .mc-arrow { background:var(--red-600); transform:translateX(2px); }
-        .module-card:hover .mc-arrow svg { stroke:var(--white); }
+/* ── HERO ── */
+.ii-hero{
+    background:var(--ii-hero);
+    min-height:88vh; display:flex; align-items:center;
+    position:relative; overflow:hidden; padding:5rem 2.5rem;
+}
+.ii-hero-grid{
+    position:absolute;inset:0;pointer-events:none;
+    background-image:
+        repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(200,40,30,.04) 59px,rgba(200,40,30,.04) 60px),
+        repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(200,40,30,.04) 59px,rgba(200,40,30,.04) 60px);
+}
+.ii-glow-l{position:absolute;width:700px;height:700px;
+    background:radial-gradient(circle,rgba(200,40,30,.1) 0%,transparent 70%);
+    top:-200px;left:-150px;pointer-events:none}
+.ii-glow-r{position:absolute;width:400px;height:400px;
+    background:radial-gradient(circle,rgba(200,40,30,.06) 0%,transparent 70%);
+    bottom:-100px;right:-60px;pointer-events:none}
+.ii-hero-inner{
+    max-width:1200px;margin:0 auto;width:100%;
+    position:relative;z-index:2;
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:4rem;align-items:center;
+}
 
-        /* ══ SECCIÓN RESUMEN ══ */
-        .inv-overview { background: var(--dark-800); padding:5rem 2rem; }
-        .overview-inner { max-width:1200px; margin:0 auto; }
-        .section-header-centered { text-align:center; margin-bottom:3rem; }
-        .section-tag { font-family:var(--font-mono); font-size:.65rem; color:var(--red-500); letter-spacing:2px; text-transform:uppercase; margin-bottom:.75rem; }
-        .section-title { font-family:var(--font-display); font-size:clamp(2rem,4vw,3rem); color:var(--white); letter-spacing:1px; margin-bottom:.5rem; }
-        .section-subdesc { font-size:.88rem; color:var(--gray-500); }
-        .flow-timeline { display:flex; align-items:flex-start; gap:0; flex-wrap:wrap; justify-content:center; margin-top:2.5rem; }
-        .flow-step { display:flex; flex-direction:column; align-items:center; text-align:center; max-width:200px; gap:.75rem; }
-        .flow-num { width:44px; height:44px; border-radius:50%; background:var(--red-800); border:2px solid var(--red-600); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:1.2rem; color:var(--white); flex-shrink:0; }
-        .flow-title { font-family:var(--font-display); font-size:.95rem; color:var(--white); letter-spacing:.5px; }
-        .flow-desc { font-size:.78rem; color:var(--gray-500); line-height:1.6; margin-top:.3rem; }
-        .flow-connector { flex:1; min-width:40px; height:2px; background:var(--red-800); margin-top:21px; max-width:80px; }
+/* Eyebrow */
+.ii-eyebrow{
+    display:inline-flex;align-items:center;gap:.6rem;
+    font-family:monospace;font-size:.66rem;
+    color:rgba(200,40,30,.85);letter-spacing:2px;
+    text-transform:uppercase;margin-bottom:1.4rem;
+}
+.ii-eyebrow-dot{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--ii-red);display:inline-block;
+    animation:iipulse 2.5s ease infinite;
+}
+@@keyframes iipulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.55)}}
 
-        /* ══ ACCESO RÁPIDO ══ */
-        .quick-access { background:var(--dark-900); padding:5rem 2rem; }
-        .qa-inner { max-width:1200px; margin:0 auto; }
-        .section-tag.light { color:var(--red-400); }
-        .section-title.light { color:var(--white); }
-        .qa-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:2.5rem; }
-        .qa-card { background:var(--dark-800); border:1px solid var(--dark-600); border-radius:var(--radius-xl); padding:2rem; text-decoration:none; display:flex; flex-direction:column; transition:all .22s; position:relative; overflow:hidden; }
-        .qa-card:hover { border-color:var(--red-600); transform:translateY(-4px); box-shadow:var(--shadow-red); }
-        .qa-icon { font-size:2.2rem; margin-bottom:1rem; }
-        .qa-title { font-family:var(--font-display); font-size:1.4rem; color:var(--white); letter-spacing:1px; margin-bottom:.75rem; }
-        .qa-desc { font-size:.82rem; color:var(--gray-500); line-height:1.7; flex:1; margin-bottom:1.25rem; }
-        .qa-stats { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1.5rem; }
-        .qa-stat { font-family:var(--font-mono); font-size:.65rem; color:var(--red-400); background:rgba(192,57,43,.1); border:1px solid rgba(192,57,43,.2); border-radius:999px; padding:.2rem .65rem; }
-        .qa-cta { display:inline-flex; align-items:center; gap:.5rem; font-family:var(--font-mono); font-size:.75rem; color:var(--red-400); margin-top:auto; transition:gap .18s; }
-        .qa-cta svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2; }
-        .qa-card:hover .qa-cta { gap:.75rem; }
+/* Título */
+.ii-hero-title{
+    font-family:'Playfair Display',Georgia,serif;
+    font-size:clamp(2.8rem,6vw,5.5rem);
+    color:#fff;line-height:.92;
+    letter-spacing:2px;font-weight:800;margin-bottom:1.4rem;
+}
+.ii-hero-title .stroke{-webkit-text-stroke:2px var(--ii-red);color:transparent}
+.ii-hero-desc{
+    font-size:.9rem;color:rgba(255,255,255,.32);
+    line-height:1.75;max-width:460px;margin-bottom:2.5rem;
+}
 
-        @@media(max-width:900px){ .hero-inv-inner{grid-template-columns:1fr;} .qa-grid{grid-template-columns:1fr;} }
-        @@media(max-width:640px){ .flow-timeline{flex-direction:column;align-items:center;} .flow-connector{width:2px;height:30px;min-width:unset;margin-top:0;} }
-    </style>
+/* KPI strip */
+.ii-kpi-strip{display:flex;align-items:center;flex-wrap:wrap;gap:0}
+.ii-kpi-item{display:flex;flex-direction:column;padding:0 1.75rem}
+.ii-kpi-item:first-child{padding-left:0}
+.ii-kpi-val{
+    font-family:'Playfair Display',Georgia,serif;
+    font-size:2.2rem;color:var(--ii-red);line-height:1;font-weight:800;
+}
+.ii-kpi-lbl{
+    font-size:.62rem;font-family:monospace;
+    color:rgba(255,255,255,.22);
+    text-transform:uppercase;letter-spacing:1.5px;margin-top:.2rem;
+}
+.ii-kpi-sep{width:1px;height:36px;background:rgba(255,255,255,.1)}
+
+/* Module cards */
+.ii-module-stack{display:flex;flex-direction:column;gap:1rem}
+.ii-mcard{
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.07);
+    border-radius:14px;padding:1.4rem 1.6rem;
+    display:flex;align-items:center;gap:1.25rem;
+    text-decoration:none;position:relative;overflow:hidden;
+    transition:border-color .22s,transform .2s,background .22s;
+}
+.ii-mcard::before{
+    content:'';position:absolute;
+    left:0;top:0;bottom:0;width:3px;
+    background:var(--ii-red);
+    transform:scaleY(0);transform-origin:bottom;transition:transform .22s;
+}
+.ii-mcard:hover{
+    border-color:rgba(200,40,30,.45);
+    transform:translateX(5px);
+    background:rgba(200,40,30,.04);
+}
+.ii-mcard:hover::before{transform:scaleY(1)}
+.ii-mcard-icon{
+    width:50px;height:50px;flex-shrink:0;
+    background:rgba(200,40,30,.1);
+    border:1px solid rgba(200,40,30,.2);
+    border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .2s,border-color .2s;
+}
+.ii-mcard-icon svg{stroke:var(--ii-red)}
+.ii-mcard:hover .ii-mcard-icon{background:rgba(200,40,30,.2);border-color:var(--ii-red)}
+.ii-mcard-body{flex:1}
+.ii-mcard-title{
+    font-family:'Playfair Display',Georgia,serif;
+    font-size:1.1rem;color:#fff;letter-spacing:.5px;margin-bottom:.3rem;
+}
+.ii-mcard-desc{font-size:.77rem;color:rgba(255,255,255,.32);line-height:1.5}
+.ii-mcard-tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.5rem}
+.ii-badge{
+    font-family:monospace;font-size:.58rem;
+    color:rgba(200,40,30,.85);
+    background:rgba(200,40,30,.1);border:1px solid rgba(200,40,30,.2);
+    border-radius:999px;padding:.15rem .55rem;
+}
+.ii-badge.green{color:var(--ii-green);background:rgba(26,122,60,.08);border-color:rgba(26,122,60,.2)}
+.ii-badge.yellow{color:var(--ii-yellow);background:rgba(176,141,10,.08);border-color:rgba(176,141,10,.25)}
+.ii-mcard-arrow{
+    width:32px;height:32px;flex-shrink:0;
+    background:rgba(255,255,255,.05);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .18s,transform .18s;
+}
+.ii-mcard-arrow svg{stroke:rgba(255,255,255,.3)}
+.ii-mcard:hover .ii-mcard-arrow{background:var(--ii-red);transform:translateX(2px)}
+.ii-mcard:hover .ii-mcard-arrow svg{stroke:#fff}
+
+/* ── SECCIÓN FLUJO (oscura) ── */
+.ii-flow{
+    background:var(--ii-dark2);padding:5rem 2.5rem;
+    border-top:1px solid rgba(255,255,255,.04);
+}
+.ii-flow-inner{max-width:1200px;margin:0 auto}
+.ii-stag{
+    font-family:monospace;font-size:.63rem;
+    color:rgba(200,40,30,.85);letter-spacing:2px;
+    text-transform:uppercase;margin-bottom:.75rem;
+    display:block;text-align:center;
+}
+.ii-stitle{
+    font-family:'Playfair Display',Georgia,serif;
+    font-size:clamp(1.8rem,3.5vw,2.8rem);
+    color:#fff;letter-spacing:1px;
+    text-align:center;margin-bottom:.5rem;
+}
+.ii-ssub{font-size:.84rem;color:rgba(255,255,255,.28);text-align:center;margin-bottom:3rem}
+.ii-timeline{
+    display:flex;align-items:flex-start;
+    justify-content:center;flex-wrap:wrap;
+}
+.ii-fstep{
+    display:flex;flex-direction:column;
+    align-items:center;text-align:center;
+    max-width:200px;gap:.75rem;
+}
+.ii-fnum{
+    width:44px;height:44px;border-radius:50%;
+    background:rgba(200,40,30,.15);
+    border:2px solid rgba(200,40,30,.35);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Playfair Display',Georgia,serif;
+    font-size:1.2rem;color:#fff;flex-shrink:0;
+}
+.ii-ftitle{font-family:'Playfair Display',Georgia,serif;font-size:.9rem;color:#fff;letter-spacing:.5px}
+.ii-fdesc{font-size:.75rem;color:rgba(255,255,255,.28);line-height:1.6;margin-top:.3rem}
+.ii-fconn{
+    flex:1;min-width:40px;height:2px;
+    background:rgba(200,40,30,.2);
+    margin-top:21px;max-width:80px;
+}
+
+/* ── SECCIÓN ACCESO RÁPIDO (blanca) ── */
+.ii-quick{background:var(--ii-white);padding:5rem 2.5rem}
+.ii-quick-inner{max-width:1200px;margin:0 auto}
+.ii-stag.dark{color:var(--ii-red)}
+.ii-stitle.dark{color:var(--ii-dark)}
+.ii-ssub.dark{color:var(--ii-muted)}
+.ii-qa-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:1.5rem;margin-top:2.5rem;
+}
+.ii-qa-card{
+    background:#fff;border:1px solid var(--ii-border);
+    border-radius:14px;padding:2rem;
+    text-decoration:none;display:flex;flex-direction:column;
+    transition:all .22s;position:relative;overflow:hidden;
+}
+.ii-qa-card::after{
+    content:'';position:absolute;
+    bottom:0;left:0;right:0;height:3px;
+    background:var(--ii-red);
+    transform:scaleX(0);transform-origin:left;transition:transform .25s;
+}
+.ii-qa-card:hover{
+    border-color:rgba(200,40,30,.2);
+    transform:translateY(-4px);
+    box-shadow:0 12px 40px rgba(200,40,30,.1);
+}
+.ii-qa-card:hover::after{transform:scaleX(1)}
+.ii-qa-icon{
+    width:44px;height:44px;border-radius:12px;
+    background:rgba(200,40,30,.08);
+    border:1px solid rgba(200,40,30,.15);
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:1.1rem;
+}
+.ii-qa-icon svg{stroke:var(--ii-red)}
+.ii-qa-title{
+    font-family:'Playfair Display',Georgia,serif;
+    font-size:1.3rem;color:var(--ii-dark);
+    letter-spacing:1px;margin-bottom:.75rem;
+}
+.ii-qa-desc{font-size:.81rem;color:var(--ii-mid);line-height:1.7;flex:1;margin-bottom:1.25rem}
+.ii-qa-stats{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.5rem}
+.ii-qa-stat{
+    font-family:monospace;font-size:.62rem;color:var(--ii-red);
+    background:rgba(200,40,30,.07);border:1px solid rgba(200,40,30,.15);
+    border-radius:999px;padding:.2rem .65rem;
+}
+.ii-qa-stat.green{color:var(--ii-green);background:rgba(26,122,60,.07);border-color:rgba(26,122,60,.2)}
+.ii-qa-stat.yellow{color:var(--ii-yellow);background:rgba(176,141,10,.07);border-color:rgba(176,141,10,.2)}
+.ii-qa-cta{
+    display:inline-flex;align-items:center;gap:.5rem;
+    font-family:monospace;font-size:.72rem;
+    color:var(--ii-red);margin-top:auto;
+    transition:gap .18s;font-weight:600;
+}
+.ii-qa-cta svg{stroke:currentColor}
+.ii-qa-card:hover .ii-qa-cta{gap:.85rem}
+
+/* ── RESPONSIVE ── */
+@@media(max-width:900px){
+    .ii-hero{min-height:auto;padding:4rem 1.5rem}
+    .ii-hero-inner{grid-template-columns:1fr;gap:3rem}
+    .ii-qa-grid{grid-template-columns:1fr 1fr}
+    .ii-flow,.ii-quick{padding:3.5rem 1.5rem}
+}
+@@media(max-width:640px){
+    .ii-hero{padding:3rem 1.25rem}
+    .ii-qa-grid{grid-template-columns:1fr}
+    .ii-timeline{flex-direction:column;align-items:center}
+    .ii-fconn{width:2px;height:30px;min-width:unset;margin-top:0}
+    .ii-kpi-strip{gap:.5rem}
+    .ii-kpi-item{padding:0 1rem}
+    .ii-module-stack{gap:.75rem}
+    .ii-mcard{padding:1.1rem 1.2rem}
+}
+</style>
 }
 
 <!-- ══ HERO ══ -->
-<section class="hero-inv">
-    <div class="hero-grid-bg"></div>
-    <div class="hero-glow"></div>
-    <div class="hero-glow-right"></div>
+<section class="ii-hero">
+    <div class="ii-hero-grid"></div>
+    <div class="ii-glow-l"></div>
+    <div class="ii-glow-r"></div>
 
-    <div class="hero-inv-inner">
-        <div class="hero-left">
-            <div class="hero-eyebrow">
-                <span class="eyebrow-dot"></span>
-                SISTEMA · MÓDULO ALMACÉN
+    <div class="ii-hero-inner">
+        <!-- Izquierda: título + KPIs -->
+        <div>
+            <div class="ii-eyebrow">
+                <span class="ii-eyebrow-dot"></span>
+                SISTEMA · MÓDULO INVENTARIO
             </div>
-            <h1 class="hero-inv-title">
+            <h1 class="ii-hero-title">
                 GESTIÓN DE<br>
-                <span class="title-stroke">INVENTARIO</span>
+                <span class="stroke">INVENTARIO</span>
             </h1>
-            <p class="hero-inv-desc">
+            <p class="ii-hero-desc">
                 Control centralizado de stock, almacenes por departamento y movimientos
                 de mercancía a nivel nacional. Todo en tiempo real.
             </p>
-            <div class="hero-numbers">
-                <div class="hn-item">
-                    <span class="hn-val">@Model.TotalUnidades.ToString("N0")</span>
-                    <span class="hn-label">UNIDADES</span>
+            <div class="ii-kpi-strip">
+                <div class="ii-kpi-item">
+                    <span class="ii-kpi-val">@Model.TotalUnidades.ToString("N0")</span>
+                    <span class="ii-kpi-lbl">Unidades</span>
                 </div>
-                <div class="hn-sep"></div>
-                <div class="hn-item">
-                    <span class="hn-val">@Model.TotalAlmacenes</span>
-                    <span class="hn-label">ALMACENES</span>
+                <div class="ii-kpi-sep"></div>
+                <div class="ii-kpi-item">
+                    <span class="ii-kpi-val">@Model.TotalAlmacenes</span>
+                    <span class="ii-kpi-lbl">Almacenes</span>
                 </div>
-                <div class="hn-sep"></div>
-                <div class="hn-item">
-                    <span class="hn-val">@Model.TotalDepartamentos</span>
-                    <span class="hn-label">DEPARTAMENTOS</span>
+                <div class="ii-kpi-sep"></div>
+                <div class="ii-kpi-item">
+                    <span class="ii-kpi-val">@Model.TotalDepartamentos</span>
+                    <span class="ii-kpi-lbl">Departamentos</span>
                 </div>
             </div>
         </div>
 
-        <div class="module-cards-stack">
-            <a asp-controller="Inventario" asp-action="Stock" class="module-card">
-                <div class="mc-icon-wrap">📦</div>
-                <div class="mc-body">
-                    <div class="mc-title">STOCK</div>
-                    <div class="mc-desc">Consulta el inventario disponible por departamento y producto.</div>
-                    <span class="mc-tag">847K unidades · 38 SKUs · 3 críticos</span>
+        <!-- Derecha: módulos -->
+        <div class="ii-module-stack">
+            <a asp-controller="Inventario" asp-action="Stock" class="ii-mcard">
+                <div class="ii-mcard-icon">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke-width="1.8" stroke-linecap="round">
+                        <rect x="1" y="3" width="15" height="13" rx="2"/>
+                        <path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+                    </svg>
                 </div>
-                <div class="mc-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+                <div class="ii-mcard-body">
+                    <div class="ii-mcard-title">Stock</div>
+                    <div class="ii-mcard-desc">Inventario disponible por departamento y producto.</div>
+                    <div class="ii-mcard-tags">
+                        <span class="ii-badge">@Model.TotalUnidades.ToString("N0") unidades</span>
+                        <span class="ii-badge">@Model.TotalSKUs SKUs</span>
+                        @if (Model.SKUsCriticos > 0)
+                        {
+                            <span class="ii-badge yellow">@Model.SKUsCriticos críticos</span>
+                        }
+                    </div>
+                </div>
+                <div class="ii-mcard-arrow">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke-width="2.5" stroke-linecap="round">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </div>
             </a>
 
-            <a asp-controller="Inventario" asp-action="Almacenes" class="module-card">
-                <div class="mc-icon-wrap">🏭</div>
-                <div class="mc-body">
-                    <div class="mc-title">ALMACENES</div>
-                    <div class="mc-desc">Vista de almacenes por departamento con capacidad y ocupación detallada.</div>
-                    <span class="mc-tag">27 almacenes · 73% ocupación media</span>
+            <a asp-controller="Inventario" asp-action="Almacenes" class="ii-mcard">
+                <div class="ii-mcard-icon">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke-width="1.8" stroke-linecap="round">
+                        <rect x="2" y="7" width="20" height="14" rx="2"/>
+                        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                    </svg>
                 </div>
-                <div class="mc-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+                <div class="ii-mcard-body">
+                    <div class="ii-mcard-title">Almacenes</div>
+                    <div class="ii-mcard-desc">Vista por departamento con estado y capacidad.</div>
+                    <div class="ii-mcard-tags">
+                        <span class="ii-badge">@Model.TotalAlmacenes total</span>
+                        <span class="ii-badge green">@Model.AlmacenesActivos activos</span>
+                        @if (Model.AlmacenesEnBaja > 0)
+                        {
+                            <span class="ii-badge yellow">@Model.AlmacenesEnBaja en baja</span>
+                        }
+                    </div>
+                </div>
+                <div class="ii-mcard-arrow">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke-width="2.5" stroke-linecap="round">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </div>
             </a>
 
-            <a asp-controller="Inventario" asp-action="Movimientos" class="module-card">
-                <div class="mc-icon-wrap">🔄</div>
-                <div class="mc-body">
-                    <div class="mc-title">MOVIMIENTOS</div>
-                    <div class="mc-desc">Historial de traslados, recepciones y mermas con filtros por fecha y origen.</div>
-                    <span class="mc-tag">148 movimientos este mes · 17 mermas</span>
+            <a asp-controller="Inventario" asp-action="Movimientos" class="ii-mcard">
+                <div class="ii-mcard-icon">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke-width="1.8" stroke-linecap="round">
+                        <polyline points="17 1 21 5 17 9"/>
+                        <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                        <polyline points="7 23 3 19 7 15"/>
+                        <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                    </svg>
                 </div>
-                <div class="mc-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+                <div class="ii-mcard-body">
+                    <div class="ii-mcard-title">Movimientos</div>
+                    <div class="ii-mcard-desc">Traslados, recepciones y mermas del mes.</div>
+                    <div class="ii-mcard-tags">
+                        <span class="ii-badge">@Model.MovimientosEsteMes este mes</span>
+                        <span class="ii-badge green">@Model.TrasladosEsteMes traslados</span>
+                        @if (Model.MermasEsteMes > 0)
+                        {
+                            <span class="ii-badge yellow">@Model.MermasEsteMes mermas</span>
+                        }
+                    </div>
+                </div>
+                <div class="ii-mcard-arrow">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke-width="2.5" stroke-linecap="round">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </div>
             </a>
         </div>
     </div>
 </section>
 
-<!-- ══ FLUJO DE OPERACIÓN ══ -->
-<section class="inv-overview">
-    <div class="overview-inner">
-        <div class="section-header-centered">
-            <div class="section-tag">CÓMO FUNCIONA</div>
-            <h2 class="section-title">Flujo de inventario</h2>
-            <p class="section-subdesc">Desde la producción hasta la distribución, todo queda registrado</p>
-        </div>
-        <div class="flow-timeline">
-            <div class="flow-step">
-                <div class="flow-num">1</div>
+<!-- ══ FLUJO ══ -->
+<section class="ii-flow">
+    <div class="ii-flow-inner">
+        <span class="ii-stag">CÓMO FUNCIONA</span>
+        <h2 class="ii-stitle">Flujo de inventario</h2>
+        <p class="ii-ssub">Desde la producción hasta la distribución, todo queda registrado</p>
+        <div class="ii-timeline">
+            <div class="ii-fstep">
+                <div class="ii-fnum">1</div>
                 <div>
-                    <div class="flow-title">Ingreso al almacén</div>
-                    <p class="flow-desc">El producto fabricado se registra en el almacén de origen con su lote y cantidad.</p>
+                    <div class="ii-ftitle">Ingreso al almacén</div>
+                    <p class="ii-fdesc">El producto fabricado se registra en el almacén de origen con su lote y cantidad.</p>
                 </div>
             </div>
-            <div class="flow-connector"></div>
-            <div class="flow-step">
-                <div class="flow-num">2</div>
+            <div class="ii-fconn"></div>
+            <div class="ii-fstep">
+                <div class="ii-fnum">2</div>
                 <div>
-                    <div class="flow-title">Traslado interdepartamental</div>
-                    <p class="flow-desc">Se genera un movimiento con origen, destino, fecha de envío y recepción confirmada.</p>
+                    <div class="ii-ftitle">Traslado interdepartamental</div>
+                    <p class="ii-fdesc">Se genera un movimiento con origen, destino, fecha de envío y recepción confirmada.</p>
                 </div>
             </div>
-            <div class="flow-connector"></div>
-            <div class="flow-step">
-                <div class="flow-num">3</div>
+            <div class="ii-fconn"></div>
+            <div class="ii-fstep">
+                <div class="ii-fnum">3</div>
                 <div>
-                    <div class="flow-title">Control de mermas</div>
-                    <p class="flow-desc">Las pérdidas por rotura, caducidad o accidente se registran como merma con descripción.</p>
+                    <div class="ii-ftitle">Control de mermas</div>
+                    <p class="ii-fdesc">Las pérdidas por rotura, caducidad o accidente se registran como merma con descripción.</p>
                 </div>
             </div>
-            <div class="flow-connector"></div>
-            <div class="flow-step">
-                <div class="flow-num">4</div>
+            <div class="ii-fconn"></div>
+            <div class="ii-fstep">
+                <div class="ii-fnum">4</div>
                 <div>
-                    <div class="flow-title">Stock actualizado</div>
-                    <p class="flow-desc">El inventario refleja en tiempo real el stock disponible en cada departamento del país.</p>
+                    <div class="ii-ftitle">Stock actualizado</div>
+                    <p class="ii-fdesc">El inventario refleja en tiempo real el stock disponible en cada departamento del país.</p>
                 </div>
             </div>
         </div>
@@ -210,49 +431,90 @@
 </section>
 
 <!-- ══ ACCESO RÁPIDO ══ -->
-<section class="quick-access">
-    <div class="qa-inner">
-        <div class="section-header-centered">
-            <div class="section-tag light">MÓDULOS</div>
-            <h2 class="section-title light">Acceso rápido</h2>
-            <p class="section-subdesc">Navega directamente a la sección que necesitas</p>
-        </div>
-        <div class="qa-grid">
-            <a asp-controller="Inventario" asp-action="Stock" class="qa-card">
-                <div class="qa-icon">📦</div>
-                <div class="qa-title">STOCK</div>
-                <p class="qa-desc">Consulta el inventario disponible filtrando por departamento —con selección múltiple de los 9 departamentos de Bolivia— y por producto. La tabla muestra unidades en cajas y botellas con estado de alerta.</p>
-                <div class="qa-stats">
-                    <span class="qa-stat">847K unidades</span>
-                    <span class="qa-stat">38 SKUs</span>
-                    <span class="qa-stat">3 críticos</span>
+<section class="ii-quick">
+    <div class="ii-quick-inner">
+        <span class="ii-stag dark">MÓDULOS</span>
+        <h2 class="ii-stitle dark">Acceso rápido</h2>
+        <p class="ii-ssub dark">Navega directamente a la sección que necesitas</p>
+        <div class="ii-qa-grid">
+
+            <a asp-controller="Inventario" asp-action="Stock" class="ii-qa-card">
+                <div class="ii-qa-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke-width="1.8" stroke-linecap="round">
+                        <rect x="1" y="3" width="15" height="13" rx="2"/>
+                        <path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+                    </svg>
                 </div>
-                <span class="qa-cta">Ir a Stock <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+                <div class="ii-qa-title">Stock</div>
+                <p class="ii-qa-desc">Consulta el inventario disponible filtrando por departamento y producto. La tabla muestra unidades con estado de alerta por stock crítico.</p>
+                <div class="ii-qa-stats">
+                    <span class="ii-qa-stat">@Model.TotalUnidades.ToString("N0") unidades</span>
+                    <span class="ii-qa-stat">@Model.TotalSKUs SKUs</span>
+                    @if (Model.SKUsCriticos > 0)
+                    {
+                        <span class="ii-qa-stat yellow">@Model.SKUsCriticos críticos</span>
+                    }
+                </div>
+                <span class="ii-qa-cta">
+                    Ir a Stock
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </span>
             </a>
 
-            <a asp-controller="Inventario" asp-action="Almacenes" class="qa-card">
-                <div class="qa-icon">🏭</div>
-                <div class="qa-title">ALMACENES</div>
-                <p class="qa-desc">Visualiza los almacenes activos por departamento. Al seleccionar uno, se despliega el desglose de cada almacén con su nombre, tipo y barra de ocupación sobre capacidad total en toneladas.</p>
-                <div class="qa-stats">
-                    <span class="qa-stat">27 almacenes</span>
-                    <span class="qa-stat">1 840 t capacidad</span>
-                    <span class="qa-stat">73% ocup. media</span>
+            <a asp-controller="Inventario" asp-action="Almacenes" class="ii-qa-card">
+                <div class="ii-qa-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke-width="1.8" stroke-linecap="round">
+                        <rect x="2" y="7" width="20" height="14" rx="2"/>
+                        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                    </svg>
                 </div>
-                <span class="qa-cta">Ir a Almacenes <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+                <div class="ii-qa-title">Almacenes</div>
+                <p class="ii-qa-desc">Visualiza los almacenes activos por departamento con su nombre, tipo y estado actual registrado en el sistema.</p>
+                <div class="ii-qa-stats">
+                    <span class="ii-qa-stat">@Model.TotalAlmacenes total</span>
+                    <span class="ii-qa-stat green">@Model.AlmacenesActivos activos</span>
+                    @if (Model.AlmacenesEnBaja > 0)
+                    {
+                        <span class="ii-qa-stat yellow">@Model.AlmacenesEnBaja en baja</span>
+                    }
+                </div>
+                <span class="ii-qa-cta">
+                    Ir a Almacenes
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </span>
             </a>
 
-            <a asp-controller="Inventario" asp-action="Movimientos" class="qa-card">
-                <div class="qa-icon">🔄</div>
-                <div class="qa-title">MOVIMIENTOS</div>
-                <p class="qa-desc">Filtra el historial de movimientos por rango de fecha, origen y destino (ID sucursal) y tipo. Cada registro muestra fecha de envío, recepción, cantidades y si se trata de un traslado normal o una merma.</p>
-                <div class="qa-stats">
-                    <span class="qa-stat">148 este mes</span>
-                    <span class="qa-stat">131 traslados</span>
-                    <span class="qa-stat">17 mermas</span>
+            <a asp-controller="Inventario" asp-action="Movimientos" class="ii-qa-card">
+                <div class="ii-qa-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke-width="1.8" stroke-linecap="round">
+                        <polyline points="17 1 21 5 17 9"/>
+                        <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                        <polyline points="7 23 3 19 7 15"/>
+                        <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                    </svg>
                 </div>
-                <span class="qa-cta">Ir a Movimientos <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+                <div class="ii-qa-title">Movimientos</div>
+                <p class="ii-qa-desc">Historial de traslados, recepciones y mermas con filtros por fecha y origen. Cada registro muestra cantidades y tipo de movimiento.</p>
+                <div class="ii-qa-stats">
+                    <span class="ii-qa-stat">@Model.MovimientosEsteMes este mes</span>
+                    <span class="ii-qa-stat green">@Model.TrasladosEsteMes traslados</span>
+                    @if (Model.MermasEsteMes > 0)
+                    {
+                        <span class="ii-qa-stat yellow">@Model.MermasEsteMes mermas</span>
+                    }
+                </div>
+                <span class="ii-qa-cta">
+                    Ir a Movimientos
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke-width="2" stroke-linecap="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </span>
             </a>
+
         </div>
     </div>
 </section>

@@ -18,22 +18,65 @@ namespace RefrescosDelValle.Controllers
             _context = context;
         }
 
+        // Reemplaza tu método IndexInventario() en InventarioController.cs por este completo:
+
         public async Task<IActionResult> IndexInventario()
         {
+            var ahora = DateTime.Now;
+            var inicioMes = new DateTime(ahora.Year, ahora.Month, 1);
+            var inicioMesDate = new DateOnly(ahora.Year, ahora.Month, 1);
+
             var vm = new InventarioIndexViewModel
             {
-                TotalUnidades = (int)await _context.Contenidos.SumAsync(c => c.CantidadDisponible),
-                TotalAlmacenes = await _context.Almacens.CountAsync(),
+                // ── Hero ──
+                TotalUnidades = (int)await _context.Contenidos
+                    .SumAsync(c => c.CantidadDisponible),
+
+                TotalAlmacenes = await _context.Almacens
+                    .CountAsync(),
+
                 TotalDepartamentos = await _context.Almacens
                     .Include(a => a.Sucursal)
                         .ThenInclude(s => s.Ciudad)
                     .Select(a => a.Sucursal.Ciudad.DepartamentoGeoId)
                     .Distinct()
-                    .CountAsync()
+                    .CountAsync(),
+
+                // ── Card Stock ──
+                TotalSKUs = await _context.Contenidos
+                    .Select(c => c.ProductoId)
+                    .Distinct()
+                    .CountAsync(),
+
+                // Productos cuyo stock total disponible es <= 50 unidades (ajusta el umbral)
+                SKUsCriticos = await _context.Contenidos
+                    .GroupBy(c => c.ProductoId)
+                    .CountAsync(g => g.Sum(c => c.CantidadDisponible) <= 50),
+
+                // ── Card Almacenes ──
+                AlmacenesActivos = await _context.Almacens
+                    .Include(a => a.EstadoAlmacen)
+                    .CountAsync(a => a.EstadoAlmacen.Descripcion == "Activo"),
+
+                AlmacenesEnBaja = await _context.Almacens
+                    .Include(a => a.EstadoAlmacen)
+                    .CountAsync(a => a.EstadoAlmacen.Descripcion == "Baja"),
+
+                // ── Card Movimientos ──
+                TrasladosEsteMes = await _context.Movimientos
+                    .Include(m => m.MovimientoDetalle)
+                    .CountAsync(m => m.MovimientoDetalle.FechaEnvio >= inicioMesDate),
+
+                MermasEsteMes = await _context.VwMermas
+                    .CountAsync(v => v.FechaMerma >= inicioMesDate),
             };
+
+            // Total = traslados + mermas del mes
+            vm.MovimientosEsteMes = vm.TrasladosEsteMes + vm.MermasEsteMes;
 
             return View(vm);
         }
+
 
         // 2. ACCIÓN DE STOCK (El corazón del PASO 2)
         public async Task<IActionResult> Stock()

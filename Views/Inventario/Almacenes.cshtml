@@ -64,9 +64,20 @@
     background:rgba(200,40,30,.07);border:1px solid rgba(200,40,30,.2);
     color:var(--ar);border-radius:10px;padding:.75rem 1.1rem;
     font-size:.82rem;margin-bottom:1.5rem;font-weight:600}
+/* ── BACK BUTTON ── */
+.ar-back{display:inline-flex;align-items:center;gap:.45rem;
+    background:rgba(0,0,0,.04);border:1px solid var(--ab);
+    color:var(--amt);border-radius:999px;
+    padding:.45rem 1rem;font-size:.74rem;font-weight:600;
+    text-decoration:none;font-family:inherit;
+    transition:border-color .2s,color .2s,background .2s;
+    margin-bottom:1.25rem;width:fit-content}
+.ar-back:hover{border-color:var(--ar);color:var(--ar);background:rgba(200,40,30,.04)}
+.ar-back svg{stroke:currentColor;flex-shrink:0}
 /* ── TOOLBAR ── */
-.ar-toolbar{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap}
-.ar-search-wrap{position:relative;flex:1;min-width:220px}
+.ar-toolbar{display:flex;align-items:center;gap:.6rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.ar-toolbar-row1{display:flex;align-items:center;gap:.6rem;width:100%}
+.ar-search-wrap{position:relative;flex:1;min-width:0}
 .ar-search-wrap svg{position:absolute;left:.9rem;top:50%;transform:translateY(-50%);
     stroke:var(--amt);pointer-events:none}
 .ar-search{width:100%;background:#fff;border:1px solid var(--abm);border-radius:999px;
@@ -74,9 +85,10 @@
     outline:none;transition:border-color .2s;font-family:inherit}
 .ar-search:focus{border-color:var(--ar)}
 .ar-search::placeholder{color:#bbb}
+.ar-filters{display:flex;gap:.4rem;flex-shrink:0}
 .ar-filter-btn{display:inline-flex;align-items:center;gap:.4rem;
     background:#fff;border:1px solid var(--abm);border-radius:999px;
-    padding:.55rem 1.05rem;font-size:.76rem;color:var(--am);
+    padding:.52rem 1rem;font-size:.75rem;color:var(--am);white-space:nowrap;
     cursor:pointer;font-family:inherit;transition:border-color .2s,color .2s}
 .ar-filter-btn:hover,.ar-filter-btn.active{border-color:var(--ar);color:var(--ar)}
 /* ── CARD ── */
@@ -255,16 +267,23 @@
     border-radius:999px;padding:.5rem 1.3rem;font-size:.8rem;
     font-weight:700;cursor:pointer;font-family:inherit;transition:background .18s}
 .ar-modal-confirm:hover{background:var(--ar-dk)}
+.hidden-row { display: none !important; }
 /* ── RESPONSIVE ── */
 @@media(max-width:900px){
     .ar-white{padding:1.5rem 1rem 2rem}
     .ar-hero{padding:2.5rem 1rem 2rem}
     .ar-table th:nth-child(4),.ar-table td:nth-child(4){display:none}
 }
-@@media(max-width:600px){
+@@media(max-width:640px){
     .ar-hero-right{display:none}
     .ar-table th:nth-child(3),.ar-table td:nth-child(3){display:none}
     .ar-drawer{width:100%}
+    /* Toolbar: buscador arriba, filtros abajo */
+    .ar-toolbar{flex-direction:column;align-items:stretch}
+    .ar-toolbar-row1{width:100%}
+    .ar-filters{justify-content:flex-start;flex-wrap:wrap}
+    .ar-filter-btn{flex:1;min-width:0;justify-content:center}
+    .ar-card-hd{flex-direction:column;align-items:flex-start}
 }
 </style>
 }
@@ -331,19 +350,32 @@
         </div>
     }
 
+    <!-- Botón volver al dashboard -->
+    <a asp-controller="Inventario" asp-action="IndexInventario" class="ar-back">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke-width="2.5" stroke-linecap="round">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Volver a Inventario
+    </a>
+
     <!-- Toolbar -->
     <div class="ar-toolbar">
-        <div class="ar-search-wrap">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke-width="2" stroke-linecap="round">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input type="text" class="ar-search" id="arSearch"
-                   placeholder="Buscar por nombre, dirección, sucursal…"
-                   oninput="aplicarFiltro()" />
+        <div class="ar-toolbar-row1">
+            <div class="ar-search-wrap">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke-width="2" stroke-linecap="round">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" class="ar-search" id="arSearch"
+                       placeholder="Buscar por nombre, dirección, sucursal…"
+                       oninput="aplicarFiltro()" />
+            </div>
         </div>
-        <button class="ar-filter-btn active" onclick="setFiltro('todos',this)">Todos</button>
-        <button class="ar-filter-btn" onclick="setFiltro('activo',this)">Activos</button>
-        <button class="ar-filter-btn" onclick="setFiltro('inactivo',this)">Inactivos</button>
+        <div class="ar-filters">
+            <button class="ar-filter-btn active" onclick="setFiltro('todos',this)">Todos</button>
+            <button class="ar-filter-btn" onclick="setFiltro('Activo',this)">Activos</button>
+            <button class="ar-filter-btn" onclick="setFiltro('Baja',this)">Baja</button>
+            <button class="ar-filter-btn" onclick="setFiltro('Lleno',this)">Lleno</button>
+        </div>
     </div>
 
     <!-- Card tabla -->
@@ -746,7 +778,7 @@ function aplicarFiltro() {
     visibles = [];
     document.querySelectorAll('#arTbody tr').forEach(tr => {
         const matchQ = !q || (tr.dataset.search ?? '').includes(q);
-        const matchF = filtro === 'todos' || (tr.dataset.estado ?? '').includes(filtro);
+        const matchF = filtro === 'todos' || tr.dataset.estado === filtro.toLowerCase();
         const show   = matchQ && matchF;
         tr.classList.toggle('hidden-row', !show);
         if (show) visibles.push(tr);
@@ -814,4 +846,3 @@ document.addEventListener('keydown', e => {
 document.addEventListener('DOMContentLoaded', aplicarFiltro);
 </script>
 }
-
