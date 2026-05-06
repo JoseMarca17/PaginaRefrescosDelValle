@@ -179,12 +179,17 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Zona> Zonas { get; set; }
 
-
-   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 {
     if (!optionsBuilder.IsConfigured)
         optionsBuilder.UseSqlServer("Server=localhost;Database=RefrescosDelValleV1.11;Trusted_Connection=True;TrustServerCertificate=True;Encrypt=False;MultipleActiveResultSets=true");
 }
+
+//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+// {
+//     if (!optionsBuilder.IsConfigured)
+//         optionsBuilder.UseSqlServer("Server=localhost;Database=RefrescosDelValleV1.11;Trusted_Connection=True;TrustServerCertificate=True;Encrypt=False;MultipleActiveResultSets=true");
+// }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Almacen>(entity =>

@@ -365,7 +365,7 @@ table.rol-tbl tr.rol-inactive-row td { opacity: .5; }
                 <span class="rol-stat-chip-val">@totalPermisos</span>
                 <span class="rol-stat-chip-lbl">Permisos</span>
             </div>
-            <a asp-controller="Seguridad" asp-action="RolCreate" class="rol-btn-new">
+            <a asp-controller="Rol" asp-action="Create" class="rol-btn-new">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
                     <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
                 </svg>
@@ -535,15 +535,16 @@ table.rol-tbl tr.rol-inactive-row td { opacity: .5; }
                             </td>
                             <td>
                                 <div class="rol-action-cell">
-                                    <a asp-action="Edit" asp-route-id="@rol.RolId" class="rol-abtn rol-btn-edit">
-                                        ✏ Editar
-                                    </a>
-                                    <form asp-action="Delete" asp-route-id="@rol.RolId" method="post"
-                                          style="display:inline;"
-                                          onsubmit="return confirm('¿Desactivar el rol @rol.NombreRol?')">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="rol-abtn rol-btn-del">🗑 Desactivar</button>
-                                    </form>
+                                    <a asp-controller="Rol" asp-action="Edit" asp-route-id="@rol.RolId"
+                                        class="rol-abtn rol-btn-edit">
+                                            ✏ Editar
+                                        </a>
+                                    <form asp-controller="Rol" asp-action="Delete" asp-route-id="@rol.RolId"
+      method="post" style="display:inline;"
+      onsubmit="return confirm('¿Desactivar el rol @rol.NombreRol?')">
+    @Html.AntiForgeryToken()
+    <button type="submit" class="rol-abtn rol-btn-del">🗑 Desactivar</button>
+</form>
                                 </div>
                             </td>
                         </tr>

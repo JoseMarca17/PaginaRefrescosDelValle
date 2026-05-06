@@ -1,11 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RefrescosDelValle.Data;
-using RefrescosDelValle.Models.Entities;
 using RefrescosDelValle.Models.Entities;
 
 namespace RefrescosDelValle.Controllers
 {
+    [Authorize(Policy = "Seguridad")]
     public class RolController : Controller
     {
         private readonly AppDbContext _context;
@@ -13,20 +13,6 @@ namespace RefrescosDelValle.Controllers
         public RolController(AppDbContext context)
         {
             _context = context;
-        }
-
-        // GET: /Rol
-        public async Task<IActionResult> Index()
-        {
-            var roles = await _context.Roles
-                .Include(r => r.RolesPermisos)
-                    .ThenInclude(rp => rp.Permiso)
-                .Include(r => r.RolesMenus)
-                    .ThenInclude(rm => rm.Menu)
-                .OrderBy(r => r.RolId)
-                .ToListAsync();
-
-            return View(roles);
         }
 
         // GET: /Rol/Create
@@ -38,7 +24,7 @@ namespace RefrescosDelValle.Controllers
                 .ThenBy(p => p.Accion)
                 .ToListAsync();
 
-            return View();
+            return View("~/Views/Seguridad/RolCreate.cshtml");
         }
 
         // POST: /Rol/Create
@@ -53,15 +39,14 @@ namespace RefrescosDelValle.Controllers
                 _context.Roles.Add(rol);
                 await _context.SaveChangesAsync();
 
-                // Asignar permisos seleccionados
                 if (permisosSeleccionados != null && permisosSeleccionados.Length > 0)
                 {
                     foreach (var permisoId in permisosSeleccionados)
                     {
                         _context.RolesPermisos.Add(new RolesPermiso
                         {
-                            RolId = rol.RolId,
-                            PermisoId = permisoId,
+                            RolId           = rol.RolId,
+                            PermisoId       = permisoId,
                             FechaAsignacion = DateTime.Now
                         });
                     }
@@ -69,15 +54,16 @@ namespace RefrescosDelValle.Controllers
                 }
 
                 TempData["Success"] = $"Rol '{rol.NombreRol}' creado exitosamente.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Roles", "Seguridad");
             }
 
             ViewBag.Permisos = await _context.Permisos
                 .Where(p => p.Activo)
                 .OrderBy(p => p.Modulo)
+                .ThenBy(p => p.Accion)
                 .ToListAsync();
 
-            return View(rol);
+            return View("~/Views/Seguridad/RolCreate.cshtml");
         }
 
         // GET: /Rol/Edit/5
@@ -92,11 +78,14 @@ namespace RefrescosDelValle.Controllers
             ViewBag.Permisos = await _context.Permisos
                 .Where(p => p.Activo)
                 .OrderBy(p => p.Modulo)
+                .ThenBy(p => p.Accion)
                 .ToListAsync();
 
-            ViewBag.PermisosAsignados = rol.RolesPermisos.Select(rp => rp.PermisoId).ToList();
+            ViewBag.PermisosDelRol = rol.RolesPermisos
+                .Select(rp => rp.PermisoId)
+                .ToHashSet();
 
-            return View(rol);
+            return View("~/Views/Seguridad/RolEdit.cshtml", rol);
         }
 
         // POST: /Rol/Edit/5
@@ -108,28 +97,26 @@ namespace RefrescosDelValle.Controllers
 
             if (ModelState.IsValid)
             {
-                // Actualizar rol
                 var rolExistente = await _context.Roles
                     .Include(r => r.RolesPermisos)
                     .FirstOrDefaultAsync(r => r.RolId == id);
 
                 if (rolExistente == null) return NotFound();
 
-                rolExistente.NombreRol = rol.NombreRol;
+                rolExistente.NombreRol   = rol.NombreRol;
                 rolExistente.Descripcion = rol.Descripcion;
-                rolExistente.Activo = rol.Activo;
+                rolExistente.Activo      = rol.Activo;
 
-                // Actualizar permisos: eliminar los anteriores y agregar los nuevos
                 _context.RolesPermisos.RemoveRange(rolExistente.RolesPermisos);
 
                 if (permisosSeleccionados != null && permisosSeleccionados.Length > 0)
                 {
                     foreach (var permisoId in permisosSeleccionados)
                     {
-                        rolExistente.RolesPermisos.Add(new RolesPermiso
+                        _context.RolesPermisos.Add(new RolesPermiso
                         {
-                            RolId = id,
-                            PermisoId = permisoId,
+                            RolId           = id,
+                            PermisoId       = permisoId,
                             FechaAsignacion = DateTime.Now
                         });
                     }
@@ -137,12 +124,17 @@ namespace RefrescosDelValle.Controllers
 
                 await _context.SaveChangesAsync();
                 TempData["Success"] = $"Rol '{rolExistente.NombreRol}' actualizado correctamente.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Roles", "Seguridad");
             }
 
-            ViewBag.Permisos = await _context.Permisos.Where(p => p.Activo).ToListAsync();
-            ViewBag.PermisosAsignados = permisosSeleccionados?.ToList() ?? new List<int>();
-            return View(rol);
+            ViewBag.Permisos = await _context.Permisos
+                .Where(p => p.Activo)
+                .OrderBy(p => p.Modulo)
+                .ThenBy(p => p.Accion)
+                .ToListAsync();
+
+            ViewBag.PermisosDelRol = permisosSeleccionados?.ToHashSet() ?? new HashSet<int>();
+            return View("~/Views/Seguridad/RolEdit.cshtml");
         }
 
         // POST: /Rol/Delete/5
@@ -157,12 +149,11 @@ namespace RefrescosDelValle.Controllers
 
             if (rol == null) return NotFound();
 
-            // Soft delete: marcar como inactivo en lugar de eliminar
             rol.Activo = false;
             await _context.SaveChangesAsync();
 
             TempData["Success"] = $"Rol '{rol.NombreRol}' desactivado correctamente.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Roles", "Seguridad");
         }
     }
 }

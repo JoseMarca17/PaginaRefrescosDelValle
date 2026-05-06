@@ -60,6 +60,37 @@
                     <input asp-for="Correo" class="form-control" type="email" placeholder="Ej: juan@empresa.com" />
                     <span asp-validation-for="Correo" class="field-error"></span>
                 </div>
+                <div class="form-group">
+                    <label asp-for="Telefono">Teléfono</label>
+                    <input asp-for="Telefono" class="form-control" placeholder="Ej: 78901234" maxlength="20" />
+                    <span asp-validation-for="Telefono" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SexoID">Sexo</label>
+                    <select asp-for="SexoID" asp-items="ViewBag.Sexos" class="form-control">
+                        <option value="">-- Seleccionar sexo --</option>
+                    </select>
+                    <span asp-validation-for="SexoID" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="EstadoCivilID">Estado Civil</label>
+                    <select asp-for="EstadoCivilID" asp-items="ViewBag.EstadosCiviles" class="form-control">
+                        <option value="">-- Seleccionar estado civil --</option>
+                    </select>
+                    <span asp-validation-for="EstadoCivilID" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="TipoSangreID">Tipo de Sangre</label>
+                    <select asp-for="TipoSangreID" asp-items="ViewBag.TiposSangre" class="form-control">
+                        <option value="">-- Seleccionar tipo --</option>
+                    </select>
+                    <span asp-validation-for="TipoSangreID" class="field-error"></span>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label asp-for="Direccion">Dirección</label>
+                    <input asp-for="Direccion" class="form-control" placeholder="Ej: Av. América #123, Zona Sur" />
+                    <span asp-validation-for="Direccion" class="field-error"></span>
+                </div>
             </div>
         </div>
 

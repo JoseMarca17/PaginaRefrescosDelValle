@@ -418,6 +418,8 @@ public async Task<IActionResult> EditarSucursal(EditarSucursalViewModel model)
     TempData["SuccessMsg"] = $"Sucursal '{sucursal.NombreSucursal}' actualizada correctamente.";
     return RedirectToAction(nameof(Sucursales));
 }
+
+
         // ══════════════════════════════════════════════════════════
         // REGISTRO DE PERSONAL (OPERADORES)
         // ══════════════════════════════════════════════════════════
